@@ -2,12 +2,11 @@
 # TODO Allow creating a population from a (large) data frame, and sampling from
 # it just by sampling with replacement
 
+# TODO Allow multiple named response variables. Only question: is providing
+# named arguments to `population()` misleading, because `y = x1 + x2` looks like
+# exact quality instead of specifying a model that may include a link function?
+
 # TODO Make an example of using the framework for hypothesis testing.
-
-# TODO It'd be cool to abuse formula syntax like so:
-# predictors = list(x1 ~ rnorm(mean = 0, sd = 2), x2 ~ runif(min = 5, max = 10))
-
-# TODO re-export decrypt so it's available
 
 #' Define the population generalized regression relationship
 #'
