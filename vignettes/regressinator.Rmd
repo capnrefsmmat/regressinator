@@ -1,0 +1,200 @@
+---
+title: An introduction to the regressinator
+author: Alex Reinhart
+description: Examples of using the regressinator for regression diagnostics and simulations.
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{An introduction to the regressinator}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+The regressinator is a simulation system designed to make it easy to simulate
+different regression scenarios. What do different diagnostic plots look like
+with different kinds of misspecification?
+
+TODO more introduction
+
+## Population setup
+
+Each simulation begins by specifying a population: the true population
+distribution the regression data comes from. Typically this is an infinite
+population of individuals whose covariates follow specified distributions. The
+outcome variable `y` is defined to be a function of those covariates with some
+error. We use the `population()` function to define a population. For instance,
+this population has a simple linear relationship between two variables, `x1` and
+`x2`, and the outcome variable `y`:
+
+```{r}
+library(regressinator)
+
+linear_pop <- population(
+  0.7 + 2.2 * x1 - 0.2 * x2, # relationship between X and Y
+  predictors = list(         # list of predictor variables
+    x1 = list(dist = "rnorm", mean = 4, sd = 10),
+    x2 = list(dist = "runif", min = 0, max = 10)
+  ),
+  error_scale = 1.0,         # errors are scaled by this amount
+  family = gaussian()        # link function
+)
+```
+
+By default, the error distribution is Gaussian. Notice how the first argument
+gives `y` as a function of the predictors, and the predictors are specified as a
+list of predictors, each specifying its distribution (via the name of the R
+function used to simulate it, such as `rnorm()`) and any arguments to that
+distribution, such as mean or standard deviation.
+
+More generally, the regression relationship can take the form of a generalized
+linear model where
+
+$$
+\begin{align*}
+Y &\sim \text{SomeDistribution}(g^{-1}(\mu(X)) \\
+\mu(X) &= \text{any function of } X.
+\end{align*}
+$$
+
+The function $\mu(X)$ is the first argument to `population()`, and the
+distribution is given by the `family` argument, just like families of GLMs. If
+no family is provided, the default family is Gaussian, i.e. normally distributed
+errors, and the link function $g$ is the identity.
+
+We can hence specify a population with binary outcomes and logistic link
+function:
+
+```{r}
+logistic_pop <- population(0.7 + 2.2 * x1 - 0.2 * x2,
+                           predictors = list(
+                             x1 = list(dist = "rnorm", mean = 4, sd = 10),
+                             x2 = list(dist = "runif", min = 0, max = 10)
+                           ),
+                           family = binomial(link = "logit")
+)
+```
+
+This population specifies that
+
+$$
+\begin{align*}
+Y &\sim \text{Bernoulli}\left(\text{logit}^{-1}(\mu(X))\right) \\
+\mu(X) &= 0.7 + 2.2 X_1 - 0.2 X_2.
+\end{align*}
+$$
+
+## Sampling from the population
+
+We can use `sample_x()` to get a sample from a population:
+
+```{r}
+sample_x(linear_pop, n = 10)
+```
+
+`sample_y()` then works on this sample and adds a `y` column, following the
+relationship specified in the population. Sampling X and Y is separated because
+often, in regression theory, we treat X as fixed -- hence we want to conduct
+simulations where the same X data is used and we repeatedly draw new Y values
+according to the population relationship.
+
+Using pipes, it's easy to put together a simple simulation:
+
+```{r}
+logistic_pop |>
+  sample_x(n = 10) |>
+  sample_y()
+```
+
+The object this produces is a standard data frame (just with a few extra
+attributes), so it can be given to `lm()`, `glm()`, or any other standard
+modeling function that uses data frames.
+
+## Diagnostics
+
+The regressinator provides the `diagnose_model()` function. It takes a model fit
+and does the following:
+
+1. Get the diagnostics from that model, using `broom::augment()` by default.
+   `broom::augment()` generates a data frame with columns including the
+   residuals, standardized residuals, fitted value, and other useful statistics
+   for each row of the data. It also works for many common types of models; see
+   the broom documentation for details.
+2. Simulate 19 additional datasets using the model, using the standard
+   assumptions for that model. (For instance, for linear regression, errors are
+   drawn from a normal distribution.) In each dataset, the same X values are
+   used, and only new Y values are drawn. Each dataset is the same size.
+3. For each of those datasets, fit the same model and calculate the diagnostics.
+4. Put the diagnostics for all 20 fits into one data frame with a `.sample`
+   column indicating which fit each diagnostic came from.
+5. Print out a message indicating how to tell which of the `.sample` values
+   comes from the original model.
+
+This helps us compare how diagnostic plots will look when assumptions hold (by
+looking at the 19 simulated datasets) to how the diagnostic plots of our real
+model look. This visual inference approach is taken from the
+[nullabor](https://cran.r-project.org/package=nullabor) package.
+
+For example, consider a simple dataset where the true relationship is not
+linear. We can quickly plot residuals versus fitted values:
+
+```{r, fig.width=6, fig.height=6}
+nonlinear_pop <- population(
+  0.7 + x1**2,
+  predictors = list(x1 = list(dist = "runif", min = 1, max = 8)),
+  family = gaussian(),
+  error_scale = 4.0
+)
+
+nonlinear_data <- nonlinear_pop |>
+  sample_x(n = 100) |>
+  sample_y()
+
+nonlinear_fit <- lm(y ~ x1, data = nonlinear_data)
+
+library(ggplot2)
+
+diagnose_model(nonlinear_fit) |>
+  ggplot(aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  facet_wrap(~ .sample) +
+  labs(x = "Fitted value", y = "Residual")
+```
+
+The user can examine the 20 plots and guess which one represents the model fit
+to the original data, and which are generated assuming the fitted model is
+correct. The `decrypt()` code provided will print out a message indicating which
+of the plots is the real data; in this case, it's the plot with the clear
+quadratic trend in the residuals.
+
+The package provides tools to simulate other kinds of misspecification. For
+example, the `ols_with_error()` family is provided to simulate ordinary linear
+regression when the error distribution is not Gaussian. For instance:
+
+```{r, fig.width=6, fig.height=6}
+heavy_tail_pop <- population(
+  4 + 2 * x1 - 3 * x2,
+  list(
+    x1 = list(dist = "rnorm", mean = 5, sd = 4),
+    x2 = list(dist = "runif", min = 0, max = 10)
+  ),
+  family = ols_with_error(rt, df = 3),
+  error_scale = 1.0
+)
+
+heavy_tail_sample <- heavy_tail_pop |>
+  sample_x(n = 100) |>
+  sample_y()
+
+fit <- lm(y ~ x1 + x2, data = heavy_tail_sample)
+
+diagnose_model(fit) |>
+  ggplot(aes(sample = .resid)) +
+  geom_qq() +
+  geom_qq_line() +
+  facet_wrap(~ .sample) +
+  labs(x = "Theoretical quantiles", y = "Observed quantiles")
+```
+
+Here we have Q-Q plots of residuals for a linear regression where the true
+relationship is linear, but the error distribution is $t_3$. This is a good way
+to see if we can spot the heavy-tailed distribution from among the 19 other Q-Q
+plots that simulate normally distributed errors.
