@@ -131,7 +131,9 @@ print.population <- function(x, ...) {
 #' Family representing a linear relationship with non-Gaussian errors
 #'
 #' This family can represent any non-Gaussian error, provided random variates
-#' can be drawn by an R function.
+#' can be drawn by an R function. A family specified this way can be used to
+#' specify a population (via `population()`), but can't be used to estimate a
+#' model (such as with `glm()`).
 #'
 #' @param error Function that can draw random variables from the non-Gaussian
 #'   distribution. For example, `rt` draws *t*-distributed random variates. The
@@ -142,6 +144,7 @@ print.population <- function(x, ...) {
 #'   parameters of the distribution. These arguments are evaluated with the
 #'   model data in the environment, so they can be expressions referring to
 #'   model data, such as values of the predictors.
+#' @return A family object representing this family.
 #' @examples
 #' # t-distributed errors with 3 degrees of freedom
 #' ols_with_error(rt, df = 3)
@@ -149,7 +152,7 @@ print.population <- function(x, ...) {
 #' # Cauchy-distributed errors
 #' ols_with_error(rcauchy, scale = 3)
 #' @importFrom rlang eval_tidy
-#' @importFrom stats model.frame fitted
+#' @importFrom stats model.frame fitted gaussian
 #' @export
 ols_with_error <- function(error, ...) {
   fam <- gaussian()
@@ -157,6 +160,13 @@ ols_with_error <- function(error, ...) {
   error_args <- substitute(alist(...))
 
   fam$family <- "ols_with_error"
+
+  fam$initialize <- expression(
+    cli_abort(c("ols_with_error() cannot be used to fit models, only to specify populations",
+                "i" = "to fit models with custom error distribution assumptions,",
+                "i" = "derive your own maximum likelihood estimator"))
+  )
+
   fam$simulate <- function(object, nsim, env = model.frame(object), ftd = NULL) {
     if (is.null(ftd)) {
       ftd <- fitted(object)
@@ -176,6 +186,57 @@ ols_with_error <- function(error, ...) {
   return(fam)
 }
 
+#' Family representing a GLM with custom distribution and link function
+#'
+#' A GLM is specified by a combination of:
+#'
+#' - Random component, i.e. the distribution that Y is drawn from
+#' - Link function relating the mean of the random component to the linear predictor
+#' - Linear predictor
+#'
+#' Using `custom_family()` we can specify the random component and link
+#' function, while the linear predictor is set in `population()` when setting up
+#' the population relationships. A family specified this way can be used to
+#' specify a population (via `population()`), but can't be used to estimate a
+#' model (such as with `glm()`).
+#'
+#' @param distribution The distribution of the random component. This should be
+#'   in the form of a function taking one argument, the vector of values on the
+#'   inverse link scale, and returning a vector of draws from the distribution.
+#' @param inverse_link The inverse link function.
+#' @return A family object representing this family
+#' @examples
+#' # A zero-inflated Poisson family
+#' rzeroinfpois <- function(ys) {
+#'   n <- length(ys)
+#'   rpois(n, lambda = ys * rbinom(n, 1, prob = 0.4))
+#' }
+#'
+#' custom_family(rzeroinfpois, exp)
+#' @importFrom stats binomial
+#' @export
+custom_family <- function(distribution, inverse_link) {
+  # sacrificial family
+  fam <- binomial()
+
+  fam$family <- "custom_family"
+
+  fam$initialize <- expression(
+    cli_abort(c("custom_family() cannot be used to fit models, only to specify populations",
+                "i" = "see ?family for a list of families supported for model fits"))
+  )
+  fam$simulate <- function(object, nsim, env = model.frame(object), ftd = NULL) {
+    if (is.null(ftd)) {
+      ftd <- fitted(object)
+    }
+
+    return(distribution(ftd))
+  }
+
+  fam$linkinv <- inverse_link
+
+  return(fam)
+}
 
 ## ## example 1: nonlinear OLS
 pop <- population(
