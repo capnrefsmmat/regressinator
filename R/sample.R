@@ -90,6 +90,8 @@ sample_y <- function(xs) {
     y_resp <- rbinom(n, size = 1, prob = y_resp)
   } else if (family_name == "poisson") {
     y_resp <- rpois(n, lambda = y_resp)
+  } else if (family_name == "custom_family") {
+    y_resp <- population$family$simulate(NULL, 1, env = xs, ftd = y_resp)
   } else {
     cli_abort(c("Unable to simulate from population family",
                 "*" = "Population family is {family_name}",
