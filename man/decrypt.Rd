@@ -4,12 +4,12 @@
 \alias{decrypt}
 \title{Reveal the position of the real data in lineups}
 \description{
-`diagnose_model()` will print an encrypted message stating where the real
+\code{diagnose_model()} will print an encrypted message stating where the real
 data is in the lineup it creates. For instance, it might print
-`decrypt("sD0f gCdC En JP2EdEPn ZY")`, which might decrypt to a string such
-as `"True data in position 5"`.
+\code{decrypt("sD0f gCdC En JP2EdEPn ZY")}, which might decrypt to a string such
+as \code{"True data in position 5"}.
 }
 \details{
-See the nullabor package documentation for more details on `decrypt()` and
+See the nullabor package documentation for more details on \code{decrypt()} and
 its lineup system.
 }

@@ -14,15 +14,15 @@ on the link scale.)}
 \item{predictors}{A named list of predictor variables in the population. See
 Details for specification of distributions.}
 
-\item{family}{The family of this GLM, e.g. `gaussian()` for an ordinary
+\item{family}{The family of this GLM, e.g. \code{gaussian()} for an ordinary
 Gaussian linear relationship.}
 
 \item{error_scale}{Scale factor for errors. Used only for linear families,
-such as `gaussian()` and `ols_with_error()`. Errors drawn while simulating
+such as \code{gaussian()} and \code{ols_with_error()}. Errors drawn while simulating
 the response variable will be multiplied by this scale factor. The scale
 factor can be a scalar value (such as a fixed standard deviation), or an
 expression in terms of the predictors, which will be evaluated when
-simulating response data. For generalized linear models, leave as `NULL`.}
+simulating response data. For generalized linear models, leave as \code{NULL}.}
 }
 \description{
 Specifies a hypothetical infinite population of cases. Each case has some
@@ -34,31 +34,28 @@ marginal distribution of each predictor variable.
 The relationship between predictors and response is inspired by generalized
 linear models, but allows nonlinear relationships. Specifically,
 
-\deqn{g(E[Y \mid X]) = f(X),}{g(E[Y | X]) = f(X),}
+\deqn{g(E[Y \mid X]) = f(X),}
 
-where `g` is a link function and `f` an arbitrary function of the predictors.
-`f` is specified by the expression provided in `response`, while the link
-function `g` is defined by the `family` chosen.
+where \code{g} is a link function and \code{f} an arbitrary function of the predictors.
+\code{f} is specified by the expression provided in \code{response}, while the link
+function \code{g} is defined by the \code{family} chosen.
 
-The `predictors` are provided as a named list. The name defines the variable
-name; the value is a list with entry `dist` specifying the function that
+The \code{predictors} are provided as a named list. The name defines the variable
+name; the value is a list with entry \code{dist} specifying the function that
 draws random variates from the predictor's distribution, and additional
 entries giving arguments to be passed when drawing random variates (such as
 mean, standard deviation, or shape parameters of the distribution).
 
 Each predictor is drawn independently of the other predictors. To specify
 dependent or correlated predictors, use a function that generates
-multivariate draws, such as `mvtnorm::rmnvorm()`. Each column of the
+multivariate draws, such as \code{mvtnorm::rmnvorm()}. Each column of the
 generated data will be assigned as a population predictor variable, numbered
-successively. For example, if predictor `X` is specified with
-
-```
-predictors = list(
+successively. For example, if predictor \code{X} is specified with\preformatted{predictors = list(
   X = list(dist = "rmvnorm", mean = c(0, 1),
            sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2)))
-```
+}
 
-then the population predictors will be named `X1` and `X2`, and will have
+then the population predictors will be named \code{X1} and \code{X2}, and will have
 covariance 0.5.
 }
 \examples{

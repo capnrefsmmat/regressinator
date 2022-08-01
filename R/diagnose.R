@@ -2,19 +2,34 @@
 #'
 #' A lineup hides the diagnostics among "null" diagnostics, i.e. the same
 #' diagnostics calculated using models fit to data where all model assumptions
-#' are correct.
-#'
-#' Specifically, the null case conditions on X, meaning the covariates are
-#' identical. For each null diagnostic, `diagnose_model()` simulates new
+#' are correct. For each null diagnostic, `diagnose_model()` simulates new
 #' responses from the model using the fitted covariate values and the model's
 #' error distribution, link function, and so on. Hence the new response values
 #' are generated under ideal conditions: the fitted model is true and all
 #' assumptions hold.
 #'
+#' To generate different kinds of diagnostics, the user can provide a custom
+#' `fn`. The `fn` should take a model fit as its argument and return a data
+#' frame. For instance, the data frame might contain one row per observation and
+#' include the residuals and fitted values for each observation; or it might
+#' be a single row containing a summary statistic or test statistic.
+#'
+#' `fn` will be called on the original `fit` provided. Then `simulate()` will be
+#' used to simulate data from the model fit `n - 1` times, the model will be
+#' refit to each of these datasets, and `fn` will be run on each refit model.
+#' The null distribution is conditional on X, i.e. the covariates used will be
+#' identical, and only the response values will be simulated. The data frames
+#' are concatenated with an additional `.sample` column identifying which fit
+#' each row came from.
+#'
 #' When called, this function will print a message such as
 #' `decrypt("sD0f gCdC En JP2EdEPn ZY")`. This is how to get the location of the
 #' true diagnostics among the null diagnostics: evaluating this in the R console
 #' will produce a string such as `"True data in position 5"`.
+#'
+#' Because this function uses the S3 generic methods `simulate()` and
+#' `update()`, it can be used with any model fit for which methods are provided.
+#' In base R, this includes `lm()` and `glm()`.
 #'
 #' @param fit A model fit to data, such as by `lm()` or `glm()`
 #' @param fn A diagnostic function. The function should take one argument, a
@@ -65,7 +80,7 @@ diagnose_model <- function(fit, fn = augment, n = 20) {
 #'
 #' `diagnose_model()` will print an encrypted message stating where the real
 #' data is in the lineup it creates. For instance, it might print
-#' `decrypt("sD0f gCdC En JP2EdEPn ZY")`, which might decrypt to a string such
+#' `decrypt("sD0f gCdC En JP2EdEPn ZY")`, which might evaluate to a string such
 #' as `"True data in position 5"`.
 #'
 #' See the nullabor package documentation for more details on `decrypt()` and

@@ -20,3 +20,4 @@ Imports:
         rlang
 Suggests:
         mvtnorm
+Roxygen: list(markdown = TRUE)

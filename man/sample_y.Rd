@@ -8,13 +8,13 @@ sample_y(xs)
 }
 \arguments{
 \item{xs}{Sample X values drawn from the population, as obtained from
-`sample_x()`}
+\code{sample_x()}}
 }
 \value{
-Data frame of `xs` with additional column named `y`
+Data frame of \code{xs} with additional column named \code{y}
 }
 \description{
-Given the data frame of `xs`, use the true relationship in the population to
+Given the data frame of \code{xs}, use the true relationship in the population to
 draw random Y values corresponding to those X values.
 }
 \examples{

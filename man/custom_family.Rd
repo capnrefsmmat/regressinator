@@ -20,13 +20,17 @@ A family object representing this family
 A GLM is specified by a combination of:
 }
 \details{
-- Random component, i.e. the distribution that Y is drawn from
-- Link function relating the mean of the random component to the linear predictor
-- Linear predictor
+\itemize{
+\item Random component, i.e. the distribution that Y is drawn from
+\item Link function relating the mean of the random component to the linear predictor
+\item Linear predictor
+}
 
-Using `custom_family()` we can specify the random component and link
-function, while the linear predictor is set in `population()` when setting up
-the population relationships.
+Using \code{custom_family()} we can specify the random component and link
+function, while the linear predictor is set in \code{population()} when setting up
+the population relationships. A family specified this way can be used to
+specify a population (via \code{population()}), but can't be used to estimate a
+model (such as with \code{glm()}).
 }
 \examples{
 # A zero-inflated Poisson family
