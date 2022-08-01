@@ -92,8 +92,8 @@ sample_y <- function(xs) {
     family_name <- response$family$family
 
     if (family_name == "gaussian") {
-      y_resp <- rnorm(n, mean = y_resp, sd = 1.0) *
-        eval(response$error_scale, envir = xs)
+      y_resp <- rnorm(n, mean = y_resp,
+                      sd = eval(response$error_scale, envir = xs))
     } else if (family_name == "ols_with_error") {
       y_resp <- y_resp +
         response$family$simulate(NULL, 1, env = xs, ftd = rep(0, n)) *
