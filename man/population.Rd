@@ -4,84 +4,44 @@
 \alias{population}
 \title{Define the population generalized regression relationship}
 \usage{
-population(response, predictors, family = gaussian(), error_scale = NULL)
+population(...)
 }
 \arguments{
-\item{response}{An expression giving the response variable in terms of the
-predictor variables. (When the family is not Gaussian, gives the response
-on the link scale.)}
-
-\item{predictors}{A named list of predictor variables in the population. See
-Details for specification of distributions.}
-
-\item{family}{The family of this GLM, e.g. \code{gaussian()} for an ordinary
-Gaussian linear relationship.}
-
-\item{error_scale}{Scale factor for errors. Used only for linear families,
-such as \code{gaussian()} and \code{ols_with_error()}. Errors drawn while simulating
-the response variable will be multiplied by this scale factor. The scale
-factor can be a scalar value (such as a fixed standard deviation), or an
-expression in terms of the predictors, which will be evaluated when
-simulating response data. For generalized linear models, leave as \code{NULL}.}
+\item{...}{A sequence of predictor and response variable definitions. These
+are evaluated in order, so later response variables may refer to earlier
+predictor and response variables. All predictors should be provided first,
+before any response variables.}
+}
+\value{
+A population object.
 }
 \description{
 Specifies a hypothetical infinite population of cases. Each case has some
-predictor variables, as well as a response variable. The relationship between
-the variables and the response variable is defined, as well as the population
-marginal distribution of each predictor variable.
-}
-\details{
-The relationship between predictors and response is inspired by generalized
-linear models, but allows nonlinear relationships. Specifically,
-
-\deqn{g(E[Y \mid X]) = f(X),}
-
-where \code{g} is a link function and \code{f} an arbitrary function of the predictors.
-\code{f} is specified by the expression provided in \code{response}, while the link
-function \code{g} is defined by the \code{family} chosen.
-
-The \code{predictors} are provided as a named list. The name defines the variable
-name; the value is a list with entry \code{dist} specifying the function that
-draws random variates from the predictor's distribution, and additional
-entries giving arguments to be passed when drawing random variates (such as
-mean, standard deviation, or shape parameters of the distribution).
-
-Each predictor is drawn independently of the other predictors. To specify
-dependent or correlated predictors, use a function that generates
-multivariate draws, such as \code{mvtnorm::rmnvorm()}. Each column of the
-generated data will be assigned as a population predictor variable, numbered
-successively. For example, if predictor \code{X} is specified with\preformatted{predictors = list(
-  X = list(dist = "rmvnorm", mean = c(0, 1),
-           sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2)))
-}
-
-then the population predictors will be named \code{X1} and \code{X2}, and will have
-covariance 0.5.
+predictor variables and one or more response variables. The relationship
+between the variables and response variables are defined, as well as the
+population marginal distribution of each predictor variable.
 }
 \examples{
 # A population with a simple linear relationship
-population(0.7 + 2.2 * x1 - 0.2 * x2,
-           predictors = list(
-             x1 = list(dist = "rnorm", mean = 4, sd = 10),
-             x2 = list(dist = "runif", min = 0, max = 10)
-           ),
-           error_scale = 1.0)
+population(
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
+)
 
 # A binary outcome Y, using a binomial family with logistic link
-population(0.7 + 2.2 * x1 - 0.2 * x2,
-           predictors = list(
-             x1 = list(dist = "rnorm", mean = 4, sd = 10),
-             x2 = list(dist = "runif", min = 0, max = 10)
-           ),
-           family = binomial(link = "logit")
+population(
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2,
+               family = binomial(link = "logit"))
 )
 
 # A population with a simple linear relationship and collinearity
 library(mvtnorm)
-population(0.7 + 2.2 * x1 - 0.2 * x2,
-           predictors = list(
-             x = list(dist = "rmvnorm", mean = c(0, 1),
-                      sigma = matrix(c(1, 0.8, 0.8, 1), nrow = 2))
-           ),
-           error_scale = 1.0)
+population(
+  x = predictor("rmvnorm", mean = c(0, 1),
+                sigma = matrix(c(1, 0.8, 0.8, 1), nrow = 2)),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
+)
 }

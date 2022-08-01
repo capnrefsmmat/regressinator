@@ -6,7 +6,7 @@
 \description{
 \code{diagnose_model()} will print an encrypted message stating where the real
 data is in the lineup it creates. For instance, it might print
-\code{decrypt("sD0f gCdC En JP2EdEPn ZY")}, which might decrypt to a string such
+\code{decrypt("sD0f gCdC En JP2EdEPn ZY")}, which might evaluate to a string such
 as \code{"True data in position 5"}.
 }
 \details{

@@ -8,10 +8,11 @@ sample_y(xs)
 }
 \arguments{
 \item{xs}{Sample X values drawn from the population, as obtained from
-\code{sample_x()}}
+\code{sample_x()}.}
 }
 \value{
-Data frame of \code{xs} with additional column named \code{y}
+Data frame of \code{xs} with an additional column for each response
+variable.
 }
 \description{
 Given the data frame of \code{xs}, use the true relationship in the population to
@@ -20,12 +21,10 @@ draw random Y values corresponding to those X values.
 \examples{
 # A population with a simple linear relationship
 pop <- population(
-  0.7 + 2.2 * x1 - 0.2 * x2,
-  predictors = list(
-      x1 = list(dist = "rnorm", mean = 4, sd = 10),
-      x2 = list(dist = "runif", min = 0, max = 10)
-  ),
-  error_scale = 1.0)
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
+)
 
 pop |>
   sample_x(10) |>

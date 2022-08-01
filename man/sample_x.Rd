@@ -7,13 +7,13 @@
 sample_x(population, n)
 }
 \arguments{
-\item{population}{Population, as defined by \code{population()}}
+\item{population}{Population, as defined by \code{population()}.}
 
-\item{n}{Number of observations to draw from the population}
+\item{n}{Number of observations to draw from the population.}
 }
 \value{
 Data frame of \code{n} rows, with columns matching the variables specified
-in the population
+in the population.
 }
 \description{
 Draw a data frame of X values from the specified population.

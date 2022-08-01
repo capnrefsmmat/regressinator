@@ -1,18 +1,23 @@
 #' Draw a data frame of X values from the specified population.
 #'
-#' @param population Population, as defined by `population()`
-#' @param n Number of observations to draw from the population
+#' @param population Population, as defined by `population()`.
+#' @param n Number of observations to draw from the population.
 #' @return Data frame of `n` rows, with columns matching the variables specified
-#'   in the population
+#'   in the population.
 #' @importFrom assertthat assert_that
 #' @export
 sample_x <- function(population, n) {
   assert_that(inherits(population, "population"))
 
+  predictors <- Filter(
+    function(v) { inherits(v, "predictor_dist") },
+    population
+  )
+
   sampled_data <- lapply(
-    population$predictors,
+    predictors,
     function(var) {
-      args <- within(var, rm("dist"))
+      args <- var$args
       args$n <- n
       do.call(var$dist, args)
     })
@@ -49,20 +54,19 @@ parent_population <- function(sample) {
 #' draw random Y values corresponding to those X values.
 #'
 #' @param xs Sample X values drawn from the population, as obtained from
-#'   `sample_x()`
-#' @return Data frame of `xs` with additional column named `y`
+#'   `sample_x()`.
+#' @return Data frame of `xs` with an additional column for each response
+#'   variable.
 #' @importFrom cli cli_abort
 #' @importFrom stats rbinom rpois rnorm
 #' @importFrom assertthat assert_that
 #' @examples
 #' # A population with a simple linear relationship
 #' pop <- population(
-#'   0.7 + 2.2 * x1 - 0.2 * x2,
-#'   predictors = list(
-#'       x1 = list(dist = "rnorm", mean = 4, sd = 10),
-#'       x2 = list(dist = "runif", min = 0, max = 10)
-#'   ),
-#'   error_scale = 1.0)
+#'   x1 = predictor("rnorm", mean = 4, sd = 10),
+#'   x2 = predictor("runif", min = 0, max = 10),
+#'   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
+#' )
 #'
 #' pop |>
 #'   sample_x(10) |>
@@ -74,38 +78,47 @@ sample_y <- function(xs) {
   n <- nrow(xs)
   population <- parent_population(xs)
 
-  # on the response scale
-  y_resp <- population$family$linkinv(eval(population$response, envir = xs))
+  responses <- Filter(
+    function(v) { inherits(v, "response_dist") },
+    population
+  )
 
-  family_name <- population$family$family
+  for (response_name in names(responses)) {
+    response <- responses[[response_name]]
 
-  if (family_name == "gaussian") {
-    y_resp <- rnorm(n, mean = y_resp, sd = 1.0) *
-      eval(population$error_scale, envir = xs)
-  } else if (family_name == "ols_with_error") {
-    y_resp <- y_resp +
-      population$family$simulate(NULL, 1, env = xs, ftd = rep(0, n)) *
-      eval(population$error_scale, envir = xs)
-  } else if (family_name == "binomial") {
-    y_resp <- rbinom(n, size = 1, prob = y_resp)
-  } else if (family_name == "poisson") {
-    y_resp <- rpois(n, lambda = y_resp)
-  } else if (family_name == "custom_family") {
-    y_resp <- population$family$simulate(NULL, 1, env = xs, ftd = y_resp)
-  } else {
-    cli_abort(c("Unable to simulate from population family",
-                "*" = "Population family is {family_name}",
-                "i" = "Supported families are gaussian, ols_with_error, binomial, and poisson"))
+    # value on the response scale
+    y_resp <- response$family$linkinv(eval(response$response_expr, envir = xs))
+
+    family_name <- response$family$family
+
+    if (family_name == "gaussian") {
+      y_resp <- rnorm(n, mean = y_resp, sd = 1.0) *
+        eval(response$error_scale, envir = xs)
+    } else if (family_name == "ols_with_error") {
+      y_resp <- y_resp +
+        response$family$simulate(NULL, 1, env = xs, ftd = rep(0, n)) *
+        eval(response$error_scale, envir = xs)
+    } else if (family_name == "binomial") {
+      y_resp <- rbinom(n, size = 1, prob = y_resp)
+    } else if (family_name == "poisson") {
+      y_resp <- rpois(n, lambda = y_resp)
+    } else if (family_name == "custom_family") {
+      y_resp <- response$family$simulate(NULL, 1, env = xs, ftd = y_resp)
+    } else {
+      cli_abort(c("Unable to simulate from population family",
+                  "*" = "Population family is {family_name}",
+                  "i" = "Supported families are gaussian, ols_with_error, binomial, custom_family, and poisson"))
+    }
+
+    xs[[response_name]] <- y_resp
   }
-
-  xs$y <- y_resp
 
   return(xs)
 }
 
 #' @export
 print.population_sample <- function(x, ...) {
-  cat("\nSample of ", nrow(x), " observations from", sep = "")
+  cat("Sample of ", nrow(x), " observations from\n", sep = "")
 
   print(parent_population(x))
 

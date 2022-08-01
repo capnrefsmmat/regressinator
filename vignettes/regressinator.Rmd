@@ -29,33 +29,30 @@ this population has a simple linear relationship between two variables, `x1` and
 library(regressinator)
 
 linear_pop <- population(
-  0.7 + 2.2 * x1 - 0.2 * x2, # relationship between X and Y
-  predictors = list(         # list of predictor variables
-    x1 = list(dist = "rnorm", mean = 4, sd = 10),
-    x2 = list(dist = "runif", min = 0, max = 10)
-  ),
-  error_scale = 1.0,         # errors are scaled by this amount
-  family = gaussian()        # link function
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(
+    0.7 + 2.2 * x1 - 0.2 * x2, # relationship between X and Y
+    family = gaussian(),       # link function and response distribution
+    error_scale = 1.0          # errors are scaled by this amount
+  )
 )
 ```
 
-By default, the error distribution is Gaussian. Notice how the first argument
-gives `y` as a function of the predictors, and the predictors are specified as a
-list of predictors, each specifying its distribution (via the name of the R
-function used to simulate it, such as `rnorm()`) and any arguments to that
-distribution, such as mean or standard deviation.
-
-More generally, the regression relationship can take the form of a generalized
-linear model where
+By default, the error distribution is Gaussian. Notice how the predictors are
+defined using `predictor()`, each specifying its distribution (via the name of
+the R function used to simulate it, such as `rnorm()`) and any arguments to that
+distribution, such as mean or standard deviation. The response variable gives
+`y` as a function of the predictors and specifies the link and error scale.
 
 $$
 \begin{align*}
-Y &\sim \text{SomeDistribution}(g^{-1}(\mu(X)) \\
+Y &\sim \text{SomeDistribution}(g^{-1}(\mu(X))) \\
 \mu(X) &= \text{any function of } X.
 \end{align*}
 $$
 
-The function $\mu(X)$ is the first argument to `population()`, and the
+The function $\mu(X)$ is the first argument to `response()`, and the
 distribution is given by the `family` argument, just like families of GLMs. If
 no family is provided, the default family is Gaussian, i.e. normally distributed
 errors, and the link function $g$ is the identity.
@@ -64,12 +61,11 @@ We can hence specify a population with binary outcomes and logistic link
 function:
 
 ```{r}
-logistic_pop <- population(0.7 + 2.2 * x1 - 0.2 * x2,
-                           predictors = list(
-                             x1 = list(dist = "rnorm", mean = 4, sd = 10),
-                             x2 = list(dist = "runif", min = 0, max = 10)
-                           ),
-                           family = binomial(link = "logit")
+logistic_pop <- population(
+  x1 = predictor("rnorm", mean = 0, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2,
+               family = binomial(link = "logit"))
 )
 ```
 
@@ -138,10 +134,8 @@ linear. We can quickly plot residuals versus fitted values:
 
 ```{r, fig.width=6, fig.height=6}
 nonlinear_pop <- population(
-  0.7 + x1**2,
-  predictors = list(x1 = list(dist = "runif", min = 1, max = 8)),
-  family = gaussian(),
-  error_scale = 4.0
+  x1 = predictor("runif", min = 1, max = 8),
+  y = response(0.7 + x1**2, family = gaussian(), error_scale = 4.0)
 )
 
 nonlinear_data <- nonlinear_pop |>
@@ -171,13 +165,13 @@ regression when the error distribution is not Gaussian. For instance:
 
 ```{r, fig.width=6, fig.height=6}
 heavy_tail_pop <- population(
-  4 + 2 * x1 - 3 * x2,
-  list(
-    x1 = list(dist = "rnorm", mean = 5, sd = 4),
-    x2 = list(dist = "runif", min = 0, max = 10)
-  ),
-  family = ols_with_error(rt, df = 3),
-  error_scale = 1.0
+  x1 = predictor("rnorm", mean = 5, sd = 4),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(
+    4 + 2 * x1 - 3 * x2,
+    family = ols_with_error(rt, df = 3),
+    error_scale = 1.0
+  )
 )
 
 heavy_tail_sample <- heavy_tail_pop |>
