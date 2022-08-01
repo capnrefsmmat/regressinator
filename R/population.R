@@ -281,6 +281,7 @@ custom_family <- function(distribution, inverse_link) {
     cli_abort(c("custom_family() cannot be used to fit models, only to specify populations",
                 "i" = "see ?family for a list of families supported for model fits"))
   )
+  fam$link <- paste0("inverse of ", deparse(substitute(inverse_link)))
   fam$simulate <- function(object, nsim, env = model.frame(object), ftd = NULL) {
     if (is.null(ftd)) {
       ftd <- fitted(object)
