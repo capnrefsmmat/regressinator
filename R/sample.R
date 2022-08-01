@@ -126,22 +126,3 @@ print.population_sample <- function(x, ...) {
 
   NextMethod("print")
 }
-
-#' Draw random values from a factor variable
-#'
-#' To specify the population distribution of a factor variable, specify the
-#' probability for each of its factor levels. When drawn from the population,
-#' factor levels are drawn with replacement according to their probability.
-#'
-#' @param n Number of values to draw
-#' @param levels Character vector specifying the levels for the factor
-#' @param prob Vector specifying the probability for each factor level
-#' @return Sample of `n` values from `levels`, drawn in proportion to their
-#'   probabilities. By default, levels are equally likely.
-#' @examples
-#' rfactor(5, c("foo", "bar", "baz"), c(0.4, 0.3, 0.3))
-#' @export
-rfactor <- function(n, levels, prob = 1 / length(levels)) {
-  return(factor(sample(levels, size = n, prob = prob, replace = TRUE),
-                levels))
-}
