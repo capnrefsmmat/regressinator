@@ -17,9 +17,13 @@ inverse link scale, and returning a vector of draws from the distribution.}
 A family object representing this family
 }
 \description{
-A GLM is specified by a combination of:
+Allows specification of the random component and link function for a response
+variable. In principle this could be used to specify any GLM family, but it
+is usually easier to use the predefined families, such as \code{gaussian()} and
+\code{binomial()}.
 }
 \details{
+A GLM is specified by a combination of:
 \itemize{
 \item Random component, i.e. the distribution that Y is drawn from
 \item Link function relating the mean of the random component to the linear predictor
@@ -40,4 +44,7 @@ rzeroinfpois <- function(ys) {
 }
 
 custom_family(rzeroinfpois, exp)
+}
+\seealso{
+\code{\link[=ols_with_error]{ols_with_error()}}
 }

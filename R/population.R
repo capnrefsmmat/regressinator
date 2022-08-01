@@ -201,6 +201,7 @@ print.population <- function(x, ...) {
 #'   model data in the environment, so they can be expressions referring to
 #'   model data, such as values of the predictors.
 #' @return A family object representing this family.
+#' @seealso [custom_family()]
 #' @examples
 #' # t-distributed errors with 3 degrees of freedom
 #' ols_with_error(rt, df = 3)
@@ -244,6 +245,11 @@ ols_with_error <- function(error, ...) {
 
 #' Family representing a GLM with custom distribution and link function
 #'
+#' Allows specification of the random component and link function for a response
+#' variable. In principle this could be used to specify any GLM family, but it
+#' is usually easier to use the predefined families, such as `gaussian()` and
+#' `binomial()`.
+#'
 #' A GLM is specified by a combination of:
 #'
 #' - Random component, i.e. the distribution that Y is drawn from
@@ -261,6 +267,7 @@ ols_with_error <- function(error, ...) {
 #'   inverse link scale, and returning a vector of draws from the distribution.
 #' @param inverse_link The inverse link function.
 #' @return A family object representing this family
+#' @seealso [ols_with_error()]
 #' @examples
 #' # A zero-inflated Poisson family
 #' rzeroinfpois <- function(ys) {

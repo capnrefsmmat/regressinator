@@ -34,3 +34,6 @@ ols_with_error(rt, df = 3)
 # Cauchy-distributed errors
 ols_with_error(rcauchy, scale = 3)
 }
+\seealso{
+\code{\link[=custom_family]{custom_family()}}
+}
