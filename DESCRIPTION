@@ -2,8 +2,10 @@ Package: regressinator
 Type: Package
 Title: Simulate and Diagnose (Generalized) Linear Models
 Version: 0.1.0
-Author: Alex Reinhart
-Maintainer: Alex Reinhart <areinhar@stat.cmu.edu>
+Authors@R: person("Alex", "Reinhart",
+                  email = "areinhar@stat.cmu.edu",
+                  role = c("aut", "cre"),
+                  comment = c(ORCID = "0000-0002-6658-514X"))
 Description: Simulate samples from populations with known covariate
     distributions, generate response variables according to common linear and
     generalized linear model families, and perform visual inference on
