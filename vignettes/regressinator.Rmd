@@ -9,21 +9,40 @@ vignette: >
   %\VignetteEncoding{UTF-8}
 ---
 
-The regressinator is a simulation system designed to make it easy to simulate
-different regression scenarios. What do different diagnostic plots look like
-with different kinds of misspecification?
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
 
-TODO more introduction
+The regressinator is a simulation system designed to make it easy to simulate
+different regression scenarios. By specifying the true population distribution
+of the predictors, and giving the exact relationship between predictors and
+response variables, we can simulate samples from the population easily. We can
+use these samples to explore questions like:
+
+1. What do different diagnostic plots look like with different kinds of model
+   misspecification?
+2. How do regression estimators behave with different populations?
+3. What happens to estimators when their assumptions are violated?
+
+
+The regressinator is intended for use in the classroom, as a tool for students
+to learn about regression in lab activities or homework assignments. Its
+flexibility makes it suitable for any regression course where students are
+expected to regularly use R.
+
 
 ## Population setup
 
 Each simulation begins by specifying a population: the true population
 distribution the regression data comes from. Typically this is an infinite
 population of individuals whose covariates follow specified distributions. The
-outcome variable `y` is defined to be a function of those covariates with some
+outcome variable is defined to be a function of those covariates with some
 error. We use the `population()` function to define a population. For instance,
-this population has a simple linear relationship between two variables, `x1` and
-`x2`, and the outcome variable `y`:
+this population has a simple linear relationship between two predictor
+variables, `x1` and `x2`, and the response variable `y`:
 
 ```{r}
 library(regressinator)
@@ -34,16 +53,21 @@ linear_pop <- population(
   y = response(
     0.7 + 2.2 * x1 - 0.2 * x2, # relationship between X and Y
     family = gaussian(),       # link function and response distribution
-    error_scale = 1.0          # errors are scaled by this amount
+    error_scale = 1.5          # errors are scaled by this amount
   )
 )
 ```
 
-By default, the error distribution is Gaussian. Notice how the predictors are
-defined using `predictor()`, each specifying its distribution (via the name of
-the R function used to simulate it, such as `rnorm()`) and any arguments to that
-distribution, such as mean or standard deviation. The response variable gives
-`y` as a function of the predictors and specifies the link and error scale.
+Notice how the predictors are defined using `predictor()`, each specifying its
+distribution (via the name of the R function used to simulate it, such as
+`rnorm()`) and any arguments to that distribution, such as mean or standard
+deviation. The response variable gives `y` as a function of the predictors and
+specifies the link and error scale. By default, the error distribution is
+Gaussian, and as the `gaussian()` family has errors with variance 1 by default,
+setting the `error_scale` to 1.5 means the errors have standard deviation 1.5.
+
+More generally, `population()` is defining a population according to the
+following relationship:
 
 $$
 \begin{align*}
@@ -77,6 +101,119 @@ Y &\sim \text{Bernoulli}\left(\text{logit}^{-1}(\mu(X))\right) \\
 \mu(X) &= 0.7 + 2.2 X_1 - 0.2 X_2.
 \end{align*}
 $$
+
+The regressinator supports the `gaussian()`, `binomial()`, and `poisson()`
+families from base R, and can draw response variables accordingly.
+
+### Custom response distributions
+
+It's often useful to simulate data with non-standard response distributions, so
+we can investigate how estimators and diagnostics behave under different kinds
+of misspecification. The regressinator provides several custom response families
+to support this.
+
+First, we can represent heteroskedasticity (unequal variance) in linear
+regression by using the `error_scale` argument to `response()`. This argument is
+evaluated in the context of the sampled data frame, meaning it can be written in
+terms of the predictors. For example:
+
+```{r}
+heteroskedastic_pop <- population(
+  x1 = predictor("rnorm", mean = 5, sd = 4),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(
+    4 + 2 * x1 - 3 * x2, # relationship between X and Y
+    family = ols_with_error(rnorm), # distribution of the errors
+    error_scale = 0.5 + x2 / 10 # errors depend on x2
+  )
+)
+```
+
+Next, the `ols_with_error()` family represents an identity link function with
+custom error distribution. For instance, in this population, the errors are
+$t$-distributed with 3 degrees of freedom:
+
+```{r}
+heavy_tail_pop <- population(
+  x1 = predictor("rnorm", mean = 5, sd = 4),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(
+    4 + 2 * x1 - 3 * x2, # relationship between X and Y
+    family = ols_with_error(rt, df = 3), # distribution of the errors
+    error_scale = 1.0 # errors are multiplied by this scale factor
+  )
+)
+```
+
+Again, we can use `error_scale` to scale the error distribution to change its
+overall variance, and the `error_scale` can depend on the predictors.
+
+Finally, use `custom_family()` to represent a completely arbitrary relationship,
+as defined by the response distribution and inverse link function. For instance,
+a zero-inflated Poisson family:
+
+```{r}
+# 40% of draws have lambda = 0, the rest have lambda given by the inverse link
+zeroinfpois <- function(ys) {
+  n <- length(ys)
+  rpois(n, lambda = ys * rbinom(n, 1, prob = 0.4))
+}
+
+pop <- population(
+  x1 = predictor("rnorm", mean = 2, sd = 2),
+  y = response(
+    0.7 + 0.8 * x1,
+    family = custom_family(zeroinfpois, exp)
+  )
+)
+
+sample_x(pop, 10) |>
+  sample_y()
+```
+
+Here `y` is sampled by evaluating `zeroinfpois(exp(0.7 + 0.8 * x1))`.
+
+### Categorical predictors
+
+R supports many common probability distributions, so most common predictor
+variable distributions can be specified. But categorical predictor variables
+(factors) are very common in practice, and so the regressinator provides
+`rfactor()` for drawing factor variables:
+
+```{r}
+rfactor(5, c("foo", "bar", "baz"), c(0.4, 0.3, 0.3))
+```
+
+Then, using the `by_level()` helper, we can use factors in defining a regression
+model. For instance, here is a model with a different intercept per group:
+
+```{r}
+intercepts <- c("foo" = 2, "bar" = 30, "baz" = 7)
+
+factor_intercept_pop <- population(
+  group = predictor("rfactor",
+                    levels = c("foo", "bar", "baz"),
+                    prob = c(0.1, 0.6, 0.3)),
+  x = predictor("runif", min = 0, max = 10),
+  y = response(by_level(group, intercepts) + 0.3 * x,
+               error_scale = 1.5)
+)
+```
+
+Or, similarly, a model with a different slope per group:
+
+```{r}
+slopes <- c("foo" = 2, "bar" = 30, "baz" = 7)
+
+factor_slope_pop <- population(
+  group = predictor("rfactor",
+                    levels = c("foo", "bar", "baz"),
+                    prob = c(0.1, 0.6, 0.3)),
+  x = predictor("runif", min = 0, max = 10),
+  y = response(7 + by_level(group, slopes) * x,
+               error_scale = 1.5)
+)
+```
 
 ## Sampling from the population
 
@@ -113,7 +250,7 @@ and does the following:
    `broom::augment()` generates a data frame with columns including the
    residuals, standardized residuals, fitted value, and other useful statistics
    for each row of the data. It also works for many common types of models; see
-   the broom documentation for details.
+   the [broom documentation](https://broom.tidymodels.org/) for details.
 2. Simulate 19 additional datasets using the model, using the standard
    assumptions for that model. (For instance, for linear regression, errors are
    drawn from a normal distribution.) In each dataset, the same X values are
@@ -159,9 +296,9 @@ correct. The `decrypt()` code provided will print out a message indicating which
 of the plots is the real data; in this case, it's the plot with the clear
 quadratic trend in the residuals.
 
-The package provides tools to simulate other kinds of misspecification. For
-example, the `ols_with_error()` family is provided to simulate ordinary linear
-regression when the error distribution is not Gaussian. For instance:
+This approach can be used to explore different kind of misspecification. For
+example, using `ols_with_error()` we can test whether we can spot non-normal
+residual distributions in residual Q-Q plots:
 
 ```{r, fig.width=6, fig.height=6}
 heavy_tail_pop <- population(
