@@ -1,2 +1,28 @@
 url: ~
 
+reference:
+  - title: "Defining populations"
+    desc: Define a population, including predictors and response variables.
+    contents:
+      - population
+      - predictor
+      - response
+      - ols_with_error
+      - custom_family
+  - title: "Simulating and diagnosing fits"
+    desc: Draw samples from a population and diagnose model fits.
+    contents:
+      - sample_x
+      - sample_y
+      - diagnose_model
+      - decrypt
+  - title: "Working with factors"
+    desc: Use factors to model categorical variables.
+    contents:
+      - rfactor
+      - by_level
+  - title: "Extracting information from regression fits"
+    desc: Get different types of diagnostics from fits.
+    contents:
+      - partial_residuals
+      - binned_residuals
