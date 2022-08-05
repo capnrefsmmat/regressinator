@@ -4,6 +4,9 @@
 
 # TODO Make an example of using the framework for hypothesis testing.
 
+# TODO Support mixture distributions of covariates and of errors, for easy study
+# of outliers. Maybe "rmixture" that take multiple distributions as arguments?
+
 #' Specify the distribution of a predictor variable
 #'
 #' Predictor variables can have any marginal distribution as long as a function

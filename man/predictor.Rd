@@ -28,10 +28,12 @@ length \code{n}; for multivariate distributions, it should return an array or
 matrix with \code{n} rows and a column per variable.
 
 Multivariate predictors are successively numbered. For instance, if predictor
-\code{X} is specified with\preformatted{library(mvtnorm)
+\code{X} is specified with
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{library(mvtnorm)
 predictor(dist = "rmvnorm", mean = c(0, 1),
          sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2))
-}
+}\if{html}{\out{</div>}}
 
 then the population predictors will be named \code{X1} and \code{X2}, and will have
 covariance 0.5.

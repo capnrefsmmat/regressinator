@@ -24,5 +24,6 @@ reference:
   - title: "Extracting information from regression fits"
     desc: Get different types of diagnostics from fits.
     contents:
+      - augment_longer
       - partial_residuals
       - binned_residuals
