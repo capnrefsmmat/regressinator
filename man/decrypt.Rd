@@ -3,6 +3,15 @@
 \name{decrypt}
 \alias{decrypt}
 \title{Reveal the position of the real data in lineups}
+\usage{
+decrypt(...)
+}
+\arguments{
+\item{...}{Message to decrypt}
+}
+\value{
+Decrypted message
+}
 \description{
 \code{diagnose_model()} will print an encrypted message stating where the real
 data is in the lineup it creates. For instance, it might print

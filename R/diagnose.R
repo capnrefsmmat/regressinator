@@ -87,6 +87,9 @@ diagnose_model <- function(fit, fn = augment, n = 20) {
 #' its lineup system.
 #'
 #' @importFrom nullabor decrypt
+#' @usage decrypt(...)
+#' @param ... Message to decrypt
+#' @return Decrypted message
 #' @export decrypt
 #' @name decrypt
 NULL
