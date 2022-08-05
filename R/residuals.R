@@ -39,7 +39,7 @@
 #' observation.}
 #' \item{fitted}{Fitted value (on the response scale) for this observation,
 #' obtained using `fitted()`.}
-#' \item{linear.predictor}{Linear predictor for this observation, obtained using
+#' \item{linear_predictor}{Linear predictor for this observation, obtained using
 #' `predict()`. For linear models, the fitted values and linear predictor are
 #' identical.}
 #' @seealso [binned_residuals()]
@@ -74,7 +74,7 @@ partial_residuals <- function(fit) {
       row <- (obs - 1) * num_predictors + pred
 
       out$fitted[row] <- yhat[obs]
-      out$linear.predictor[row] <- lp[obs]
+      out$linear_predictor[row] <- lp[obs]
 
       out$predictor_name[row] <- predictor_names[pred]
       out$predictor_value[row] <- d[obs, predictor_names[pred]]

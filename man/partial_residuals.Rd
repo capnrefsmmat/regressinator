@@ -25,7 +25,7 @@ residual for.}
 observation.}
 \item{fitted}{Fitted value (on the response scale) for this observation,
 obtained using \code{fitted()}.}
-\item{linear.predictor}{Linear predictor for this observation, obtained using
+\item{linear_predictor}{Linear predictor for this observation, obtained using
 \code{predict()}. For linear models, the fitted values and linear predictor are
 identical.}
 }
