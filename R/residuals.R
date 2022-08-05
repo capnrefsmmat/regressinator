@@ -55,6 +55,7 @@
 #' Fox, J., & Weisberg, S. (2018). "Visualizing Fit and Lack of Fit in Complex
 #' Regression Models with Predictor Effect Plots and Partial Residuals." *Journal
 #' of Statistical Software*, 87(9). <https://doi.org/10.18637/jss.v087.i09>
+#' @importFrom stats predict fitted
 #' @export
 partial_residuals <- function(fit) {
   partials <- as.data.frame(residuals(fit, type = "partial"))
@@ -130,6 +131,7 @@ partial_residuals <- function(fit) {
 #' @seealso [partial_residuals()]
 #' @references Gelman, A. and Hill, J. (2006). Data Analysis Using Regression
 #'   and Multilevel/Hierarchical Models. Cambridge University Press.
+#' @importFrom stats residuals sd
 #' @export
 binned_residuals <- function(fit, term = NULL, n_bins = NULL, ...) {
   if (is.null(term)) {
@@ -187,6 +189,7 @@ binned_residuals <- function(fit, term = NULL, n_bins = NULL, ...) {
 }
 
 # adapted from https://stackoverflow.com/a/13217607, available CC-BY-SA
+#' @importFrom stats terms
 response_var <- function(formula) {
     tt <- terms(formula)
     vars <- as.character(attr(tt, "variables"))[-1] # [1] is the list call
@@ -213,7 +216,7 @@ response_var <- function(formula) {
 #'   value. An additional column `.obs` records the original observation numbers
 #'   so results can be matched to observations in the original model data.
 #' @importFrom broom augment
-#' @importFrom tidyr pivot_longer
+#' @importFrom tidyr pivot_longer starts_with any_of
 #' @export
 augment_longer <- function(x, ...) {
   out <- augment(x, ...)
