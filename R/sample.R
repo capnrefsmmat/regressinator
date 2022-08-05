@@ -1,4 +1,11 @@
-#' Draw a data frame of X values from the specified population.
+#' Draw a data frame from the specified population.
+#'
+#' Sampling is split into two steps, for predictors and for response variables,
+#' to allow users to choose which to simulate. `sample_x()` will only sample
+#' predictor variables, and `sample_y()` will augment a data frame of predictors
+#' with columns for response variables, overwriting any already present. Hence
+#' one can use `sample_y()` as part of a simulation with fixed predictors, for
+#' instance.
 #'
 #' @param population Population, as defined by `population()`.
 #' @param n Number of observations to draw from the population.
@@ -48,15 +55,8 @@ parent_population <- function(sample) {
   attr(sample, "population")
 }
 
-#' Augment the X values with sampled response values
-#'
-#' Given the data frame of `xs`, use the true relationship in the population to
-#' draw random Y values corresponding to those X values.
-#'
-#' @param xs Sample X values drawn from the population, as obtained from
-#'   `sample_x()`.
-#' @return Data frame of `xs` with an additional column for each response
-#'   variable.
+#' @param xs Data frame of predictor values drawn from the population, as
+#'   obtained from `sample_x()`.
 #' @importFrom cli cli_abort
 #' @importFrom stats rbinom rpois rnorm
 #' @importFrom assertthat assert_that
@@ -68,10 +68,15 @@ parent_population <- function(sample) {
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
 #' )
 #'
-#' pop |>
-#'   sample_x(10) |>
+#' xs <- pop |>
+#'   sample_x(5)
+#'
+#' xs
+#'
+#' xs |>
 #'   sample_y()
 #' @export
+#' @rdname sample_x
 sample_y <- function(xs) {
   assert_that(inherits(xs, "population_sample"))
 

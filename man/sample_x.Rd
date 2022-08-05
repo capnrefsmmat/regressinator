@@ -2,19 +2,46 @@
 % Please edit documentation in R/sample.R
 \name{sample_x}
 \alias{sample_x}
-\title{Draw a data frame of X values from the specified population.}
+\alias{sample_y}
+\title{Draw a data frame from the specified population.}
 \usage{
 sample_x(population, n)
+
+sample_y(xs)
 }
 \arguments{
 \item{population}{Population, as defined by \code{population()}.}
 
 \item{n}{Number of observations to draw from the population.}
+
+\item{xs}{Data frame of predictor values drawn from the population, as
+obtained from \code{sample_x()}.}
 }
 \value{
 Data frame of \code{n} rows, with columns matching the variables specified
 in the population.
 }
 \description{
-Draw a data frame of X values from the specified population.
+Sampling is split into two steps, for predictors and for response variables,
+to allow users to choose which to simulate. \code{sample_x()} will only sample
+predictor variables, and \code{sample_y()} will augment a data frame of predictors
+with columns for response variables, overwriting any already present. Hence
+one can use \code{sample_y()} as part of a simulation with fixed predictors, for
+instance.
+}
+\examples{
+# A population with a simple linear relationship
+pop <- population(
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
+)
+
+xs <- pop |>
+  sample_x(5)
+
+xs
+
+xs |>
+  sample_y()
 }

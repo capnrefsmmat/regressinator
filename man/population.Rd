@@ -7,10 +7,10 @@
 population(...)
 }
 \arguments{
-\item{...}{A sequence of predictor and response variable definitions. These
-are evaluated in order, so later response variables may refer to earlier
-predictor and response variables. All predictors should be provided first,
-before any response variables.}
+\item{...}{A sequence of named arguments defining predictor and response
+variables. These are evaluated in order, so later response variables may
+refer to earlier predictor and response variables. All predictors should be
+provided first, before any response variables.}
 }
 \value{
 A population object.
@@ -37,11 +37,16 @@ population(
                family = binomial(link = "logit"))
 )
 
-# A population with a simple linear relationship and collinearity
+# A population with a simple linear relationship and collinearity. Because X
+# is bivariate, there will be two predictors, named x1 and x2.
 library(mvtnorm)
 population(
   x = predictor("rmvnorm", mean = c(0, 1),
                 sigma = matrix(c(1, 0.8, 0.8, 1), nrow = 2)),
   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
 )
+}
+\seealso{
+\code{\link[=predictor]{predictor()}} and \code{\link[=response]{response()}} to define the population;
+\code{sample_x()} and \code{sample_y()} to draw samples from it
 }

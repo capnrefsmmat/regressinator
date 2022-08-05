@@ -138,12 +138,13 @@ print.response_dist <- function(x, ...) {
 #' between the variables and response variables are defined, as well as the
 #' population marginal distribution of each predictor variable.
 #'
-#' @param ... A sequence of predictor and response variable definitions. These
-#'   are evaluated in order, so later response variables may refer to earlier
-#'   predictor and response variables. All predictors should be provided first,
-#'   before any response variables.
+#' @param ... A sequence of named arguments defining predictor and response
+#'   variables. These are evaluated in order, so later response variables may
+#'   refer to earlier predictor and response variables. All predictors should be
+#'   provided first, before any response variables.
 #' @return A population object.
-#'
+#' @seealso [predictor()] and [response()] to define the population;
+#'   `sample_x()` and `sample_y()` to draw samples from it
 #' @examples
 #' # A population with a simple linear relationship
 #' population(
@@ -160,7 +161,8 @@ print.response_dist <- function(x, ...) {
 #'                family = binomial(link = "logit"))
 #' )
 #'
-#' # A population with a simple linear relationship and collinearity
+#' # A population with a simple linear relationship and collinearity. Because X
+#' # is bivariate, there will be two predictors, named x1 and x2.
 #' library(mvtnorm)
 #' population(
 #'   x = predictor("rmvnorm", mean = c(0, 1),
