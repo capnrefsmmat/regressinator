@@ -2,15 +2,19 @@
 % Please edit documentation in R/population.R
 \name{ols_with_error}
 \alias{ols_with_error}
+\alias{ols_without_error}
 \title{Family representing a linear relationship with non-Gaussian errors}
 \usage{
 ols_with_error(error, ...)
+
+ols_without_error()
 }
 \arguments{
 \item{error}{Function that can draw random variables from the non-Gaussian
-distribution. For example, \code{rt} draws \emph{t}-distributed random variates. The
-function must take an argument \code{n} indicating how many random variates to
-draw (as all random generation functions built into R do).}
+distribution, or a string giving the name of the function. For example,
+\code{rt} draws \emph{t}-distributed random variates. The function must take an
+argument \code{n} indicating how many random variates to draw (as all random
+generation functions built into R do).}
 
 \item{...}{Further arguments passed to the \code{error} function to draw random
 variates, such as to specify degrees of freedom, shape parameters, or other
@@ -22,10 +26,12 @@ model data, such as values of the predictors.}
 A family object representing this family.
 }
 \description{
-This family can represent any non-Gaussian error, provided random variates
-can be drawn by an R function. A family specified this way can be used to
-specify a population (via \code{population()}), but can't be used to estimate a
-model (such as with \code{glm()}).
+The \code{ols_with_error()} family can represent any non-Gaussian error, provided
+random variates can be drawn by an R function. A family specified this way
+can be used to specify a population (via \code{population()}), but can't be used
+to estimate a model (such as with \code{glm()}). As a special case,
+\code{ols_without_error()} represents a family with no error, i.e. the error
+distribution is a point mass at 0.
 }
 \examples{
 # t-distributed errors with 3 degrees of freedom
@@ -33,7 +39,10 @@ ols_with_error(rt, df = 3)
 
 # Cauchy-distributed errors
 ols_with_error(rcauchy, scale = 3)
+
+# Error is always 0
+ols_without_error()
 }
 \seealso{
-\code{\link[=custom_family]{custom_family()}}
+\code{\link[=custom_family]{custom_family()}} for fully custom families, including for GLMs
 }

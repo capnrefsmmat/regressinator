@@ -191,28 +191,34 @@ print.population <- function(x, ...) {
 
 #' Family representing a linear relationship with non-Gaussian errors
 #'
-#' This family can represent any non-Gaussian error, provided random variates
-#' can be drawn by an R function. A family specified this way can be used to
-#' specify a population (via `population()`), but can't be used to estimate a
-#' model (such as with `glm()`).
+#' The `ols_with_error()` family can represent any non-Gaussian error, provided
+#' random variates can be drawn by an R function. A family specified this way
+#' can be used to specify a population (via `population()`), but can't be used
+#' to estimate a model (such as with `glm()`). As a special case,
+#' `ols_without_error()` represents a family with no error, i.e. the error
+#' distribution is a point mass at 0.
 #'
 #' @param error Function that can draw random variables from the non-Gaussian
-#'   distribution. For example, `rt` draws *t*-distributed random variates. The
-#'   function must take an argument `n` indicating how many random variates to
-#'   draw (as all random generation functions built into R do).
+#'   distribution, or a string giving the name of the function. For example,
+#'   `rt` draws *t*-distributed random variates. The function must take an
+#'   argument `n` indicating how many random variates to draw (as all random
+#'   generation functions built into R do).
 #' @param ... Further arguments passed to the `error` function to draw random
 #'   variates, such as to specify degrees of freedom, shape parameters, or other
 #'   parameters of the distribution. These arguments are evaluated with the
 #'   model data in the environment, so they can be expressions referring to
 #'   model data, such as values of the predictors.
 #' @return A family object representing this family.
-#' @seealso [custom_family()]
+#' @seealso [custom_family()] for fully custom families, including for GLMs
 #' @examples
 #' # t-distributed errors with 3 degrees of freedom
 #' ols_with_error(rt, df = 3)
 #'
 #' # Cauchy-distributed errors
 #' ols_with_error(rcauchy, scale = 3)
+#'
+#' # Error is always 0
+#' ols_without_error()
 #' @importFrom rlang eval_tidy
 #' @importFrom stats model.frame fitted gaussian
 #' @export
@@ -248,6 +254,12 @@ ols_with_error <- function(error, ...) {
   return(fam)
 }
 
+#' @export
+#' @rdname ols_with_error
+ols_without_error <- function() {
+  return(ols_with_error("rnorm", sd = 0))
+}
+
 #' Family representing a GLM with custom distribution and link function
 #'
 #' Allows specification of the random component and link function for a response
@@ -272,7 +284,8 @@ ols_with_error <- function(error, ...) {
 #'   inverse link scale, and returning a vector of draws from the distribution.
 #' @param inverse_link The inverse link function.
 #' @return A family object representing this family
-#' @seealso [ols_with_error()]
+#' @seealso [ols_with_error()] for the special case of linear regression with
+#'   custom error distribution
 #' @examples
 #' # A zero-inflated Poisson family
 #' rzeroinfpois <- function(ys) {

@@ -46,5 +46,6 @@ rzeroinfpois <- function(ys) {
 custom_family(rzeroinfpois, exp)
 }
 \seealso{
-\code{\link[=ols_with_error]{ols_with_error()}}
+\code{\link[=ols_with_error]{ols_with_error()}} for the special case of linear regression with
+custom error distribution
 }
