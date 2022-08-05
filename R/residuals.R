@@ -185,3 +185,42 @@ binned_residuals <- function(fit, term = NULL, n_bins = NULL, ...) {
 
   return(out)
 }
+
+# adapted from https://stackoverflow.com/a/13217607, available CC-BY-SA
+response_var <- function(formula) {
+    tt <- terms(formula)
+    vars <- as.character(attr(tt, "variables"))[-1] # [1] is the list call
+    response <- attr(tt, "response") # index of response var
+
+    return(vars[response])
+}
+
+#' Augment a model fit with residuals, in "long" format
+#'
+#' Use `broom::augment()` to augment a model fit with residual and fit
+#' information, then reformat the resulting data frame into a "long" format with
+#' one row per predictor per observation, to facilitate plotting of the result.
+#'
+#' The name comes by analogy to `tidyr::pivot_longer()`, and the concept of long
+#' versus wide data formats.
+#'
+#' @param x A model fit object, such as those returned by `lm()` or `glm()`. See
+#'   the broom documentation for the full list of model types supported.
+#' @param ... Additional arguments passed to `broom::augment()`.
+#' @return A data frame in similar form to those produced by `broom::augment()`,
+#'   but expanded to have one row per predictor per observation. Columns
+#'   `.predictor_name` and `.predictor_value` identify the predictor and its
+#'   value. An additional column `.obs` records the original observation numbers
+#'   so results can be matched to observations in the original model data.
+#' @importFrom broom augment
+#' @importFrom tidyr pivot_longer
+#' @export
+augment_longer <- function(x, ...) {
+  out <- augment(x, ...)
+  out$.obs <- rownames(out)
+  response <- response_var(x)
+
+  return(pivot_longer(out, cols = !starts_with(".") & !any_of(response),
+                      names_to = ".predictor_name",
+                      values_to = ".predictor_value"))
+}
