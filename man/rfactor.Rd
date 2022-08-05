@@ -25,3 +25,7 @@ factor levels are drawn with replacement according to their probability.
 \examples{
 rfactor(5, c("foo", "bar", "baz"), c(0.4, 0.3, 0.3))
 }
+\seealso{
+\code{\link[=by_level]{by_level()}} to assign numeric values based on factor levels, such
+as to set population regression coefficients by factor level
+}

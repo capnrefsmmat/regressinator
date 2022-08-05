@@ -28,4 +28,20 @@ foo <- factor(c("spam", "ham", "spam", "ducks"))
 by_level(foo, spam = 4, ham = 10, ducks = 16.7)
 
 by_level(foo, c("spam" = 4, "ham" = 10, "ducks" = 16.7))
+
+# to define a population with a factor that affects the regression intercept
+intercepts <- c("foo" = 2, "bar" = 30, "baz" = 7)
+pop <- population(
+  group = predictor("rfactor",
+                    levels = c("foo", "bar", "baz"),
+                    prob = c(0.1, 0.6, 0.3)),
+  x = predictor("runif", min = 0, max = 10),
+  y = response(by_level(group, intercepts) + 0.3 * x,
+               error_scale = 1.5)
+)
+sample_x(pop, 5)
+}
+\seealso{
+\code{\link[=rfactor]{rfactor()}} to draw random factor levels, and the \code{forcats} package
+\url{https://forcats.tidyverse.org/} for additional factor manipulation tools
 }
