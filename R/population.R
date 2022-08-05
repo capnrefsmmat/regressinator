@@ -235,15 +235,24 @@ ols_with_error <- function(error, ...) {
       ftd <- fitted(object)
     }
 
+    # TODO what if nsim > 1? this will fail, but that may not matter -- when can
+    # nsim be > 1?
     n <- length(ftd) * nsim
 
     # Evaluate the error arguments in the model frame, so they can depend on the
-    # covariates TODO What if the error arguments have the wrong length, because
-    # the expression provided by the user is wrong? Will they be broadcast
-    # correctly if nsim > 1?
+    # covariates
     args <- eval_tidy(error_args, data = env)
     args$n <- n
-    ftd + do.call(error, args)
+    err <- do.call(error, args)
+    err_len <- length(err)
+
+    if (err_len != n) {
+      cli_abort(c("error function provided to ols_with_error() returned incorrect output length",
+                  "*" = "data has {n} observations, but function only returned {err_len} values"),
+                class = "regressinator_error_length")
+    }
+
+    return(ftd + err)
   }
 
   return(fam)
