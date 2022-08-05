@@ -329,3 +329,8 @@ Here we have Q-Q plots of residuals for a linear regression where the true
 relationship is linear, but the error distribution is $t_3$. This is a good way
 to see if we can spot the heavy-tailed distribution from among the 19 other Q-Q
 plots that simulate normally distributed errors.
+
+The regressinator provides additional functions to facilitate residual
+diagnostics, such as for partial residuals; see
+`vignette("linear-regression-diagnostics")` and
+`vignette("logistic-regression-diagnostics")` for examples.

@@ -20,7 +20,13 @@
 #' residuals for covariate \eqn{j} are the ordinary residuals plus the
 #' contribution of \eqn{X_j} to the model fit. Since \eqn{\hat \mu} is also a
 #' linear combination of the predictors, this gives us the partial residual of
-#' \eqn{Y} on every predictor *except* \eqn{X_j}.
+#' \eqn{Y} on every predictor *except* \eqn{X_j}:
+#'
+#' \deqn{Y - \sum_{k \neq j} \hat \beta_k X_k}
+#'
+#' When plotted against \eqn{X_j}, we expect this to produce a line with slope
+#' \eqn{\hat \beta_j}. If instead the scatterplot has a curve, this suggests the
+#' relationship between \eqn{X_j} and \eqn{Y} is nonlinear.
 #'
 #' @param fit The model to obtain residuals for. This can be a model fit with
 #'   `lm()` or `glm()`, or any model whose `residuals()` method supports a `type

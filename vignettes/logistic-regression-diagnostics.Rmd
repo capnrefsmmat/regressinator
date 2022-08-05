@@ -1,0 +1,145 @@
+---
+title: "Example logistic regression diagnostics"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Example logistic regression diagnostics}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(regressinator)
+library(ggplot2)
+library(broom)
+```
+
+For these examples of logistic regression diagnostics, we'll consider a simple
+bivariate setting where the model is misspecified:
+
+```{r}
+logistic_pop <- population(
+  x1 = predictor("rnorm", mean = 0, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 0.2 * x1 + x1^2 / 100 - 0.2 * x2,
+               family = binomial(link = "logit"))
+)
+
+logistic_data <- sample_x(logistic_pop, n = 100) |>
+  sample_y()
+
+fit <- glm(y ~ x1 + x2, data = logistic_data, family = binomial)
+```
+
+## Naive residual plots
+
+Ordinary standardized residuals are not very helpful for noticing the
+misspecification:
+
+```{r}
+augment(fit) |>
+  ggplot(aes(x = .fitted, y = .std.resid)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(x = "Fitted value", y = "Residual")
+```
+
+Nor are plots of standardized residuals against the predictors:
+
+```{r}
+augment_longer(fit) |>
+  ggplot(aes(x = .predictor_value, y = .std.resid)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_wrap(vars(.predictor_name), scales = "free_x") +
+  labs(x = "Predictor", y = "Residual")
+```
+
+We see a hint of something in the smoothed line on the left, but it is hard to
+judge what that means. Because our outcome is binary, the residuals are divided
+into two clumps ($Y = 0$ and $Y = 1$), making their distribution hard to
+interpret and trends hard to spot.
+
+## Marginal model plots
+
+For each predictor, we plot the predictor versus $Y$. We plot the smoothed curve
+of fitted values (red) as well as a smoothed curve of response values (blue):
+
+```{r}
+augment_longer(fit, type.predict = "response") |>
+  ggplot(aes(x = .predictor_value)) +
+  geom_point(aes(y = y)) +
+  geom_smooth(aes(y = .fitted), color = "red") +
+  geom_smooth(aes(y = y)) +
+  facet_wrap(vars(.predictor_name), scales = "free_x") +
+  labs(x = "Predictor", y = "Y")
+```
+
+The red line is a smoothed version of $\hat f(x)$ versus $X_1$, while the blue
+line averages $Y$ (which is 0 or 1, so the average is the true fraction of 1s)
+versus $X_1$. Comparing the two lines helps us evaluate if the model is
+well-specified.
+
+This again suggests something may be going on with `x1`, but it's hard to tell
+what specifically might be wrong.
+
+## Partial residuals
+
+The partial residuals make the quadratic shape of the relationship much clearer:
+
+```{r}
+partial_residuals(fit) |>
+  ggplot(aes(x = predictor_value, y = partial_resid)) +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(vars(predictor_name), scales = "free") +
+  labs(x = "Predictor", y = "Partial residual")
+```
+
+See the `partial_residuals()` documentation for more information how these are
+computed and interpreted.
+
+## Empirical logit plots
+
+TODO
+
+## Binned residuals
+
+Binned residuals bin the observations based on their fitted values, and average
+the residual value in each bin. This avoids the problem that individual
+residuals are hard to interpret because $Y$ is only 0 or 1:
+
+```{r}
+binned_residuals(fit) |>
+  ggplot(aes(x = .fitted.mean, y = .resid.mean, size = .n)) +
+  geom_point() +
+  labs(x = "Fitted value", y = "Residual mean",
+       size = "N")
+```
+
+Notice we have sized the points by `.n`, the number of observations in the bin,
+to avoid giving emphasis to outlying values in bins with small sample sizes. We
+could also use `.resid.sd / sqrt(.n)` to get an approximate standard error for the
+mean residual, and scale the points by that (or its inverse).
+
+We can also bin by values of a specific predictor, such as `x1`:
+
+```{r}
+binned_residuals(fit, term = "x1") |>
+  ggplot(aes(x = x1.mean, y = .resid.mean, size = .n)) +
+  geom_point() +
+  labs(x = "X1", y = "Residual mean",
+       size = "N")
+```
+
+This is comparable to the marginal model plots above: where the marginal model
+plots show a smoothed curve of fitted values and a smoothed curve of actual
+values, the binned residuals show the average residuals, which are actual values
+minus fitted values. We can think of the binned residual plot as showing the
+difference between the lines in the marginal model plot.
