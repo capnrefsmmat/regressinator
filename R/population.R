@@ -194,9 +194,7 @@ print.population <- function(x, ...) {
 #' The `ols_with_error()` family can represent any non-Gaussian error, provided
 #' random variates can be drawn by an R function. A family specified this way
 #' can be used to specify a population (via `population()`), but can't be used
-#' to estimate a model (such as with `glm()`). As a special case,
-#' `ols_without_error()` represents a family with no error, i.e. the error
-#' distribution is a point mass at 0.
+#' to estimate a model (such as with `glm()`).
 #'
 #' @param error Function that can draw random variables from the non-Gaussian
 #'   distribution, or a string giving the name of the function. For example,
@@ -216,9 +214,6 @@ print.population <- function(x, ...) {
 #'
 #' # Cauchy-distributed errors
 #' ols_with_error(rcauchy, scale = 3)
-#'
-#' # Error is always 0
-#' ols_without_error()
 #' @importFrom rlang eval_tidy
 #' @importFrom stats model.frame fitted gaussian
 #' @export
@@ -252,12 +247,6 @@ ols_with_error <- function(error, ...) {
   }
 
   return(fam)
-}
-
-#' @export
-#' @rdname ols_with_error
-ols_without_error <- function() {
-  return(ols_with_error("rnorm", sd = 0))
 }
 
 #' Family representing a GLM with custom distribution and link function
