@@ -29,6 +29,14 @@ population(
   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
 )
 
+# Response error scale is heteroskedastic and depends on predictors
+population(
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2,
+               error_scale = 1 + x2 / 10)
+)
+
 # A binary outcome Y, using a binomial family with logistic link
 population(
   x1 = predictor("rnorm", mean = 4, sd = 10),

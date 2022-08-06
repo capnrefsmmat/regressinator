@@ -2,32 +2,38 @@
 % Please edit documentation in R/diagnose.R
 \name{diagnose_model}
 \alias{diagnose_model}
+\alias{decrypt}
 \title{Calculate diagnostics for a model, and produce a lineup of those diagnostics.}
 \usage{
-diagnose_model(fit, fn = augment, n = 20)
+diagnose_model(fit, fn = augment, nsim = 20)
+
+decrypt(...)
 }
 \arguments{
 \item{fit}{A model fit to data, such as by \code{lm()} or \code{glm()}}
 
 \item{fn}{A diagnostic function. The function should take one argument, a
-fitted model, and return a data frame. For example, to evaluate residuals
-versus a particular covariate, the function should return a data frame
-where one column is that covariate, and the other column is the
-corresponding residuals. The default is \code{broom::augment()}, which produces
-a data frame containing the original data and additional columns \code{.fitted},
-\code{.resid}, and so on. To see a list of model types supported by
-\code{broom::augment()}, and to find documentation on the columns reported for
-each type of model, load the \code{broom} package and use \code{methods(augment)}.}
+fitted model, and return a data frame. The default is \code{broom::augment()},
+which produces a data frame containing the original data and additional
+columns \code{.fitted}, \code{.resid}, and so on. To see a list of model types
+supported by \code{broom::augment()}, and to find documentation on the columns
+reported for each type of model, load the \code{broom} package and use
+\code{methods(augment)}.}
 
-\item{n}{Number of total diagnostics. For example, if \code{n = 20}, the
+\item{nsim}{Number of total diagnostics. For example, if \code{nsim = 20}, the
 diagnostics for \code{fit} are hidden among 19 null diagnostics.}
+
+\item{...}{Message to decrypt, specifying the location of the true
+diagnostics}
 }
 \value{
-A data frame with columns corresponding to the columns returned by
-\code{fn}. The additional column \code{.sample} indicates which set of diagnostics
-each row is from. For instance, if the true data is in position 5,
-selecting rows with \code{.sample == 5} will retrieve the diagnostics from the
-original model fit.
+For \code{diagnose_model()}, a data frame with columns corresponding to
+the columns returned by \code{fn}. The additional column \code{.sample} indicates
+which set of diagnostics each row is from. For instance, if the true data
+is in position 5, selecting rows with \code{.sample == 5} will retrieve the
+diagnostics from the original model fit.
+
+For \code{decrypt()}, the decrypted message.
 }
 \description{
 A lineup hides the diagnostics among "null" diagnostics, i.e. the same
@@ -36,7 +42,8 @@ are correct. For each null diagnostic, \code{diagnose_model()} simulates new
 responses from the model using the fitted covariate values and the model's
 error distribution, link function, and so on. Hence the new response values
 are generated under ideal conditions: the fitted model is true and all
-assumptions hold.
+assumptions hold. \code{decrypt()} reveals which diagnostics are the true
+diagnostics.
 }
 \details{
 To generate different kinds of diagnostics, the user can provide a custom
@@ -46,7 +53,7 @@ include the residuals and fitted values for each observation; or it might
 be a single row containing a summary statistic or test statistic.
 
 \code{fn} will be called on the original \code{fit} provided. Then \code{simulate()} will be
-used to simulate data from the model fit \code{n - 1} times, the model will be
+used to simulate data from the model fit \code{nsim - 1} times, the model will be
 refit to each of these datasets, and \code{fn} will be run on each refit model.
 The null distribution is conditional on X, i.e. the covariates used will be
 identical, and only the response values will be simulated. The data frames
@@ -58,7 +65,21 @@ When called, this function will print a message such as
 true diagnostics among the null diagnostics: evaluating this in the R console
 will produce a string such as \code{"True data in position 5"}.
 
-Because this function uses the S3 generic methods \code{simulate()} and
+Because \code{diagnose_model()} uses the S3 generic methods \code{simulate()} and
 \code{update()}, it can be used with any model fit for which methods are provided.
 In base R, this includes \code{lm()} and \code{glm()}.
+}
+\examples{
+fit <- lm(dist ~ speed, data = cars)
+diagnose_model(fit, nsim = 5)
+
+resids_vs_speed <- function(f) {
+  data.frame(resid = residuals(f),
+             speed = model.frame(f)$speed)
+}
+head(diagnose_model(fit, fn = resids_vs_speed, nsim = 5))
+}
+\seealso{
+\code{\link[=sampling_distribution]{sampling_distribution()}} to simulate draws from the population
+distribution, rather than the null
 }

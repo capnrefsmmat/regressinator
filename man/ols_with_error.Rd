@@ -32,6 +32,16 @@ to estimate a model (such as with \code{glm()}).
 # t-distributed errors with 3 degrees of freedom
 ols_with_error(rt, df = 3)
 
+# A linear regression with t-distributed error, using error_scale to make
+# errors large
+population(
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2,
+               family = ols_with_error(rt, df = 4),
+               error_scale = 2.5)
+)
+
 # Cauchy-distributed errors
 ols_with_error(rcauchy, scale = 3)
 }
