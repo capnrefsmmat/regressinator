@@ -11,10 +11,11 @@
 #' @param n Number of observations to draw from the population.
 #' @return Data frame of `n` rows, with columns matching the variables specified
 #'   in the population.
-#' @importFrom assertthat assert_that
 #' @export
 sample_x <- function(population, n) {
-  assert_that(inherits(population, "population"))
+  if (!inherits(population, "population")) {
+    cli_abort("population argument must be a population defined with `population()`")
+  }
 
   predictors <- Filter(
     function(v) { inherits(v, "predictor_dist") },
@@ -59,7 +60,6 @@ parent_population <- function(sample) {
 #'   obtained from `sample_x()`.
 #' @importFrom cli cli_abort
 #' @importFrom stats rbinom rpois rnorm
-#' @importFrom assertthat assert_that
 #' @examples
 #' # A population with a simple linear relationship
 #' pop <- population(
@@ -78,7 +78,10 @@ parent_population <- function(sample) {
 #' @export
 #' @rdname sample_x
 sample_y <- function(xs) {
-  assert_that(inherits(xs, "population_sample"))
+  if (!inherits(xs, "population_sample")) {
+    cli_abort(c("data passed to sample_y() must be from sample_x()",
+                "i" = "other data frames do not have the necessary population attributes specifying the response distribution"))
+  }
 
   n <- nrow(xs)
   population <- parent_population(xs)
