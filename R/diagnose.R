@@ -96,3 +96,83 @@ diagnose_model <- function(fit, fn = augment, nsim = 20) {
 #' @export decrypt
 #' @name decrypt
 NULL
+
+#' Simulate the sampling distribution of estimates from a population
+#'
+#' Repeatedly refits the model to new samples from the population, calculates
+#' estimates for each fit, and compiles a data frame of the results.
+#'
+#' To generate sampling distributions of different quantities, the user can
+#' provide a custom `fn`. The `fn` should take a model fit as its argument and
+#' return a data frame. For instance, the data frame might contain one row per
+#' estimated coefficient and include the coefficient and its standard error; or
+#' it might contain only one row of model summary statistics.
+#'
+#' Refitting is done using the S3 generic `update()`, so this function can be
+#' used with any model fit that supports `update()`. In base R, this includes
+#' `lm()` and `glm()`, and many other model fits.
+#'
+#' @param fit A model fit to data, such as by `lm()` or `glm()`.
+#' @param data Data drawn from a `population()`, using `sample_x()` and possibly
+#'   `sample_y()`. The `population()` specification is used to draw the samples.
+#' @param fn Function to call on each new model fit to produce a data frame of
+#'   estimates. Defaults to `broom::tidy()`, which produces a tidy data frame of
+#'   coefficients, estimates, standard errors, and hypothesis tests.
+#' @param nsim Number of simulations to run.
+#' @param fixed_x If `TRUE`, the default, the predictor variables are held fixed
+#'   and only the response variables are redrawn from the population. If
+#'   `FALSE`, the predictor and response variables are drawn jointly.
+#' @return Data frame of `nsim + 1` simulation results, formed by concatenating
+#'   together the data frames returned by `fn`. The `.sample` column identifies
+#'   which simulated sample each row came from. Rows with `.sample == 0` come
+#'   from the original `fit`.
+#' @seealso [diagnose_model()] to simulate draws from the fitted model, rather
+#'   than from the population
+#' @importFrom broom tidy
+#' @examples
+#' pop <- population(
+#'   x1 = predictor("rnorm", mean = 4, sd = 10),
+#'   x2 = predictor("runif", min = 0, max = 10),
+#'   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 4.0)
+#' )
+#'
+#' d <- sample_x(pop, n = 20) |>
+#'   sample_y()
+#'
+#' fit <- lm(y ~ x1 + x2, data = d)
+#' # using the default fn = broom::tidy()
+#' samples <- sampling_distribution(fit, d)
+#' samples
+#'
+#' library(dplyr)
+#' # the model is correctly specified, so the estimates are unbiased:
+#' samples |>
+#'   group_by(term) |>
+#'   summarize(mean = mean(estimate),
+#'             sd = sd(estimate))
+#'
+#' # instead of coefficients, get the sampling distribution of R^2
+#' rsquared <- function(fit) {
+#'   data.frame(r2 = summary(fit)$r.squared)
+#' }
+#' sampling_distribution(fit, d, rsquared, nsim = 10)
+#' @export
+sampling_distribution <- function(fit, data, fn = tidy, nsim = 100,
+                                  fixed_x = TRUE) {
+  out <- fn(fit)
+  out$.sample <- 0
+
+  for (b in seq_len(nsim)) {
+    new_data <- if (fixed_x) {
+      sample_y(data)
+    } else {
+      sample_y(sample_x(data, nrow(data)))
+    }
+    new_fit <- fn(update(fit, data = new_data))
+    new_fit$.sample <- b
+
+    out <- rbind(out, new_fit)
+  }
+
+  return(out)
+}

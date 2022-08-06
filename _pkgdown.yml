@@ -16,6 +16,7 @@ reference:
       - sample_y
       - diagnose_model
       - decrypt
+      - sampling_distribution
   - title: "Working with factors"
     desc: Use factors to model categorical variables.
     contents:

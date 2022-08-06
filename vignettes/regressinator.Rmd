@@ -270,6 +270,8 @@ For example, consider a simple dataset where the true relationship is not
 linear. We can quickly plot residuals versus fitted values:
 
 ```{r, fig.width=6, fig.height=6}
+library(broom)
+
 nonlinear_pop <- population(
   x1 = predictor("runif", min = 1, max = 8),
   y = response(0.7 + x1**2, family = gaussian(), error_scale = 4.0)
@@ -280,6 +282,9 @@ nonlinear_data <- nonlinear_pop |>
   sample_y()
 
 nonlinear_fit <- lm(y ~ x1, data = nonlinear_data)
+
+# to see the kind of information we get from an augmented fit
+augment(nonlinear_fit)
 
 library(ggplot2)
 
@@ -334,3 +339,62 @@ The regressinator provides additional functions to facilitate residual
 diagnostics, such as for partial residuals; see
 `vignette("linear-regression-diagnostics")` and
 `vignette("logistic-regression-diagnostics")` for examples.
+
+## Sampling distributions
+
+The `sampling_distribution()` allows you to explore the sampling distribution of
+statistics and estimates from models fit to a population. Given a dataset drawn
+from a `population()` and a model fit to that data, it will:
+
+1. Draw repeated samples from the population. These can be with the predictors
+   held fixed, only resampling the response, or can be new samples of predictors
+   and response jointly. Each sample is the same size as the original dataset.
+2. For each sample, refit the model to that sample.
+3. For each model fit, apply a function to get features of the model fit.
+4. Combine all the results into a single data frame.
+
+By default, the function applied to each fit is `broom::tidy()`, which can take
+many types of model fits and produce a data frame of the model coefficients and
+their standard errors.
+
+We can hence explore the sampling distribution of estimates fit to samples from
+a population:
+
+```{r}
+d <- linear_pop |>
+  sample_x(n = 30) |>
+  sample_y()
+
+fit <- lm(y ~ x1 + x2, data = d)
+tidy(fit)
+
+sampling_distribution(fit, d, nsim = 4)
+```
+
+Because the output is a tidy data frame, it's easy to visualize the full
+sampling distributions:
+
+```{r}
+samples <- sampling_distribution(fit, d, nsim = 1000)
+
+samples |>
+  ggplot(aes(x = estimate)) +
+  geom_histogram() +
+  facet_wrap(vars(term), scales = "free") +
+  labs(x = "Estimate", y = "Frequency")
+```
+
+Or to get the mean and standard deviation of the sampling distribution:
+
+```{r, message=FALSE}
+library(dplyr)
+
+samples |>
+  group_by(term) |>
+  summarize(mean = mean(estimate),
+            sd = sd(estimate))
+```
+
+We could use this feature to explore how sampling distributions change as we
+change the sample size, change the complexity of the model, or introduce various
+types of model misspecification.
