@@ -12,16 +12,19 @@ partial_residuals(fit)
 residuals.}
 }
 \value{
-Data frame containing the model data and residuals in tidy form.
-There is one row \emph{per predictor} per observation, with the following
+Data frame (tibble) containing the model data and residuals in tidy
+form. There is one row \emph{per predictor} per observation, with the following
 columns:
 
 \item{obs}{Row number of this observation in the original model data frame.}
 \item{predictor_name}{Name of the predictor this row gives the partial
-residual for.} \item{predictor_value}{Value of the predictor this row gives
-the partial residual for.} \item{partial_resid}{Partial residual for this
-predictor for this observation.} \item{fitted}{Fitted value (on the response
-scale) for this observation, obtained using \code{fitted()}.}
+residual for.}
+\item{predictor_value}{Value of the predictor this row gives the partial
+residual for.}
+\item{partial_resid}{Partial residual for this predictor for this
+observation.}
+\item{fitted}{Fitted value (on the response scale) for this observation,
+obtained using \code{fitted()}.}
 \item{linear_predictor}{Linear predictor for this observation, obtained using
 \code{predict()}. For linear models, the fitted values and linear predictor are
 identical.}

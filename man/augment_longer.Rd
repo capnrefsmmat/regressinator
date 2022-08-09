@@ -13,11 +13,12 @@ the broom documentation for the full list of model types supported.}
 \item{...}{Additional arguments passed to \code{broom::augment()}.}
 }
 \value{
-A data frame in similar form to those produced by \code{broom::augment()},
-but expanded to have one row per predictor per observation. Columns
-\code{.predictor_name} and \code{.predictor_value} identify the predictor and its
-value. An additional column \code{.obs} records the original observation numbers
-so results can be matched to observations in the original model data.
+A data frame (tibble) in similar form to those produced by
+\code{broom::augment()}, but expanded to have one row per predictor per
+observation. Columns \code{.predictor_name} and \code{.predictor_value} identify the
+predictor and its value. An additional column \code{.obs} records the original
+observation numbers so results can be matched to observations in the
+original model data.
 }
 \description{
 Use \code{broom::augment()} to augment a model fit with residual and fit

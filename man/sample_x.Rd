@@ -18,8 +18,8 @@ sample_y(xs)
 obtained from \code{sample_x()}.}
 }
 \value{
-Data frame of \code{n} rows, with columns matching the variables specified
-in the population.
+Data frame (tibble) of \code{n} rows, with columns matching the variables
+specified in the population.
 }
 \description{
 Sampling is split into two steps, for predictors and for response variables,

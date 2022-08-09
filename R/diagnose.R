@@ -42,16 +42,17 @@
 #'   `methods(augment)`.
 #' @param nsim Number of total diagnostics. For example, if `nsim = 20`, the
 #'   diagnostics for `fit` are hidden among 19 null diagnostics.
-#' @return For `diagnose_model()`, a data frame with columns corresponding to
-#'   the columns returned by `fn`. The additional column `.sample` indicates
-#'   which set of diagnostics each row is from. For instance, if the true data
-#'   is in position 5, selecting rows with `.sample == 5` will retrieve the
-#'   diagnostics from the original model fit.
+#' @return For `diagnose_model()`, a data frame (tibble) with columns
+#'   corresponding to the columns returned by `fn`. The additional column
+#'   `.sample` indicates which set of diagnostics each row is from. For
+#'   instance, if the true data is in position 5, selecting rows with `.sample
+#'   == 5` will retrieve the diagnostics from the original model fit.
 #'
 #' For `decrypt()`, the decrypted message.
 #' @importFrom broom augment
 #' @importFrom nullabor lineup
 #' @importFrom stats simulate update
+#' @importFrom tibble as_tibble
 #' @seealso [sampling_distribution()] to simulate draws from the population
 #'   distribution, rather than the null
 #' @examples
@@ -85,7 +86,7 @@ diagnose_model <- function(fit, fn = augment, nsim = 20) {
     simulated_diagnostics <- rbind(simulated_diagnostics, diagnostics)
   }
 
-  return(lineup(true = true, samples = simulated_diagnostics, n = nsim))
+  return(as_tibble(lineup(true = true, samples = simulated_diagnostics, n = nsim)))
 }
 
 #' @rdname diagnose_model
@@ -122,10 +123,10 @@ NULL
 #' @param fixed_x If `TRUE`, the default, the predictor variables are held fixed
 #'   and only the response variables are redrawn from the population. If
 #'   `FALSE`, the predictor and response variables are drawn jointly.
-#' @return Data frame of `nsim + 1` simulation results, formed by concatenating
-#'   together the data frames returned by `fn`. The `.sample` column identifies
-#'   which simulated sample each row came from. Rows with `.sample == 0` come
-#'   from the original `fit`.
+#' @return Data frame (tibble) of `nsim + 1` simulation results, formed by
+#'   concatenating together the data frames returned by `fn`. The `.sample`
+#'   column identifies which simulated sample each row came from. Rows with
+#'   `.sample == 0` come from the original `fit`.
 #' @seealso [diagnose_model()] to simulate draws from the fitted model, rather
 #'   than from the population
 #' @importFrom broom tidy
@@ -144,7 +145,7 @@ NULL
 #' samples <- sampling_distribution(fit, d)
 #' samples
 #'
-#' library(dplyr)
+#' suppressMessages(library(dplyr))
 #' # the model is correctly specified, so the estimates are unbiased:
 #' samples |>
 #'   group_by(term) |>
@@ -156,10 +157,11 @@ NULL
 #'   data.frame(r2 = summary(fit)$r.squared)
 #' }
 #' sampling_distribution(fit, d, rsquared, nsim = 10)
+#' @importFrom tibble as_tibble
 #' @export
 sampling_distribution <- function(fit, data, fn = tidy, nsim = 100,
                                   fixed_x = TRUE) {
-  out <- fn(fit)
+  out <- as_tibble(fn(fit))
   out$.sample <- 0
 
   for (b in seq_len(nsim)) {

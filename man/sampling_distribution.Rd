@@ -23,10 +23,10 @@ and only the response variables are redrawn from the population. If
 \code{FALSE}, the predictor and response variables are drawn jointly.}
 }
 \value{
-Data frame of \code{nsim + 1} simulation results, formed by concatenating
-together the data frames returned by \code{fn}. The \code{.sample} column identifies
-which simulated sample each row came from. Rows with \code{.sample == 0} come
-from the original \code{fit}.
+Data frame (tibble) of \code{nsim + 1} simulation results, formed by
+concatenating together the data frames returned by \code{fn}. The \code{.sample}
+column identifies which simulated sample each row came from. Rows with
+\code{.sample == 0} come from the original \code{fit}.
 }
 \description{
 Repeatedly refits the model to new samples from the population, calculates

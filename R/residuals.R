@@ -32,8 +32,8 @@
 #'   `lm()` or `glm()`, or any model whose `residuals()` method supports a `type
 #'   = "partial"` argument that returns a matrix or data frame of partial
 #'   residuals.
-#' @return Data frame containing the model data and residuals in tidy form.
-#'   There is one row *per predictor* per observation, with the following
+#' @return Data frame (tibble) containing the model data and residuals in tidy
+#'   form. There is one row *per predictor* per observation, with the following
 #'   columns:
 #'
 #' \item{obs}{Row number of this observation in the original model data frame.}
@@ -64,6 +64,7 @@
 #' Regression Models with Predictor Effect Plots and Partial Residuals." *Journal
 #' of Statistical Software*, 87(9). <https://doi.org/10.18637/jss.v087.i09>
 #' @importFrom stats predict fitted
+#' @importFrom tibble as_tibble
 #' @examples
 #' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 #' partial_residuals(fit)
@@ -95,7 +96,7 @@ partial_residuals <- function(fit) {
     }
   }
 
-  return(out)
+  return(as_tibble(out))
 }
 
 #' Obtained binned residuals for a model
@@ -128,7 +129,7 @@ partial_residuals <- function(fit) {
 #' @param ... Additional arguments passed on to `residuals()`. The most useful
 #'   additional argument is typically `type`, to select the type of residuals to
 #'   produce (such as standardized residuals or deviance residuals).
-#' @return Data frame with one row per bin.
+#' @return Data frame (tibble) with one row per bin.
 #'
 #' \item{.bin}{Bin number.}
 #' \item{.n}{Number of observations in this bin.}
@@ -139,10 +140,19 @@ partial_residuals <- function(fit) {
 #' \item{.resid.mean}{Mean residual in this bin.}
 #' \item{.resid.sd}{Standard deviation of residuals in this bin.}
 #'
-#' @seealso [partial_residuals()]
+#' @seealso [partial_residuals()] for the related partial residuals;
+#'   `vignette("logistic-regression-diagnostics")` for examples of use and
+#'   interpretation of binned residuals in logistic regression
 #' @references Gelman, A. and Hill, J. (2006). Data Analysis Using Regression
 #'   and Multilevel/Hierarchical Models. Cambridge University Press.
 #' @importFrom stats residuals sd
+#' @importFrom tibble as_tibble
+#' @examples
+#' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+#'
+#' binned_residuals(fit, n_bins = 5)
+#'
+#' binned_residuals(fit, term = "cyl")
 #' @export
 binned_residuals <- function(fit, term = NULL, n_bins = NULL, ...) {
   if (is.null(term)) {
@@ -196,7 +206,7 @@ binned_residuals <- function(fit, term = NULL, n_bins = NULL, ...) {
     out$.resid.sd[row] <- sd(bin_resids)
   }
 
-  return(out)
+  return(as_tibble(out))
 }
 
 # adapted from https://stackoverflow.com/a/13217607, available CC-BY-SA
@@ -221,11 +231,12 @@ response_var <- function(formula) {
 #' @param x A model fit object, such as those returned by `lm()` or `glm()`. See
 #'   the broom documentation for the full list of model types supported.
 #' @param ... Additional arguments passed to `broom::augment()`.
-#' @return A data frame in similar form to those produced by `broom::augment()`,
-#'   but expanded to have one row per predictor per observation. Columns
-#'   `.predictor_name` and `.predictor_value` identify the predictor and its
-#'   value. An additional column `.obs` records the original observation numbers
-#'   so results can be matched to observations in the original model data.
+#' @return A data frame (tibble) in similar form to those produced by
+#'   `broom::augment()`, but expanded to have one row per predictor per
+#'   observation. Columns `.predictor_name` and `.predictor_value` identify the
+#'   predictor and its value. An additional column `.obs` records the original
+#'   observation numbers so results can be matched to observations in the
+#'   original model data.
 #' @importFrom broom augment
 #' @importFrom tidyr pivot_longer starts_with any_of
 #' @examples

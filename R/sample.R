@@ -9,8 +9,9 @@
 #'
 #' @param population Population, as defined by `population()`.
 #' @param n Number of observations to draw from the population.
-#' @return Data frame of `n` rows, with columns matching the variables specified
-#'   in the population.
+#' @return Data frame (tibble) of `n` rows, with columns matching the variables
+#'   specified in the population.
+#' @importFrom tibble as_tibble
 #' @export
 sample_x <- function(population, n) {
   if (!inherits(population, "population")) {
@@ -46,10 +47,12 @@ sample_x <- function(population, n) {
     }
   }
 
+  sampled_data <- as_tibble(sampled_data)
+
   return(structure(
-    as.data.frame(sampled_data),
+    sampled_data,
     population = population,
-    class = c("population_sample", "data.frame")))
+    class = c("population_sample", class(sampled_data))))
 }
 
 parent_population <- function(sample) {

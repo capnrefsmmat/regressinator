@@ -23,7 +23,7 @@ additional argument is typically \code{type}, to select the type of residuals to
 produce (such as standardized residuals or deviance residuals).}
 }
 \value{
-Data frame with one row per bin.
+Data frame (tibble) with one row per bin.
 
 \item{.bin}{Bin number.}
 \item{.n}{Number of observations in this bin.}
@@ -53,10 +53,19 @@ its average residual value is large, this suggests those observations are
 collectively poorly fit. By default, the binning is with respect to the
 fitted values.
 }
+\examples{
+fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+
+binned_residuals(fit, n_bins = 5)
+
+binned_residuals(fit, term = "cyl")
+}
 \references{
 Gelman, A. and Hill, J. (2006). Data Analysis Using Regression
 and Multilevel/Hierarchical Models. Cambridge University Press.
 }
 \seealso{
-\code{\link[=partial_residuals]{partial_residuals()}}
+\code{\link[=partial_residuals]{partial_residuals()}} for the related partial residuals;
+\code{vignette("logistic-regression-diagnostics")} for examples of use and
+interpretation of binned residuals in logistic regression
 }

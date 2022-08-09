@@ -27,11 +27,10 @@ diagnostics for \code{fit} are hidden among 19 null diagnostics.}
 diagnostics}
 }
 \value{
-For \code{diagnose_model()}, a data frame with columns corresponding to
-the columns returned by \code{fn}. The additional column \code{.sample} indicates
-which set of diagnostics each row is from. For instance, if the true data
-is in position 5, selecting rows with \code{.sample == 5} will retrieve the
-diagnostics from the original model fit.
+For \code{diagnose_model()}, a data frame (tibble) with columns
+corresponding to the columns returned by \code{fn}. The additional column
+\code{.sample} indicates which set of diagnostics each row is from. For
+instance, if the true data is in position 5, selecting rows with \code{.sample == 5} will retrieve the diagnostics from the original model fit.
 
 For \code{decrypt()}, the decrypted message.
 }
