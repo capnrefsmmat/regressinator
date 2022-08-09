@@ -49,9 +49,9 @@ diagnose_model(fit) |>
   labs(x = "x", y = "Residual")
 ```
 
-    ## decrypt("sD0f gCdC En JP2EdEPn 8Z")
+    ## decrypt("23eg MuPu NE KwWNPNwE Ft")
 
-![](man/figures/README-example-regression-lineup-1.png)<!-- -->
+<img src="man/figures/README-example-regression-lineup-1.png" width="672" />
 
 Each of the 20 residual plots represents a simple regression fit. One of
 the regressions was fit to the simulated data with a nonlinear
@@ -98,3 +98,45 @@ design example to display in lecture, or students with R experience can
 run interactive examples and explore different situations. Ideally, if a
 student asks “But what if *\[some problem with the model\]* happens?”,
 you should be able to reply with a quick simulation.
+
+## Compared to other packages
+
+There have been several past efforts to support pedagogical simulation
+and lineup plots in R:
+
+-   [nullabor](https://cran.r-project.org/package=nullabor), which
+    supports lineup plots. The regressinator uses nullabor underneath
+    when building lineups.
+-   [mosaic](https://cran.r-project.org/package=mosaic), part of
+    [Project MOSAIC](http://www.mosaic-web.org/), provides a simple set
+    of functions for doing EDA and basic inferential statistics,
+    including the `do()` function for easy simulation without loops.
+-   [infer](https://infer.tidymodels.org/), part of the
+    [tidymodels](https://www.tidymodels.org/) framework, can conduct
+    simulation-based inference for proportions, means, regression
+    slopes, and other estimates commonly used in statistics courses,
+    using only a few simple functions.
+
+Unlike these packages, the regressinator provides a simple tool for
+specifying a *population* and sampling from it, rather than conducting
+bootstrapping or permutation on an observed dataset. This makes the
+regressinator suitable for, say, exploring the properties of regression
+estimates and diagnostics in known populations, but less suitable for
+simulation-based hypothesis testing.
+
+Unlike infer, the regressinator does not wrap R statistical methods or
+provide its own inference functions. Users must use `lm()`, `glm()`, or
+whatever other methods they need for their modeling. This makes the
+regressinator less suitable for introductory courses where extra
+complexity should be hidden away from students, but more suitable for
+more advanced work: as students advance to more complex models provided
+by other packages, they can use those models in the regressinator,
+without any special support being required.
+
+A useful counterpart to the regressinator might be
+[rsample](https://rsample.tidymodels.org/), a general framework for
+methods that resample from the observed data, such as bootstrapping. In
+the same way that the regressinator supports general-purpose simulation
+from the population without hard-coding specific use cases, rsample
+supports resampling and cross-validation in a general way that could be
+used for any kind of modeling, not just models built into the package.
