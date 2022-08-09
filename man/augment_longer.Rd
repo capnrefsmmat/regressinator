@@ -28,3 +28,9 @@ one row per predictor per observation, to facilitate plotting of the result.
 The name comes by analogy to \code{tidyr::pivot_longer()}, and the concept of long
 versus wide data formats.
 }
+\examples{
+fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+
+# each observation appears 3 times, once per predictor:
+augment_longer(fit)
+}

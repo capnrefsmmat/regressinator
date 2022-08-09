@@ -18,13 +18,10 @@ columns:
 
 \item{obs}{Row number of this observation in the original model data frame.}
 \item{predictor_name}{Name of the predictor this row gives the partial
-residual for.}
-\item{predictor_value}{Value of the predictor this row gives the partial
-residual for.}
-\item{partial_resid}{Partial residual for this predictor for this
-observation.}
-\item{fitted}{Fitted value (on the response scale) for this observation,
-obtained using \code{fitted()}.}
+residual for.} \item{predictor_value}{Value of the predictor this row gives
+the partial residual for.} \item{partial_resid}{Partial residual for this
+predictor for this observation.} \item{fitted}{Fitted value (on the response
+scale) for this observation, obtained using \code{fitted()}.}
 \item{linear_predictor}{Linear predictor for this observation, obtained using
 \code{predict()}. For linear models, the fitted values and linear predictor are
 identical.}
@@ -59,6 +56,10 @@ When plotted against \eqn{X_j}, we expect this to produce a line with slope
 \eqn{\hat \beta_j}. If instead the scatterplot has a curve, this suggests the
 relationship between \eqn{X_j} and \eqn{Y} is nonlinear.
 }
+\examples{
+fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+partial_residuals(fit)
+}
 \references{
 R. Dennis Cook. "Exploring Partial Residual Plots",
 \emph{Technometrics}, 35:4 (1993), 351-362.
@@ -74,5 +75,7 @@ Regression Models with Predictor Effect Plots and Partial Residuals." \emph{Jour
 of Statistical Software}, 87(9). \url{https://doi.org/10.18637/jss.v087.i09}
 }
 \seealso{
-\code{\link[=binned_residuals]{binned_residuals()}}
+\code{\link[=binned_residuals]{binned_residuals()}} for the related binned residuals;
+\code{vignette("linear-regression-diagnostics")} for examples of plotting and
+interpreting partial residuals
 }

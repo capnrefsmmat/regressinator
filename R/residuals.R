@@ -48,7 +48,9 @@
 #' \item{linear_predictor}{Linear predictor for this observation, obtained using
 #' `predict()`. For linear models, the fitted values and linear predictor are
 #' identical.}
-#' @seealso [binned_residuals()]
+#' @seealso [binned_residuals()] for the related binned residuals;
+#'   `vignette("linear-regression-diagnostics")` for examples of plotting and
+#'   interpreting partial residuals
 #' @references R. Dennis Cook. "Exploring Partial Residual Plots",
 #'   *Technometrics*, 35:4 (1993), 351-362.
 #'   <https://doi.org/10.1080/00401706.1993.10485350>
@@ -62,6 +64,9 @@
 #' Regression Models with Predictor Effect Plots and Partial Residuals." *Journal
 #' of Statistical Software*, 87(9). <https://doi.org/10.18637/jss.v087.i09>
 #' @importFrom stats predict fitted
+#' @examples
+#' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+#' partial_residuals(fit)
 #' @export
 partial_residuals <- function(fit) {
   partials <- as.data.frame(residuals(fit, type = "partial"))
@@ -223,6 +228,11 @@ response_var <- function(formula) {
 #'   so results can be matched to observations in the original model data.
 #' @importFrom broom augment
 #' @importFrom tidyr pivot_longer starts_with any_of
+#' @examples
+#' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+#'
+#' # each observation appears 3 times, once per predictor:
+#' augment_longer(fit)
 #' @export
 augment_longer <- function(x, ...) {
   out <- augment(x, ...)

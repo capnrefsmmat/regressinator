@@ -58,7 +58,7 @@ fit <- lm(y ~ x1 + x2, data = d)
 samples <- sampling_distribution(fit, d)
 samples
 
-library(dplyr)
+suppressMessages(library(dplyr))
 # the model is correctly specified, so the estimates are unbiased:
 samples |>
   group_by(term) |>
