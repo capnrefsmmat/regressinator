@@ -91,25 +91,25 @@ print.predictor_dist <- function(x, ...) {
 #'   expression in terms of the predictors, which will be evaluated when
 #'   simulating response data. For generalized linear models, leave as `NULL`.
 #' @importFrom stats gaussian
+#' @importFrom cli cli_abort cli_warn
 #' @export
 response <- function(expr, family = gaussian(), error_scale = NULL) {
   response_expr <- substitute(expr)
   error_scale <- substitute(error_scale)
 
   if (!inherits(family, "family")) {
-    family_class <- paste0(class(family), collapse = ", ")
-    cli_abort(c("family provided must be a family object",
-                "*" = "family provided has class {family_class}"))
+    cli_abort(c("{.arg family} argument must be a family object",
+                "x" = "family provided has class {.cls {class(family)}}"))
   }
 
   if (!(family$family %in% c("gaussian", "ols_with_error")) &&
         !is.null(error_scale)) {
-    cli_warn("error_scale was provided to population(), but family is not gaussian() or ols_with_error(), so it will be ignored")
+    cli_warn("{.arg error_scale} was provided to {.fn population}, but family is not {.fn gaussian} or {.fn ols_with_error}, so it will be ignored")
   }
 
   if (family$family %in% c("gaussian", "ols_with_error") &&
         is.null(error_scale)) {
-    cli_abort("error_scale must be provided for gaussian and ols_with_error families")
+    cli_abort("{.arg error_scale} must be provided for {.fn gaussian} and {.fn ols_with_error} families")
   }
 
   return(structure(
@@ -177,7 +177,6 @@ print.response_dist <- function(x, ...) {
 #'                 sigma = matrix(c(1, 0.8, 0.8, 1), nrow = 2)),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
 #' )
-#' @importFrom cli cli_abort cli_warn
 #' @export
 population <- function(...) {
   variables <- list(...)
@@ -243,9 +242,8 @@ ols_with_error <- function(error, ...) {
   fam$family <- "ols_with_error"
 
   fam$initialize <- expression(
-    cli_abort(c("ols_with_error() cannot be used to fit models, only to specify populations",
-                "i" = "to fit models with custom error distribution assumptions,",
-                "i" = "derive your own maximum likelihood estimator"))
+    cli_abort(c("{.fn ols_with_error} cannot be used to fit models, only to specify populations",
+                "i" = "to fit models with custom error distribution assumptions, derive your own maximum likelihood estimator"))
   )
 
   fam$simulate <- function(object, nsim, env = model.frame(object), ftd = NULL) {
@@ -265,8 +263,8 @@ ols_with_error <- function(error, ...) {
     err_len <- length(err)
 
     if (err_len != n) {
-      cli_abort(c("error function provided to ols_with_error() returned incorrect output length",
-                  "*" = "data has {n} observations, but function only returned {err_len} values"),
+      cli_abort(c("error function provided to {.fn ols_with_error} returned incorrect output length",
+                  "*" = "data has {.val {n}} observations, but function only returned {.val {err_len}} value{?s}"),
                 class = "regressinator_error_length")
     }
 
@@ -319,7 +317,7 @@ custom_family <- function(distribution, inverse_link) {
   fam$family <- "custom_family"
 
   fam$initialize <- expression(
-    cli_abort(c("custom_family() cannot be used to fit models, only to specify populations",
+    cli_abort(c("{.fn custom_family} cannot be used to fit models, only to specify populations",
                 "i" = "see ?family for a list of families supported for model fits"))
   )
   fam$link <- paste0("inverse of ", deparse(substitute(inverse_link)))

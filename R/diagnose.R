@@ -63,12 +63,12 @@
 #'   data.frame(resid = residuals(f),
 #'              speed = model.frame(f)$speed)
 #' }
-#' head(diagnose_model(fit, fn = resids_vs_speed, nsim = 5))
+#' diagnose_model(fit, fn = resids_vs_speed, nsim = 5)
+#' @importFrom cli cli_abort
 #' @export
 diagnose_model <- function(fit, fn = augment, nsim = 20) {
-  # TODO Wrap fn to ensure it always returns a data frame, regardless of its
-  # return type
   true <- fn(fit)
+  check_fn_output(true)
 
   orig_data <- fit$model
   # get an empty data frame with the same column names
@@ -81,12 +81,25 @@ diagnose_model <- function(fit, fn = augment, nsim = 20) {
     sim_fit <- update(fit, data = sim_data)
 
     diagnostics <- fn(sim_fit)
+
+    check_fn_output(diagnostics)
+
     diagnostics$.n <- ii
 
     simulated_diagnostics <- rbind(simulated_diagnostics, diagnostics)
   }
 
   return(as_tibble(lineup(true = true, samples = simulated_diagnostics, n = nsim)))
+}
+
+#' @importFrom rlang caller_env
+check_fn_output <- function(x) {
+  if (!inherits(x, "data.frame")) {
+    cli_abort(c("diagnostic function {.arg fn} must return a data frame or tibble",
+                "x" = "{.arg fn} returned a result of class {.cls {class(x)}}"),
+              class = "regressinator_diagnostic_class",
+              call = caller_env())
+  }
 }
 
 #' @rdname diagnose_model
@@ -161,7 +174,10 @@ NULL
 #' @export
 sampling_distribution <- function(fit, data, fn = tidy, nsim = 100,
                                   fixed_x = TRUE) {
-  out <- as_tibble(fn(fit))
+  out <- fn(fit)
+  check_fn_output(out)
+
+  out <- as_tibble(out)
   out$.sample <- 0
 
   for (b in seq_len(nsim)) {
@@ -171,6 +187,7 @@ sampling_distribution <- function(fit, data, fn = tidy, nsim = 100,
       sample_y(sample_x(data, nrow(data)))
     }
     new_fit <- fn(update(fit, data = new_data))
+    check_fn_output(new_fit)
     new_fit$.sample <- b
 
     out <- rbind(out, new_fit)

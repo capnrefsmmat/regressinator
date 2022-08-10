@@ -163,7 +163,7 @@ binned_residuals <- function(fit, term = NULL, n_bins = NULL, ...) {
     d <- model.frame(fit)
 
     if (!(term %in% colnames(d))) {
-      cli_abort("term '{term}' is not in the model frame provided")
+      cli_abort("term {.var {term}} is not in the model frame provided")
     }
 
     x_vals <- d[, term]

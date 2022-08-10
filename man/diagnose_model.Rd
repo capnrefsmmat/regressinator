@@ -76,7 +76,7 @@ resids_vs_speed <- function(f) {
   data.frame(resid = residuals(f),
              speed = model.frame(f)$speed)
 }
-head(diagnose_model(fit, fn = resids_vs_speed, nsim = 5))
+diagnose_model(fit, fn = resids_vs_speed, nsim = 5)
 }
 \seealso{
 \code{\link[=sampling_distribution]{sampling_distribution()}} to simulate draws from the population

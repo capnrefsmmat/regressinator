@@ -61,7 +61,7 @@ by_level <- function(x, ...) {
       # just use that named vector
       levels <- levels[[1]]
     } else {
-      cli_abort("by_level() should be provided either a single named vector or a sequence of named arguments",
+      cli_abort("{.fn by_level} should be provided either a single named vector or a sequence of named arguments",
                 class = "regressinator_by_level_arg")
     }
   } else {
@@ -70,12 +70,11 @@ by_level <- function(x, ...) {
 
   observed_levels <- unique(x)
   if (!all(observed_levels %in% names(levels))) {
-    undef_levels <- paste0(setdiff(observed_levels, names(levels)),
-                           collapse = ", ")
+    undef_levels <- setdiff(observed_levels, names(levels))
 
-    cli_warn(c("not all factor levels were assigned a value in by_level()",
-               "*" = "levels without a value: {undef_levels}",
-               "i" = "levels without a value will be given value NA"),
+    cli_warn(c("not all factor levels were assigned a value in {.fn by_level}",
+               "x" = "levels without a value: {.val {undef_levels}}",
+               "i" = "levels without a value will be given value {.val {NA}}"),
              class = "regressinator_by_level_missing_level")
   }
 
