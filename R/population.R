@@ -96,11 +96,7 @@ print.predictor_dist <- function(x, ...) {
 response <- function(expr, family = gaussian(), error_scale = NULL) {
   response_expr <- substitute(expr)
   error_scale <- substitute(error_scale)
-
-  if (!inherits(family, "family")) {
-    cli_abort(c("{.arg family} argument must be a family object",
-                "x" = "family provided has class {.cls {class(family)}}"))
-  }
+  family <- normalize_family(family)
 
   if (!(family$family %in% c("gaussian", "ols_with_error")) &&
         !is.null(error_scale)) {
