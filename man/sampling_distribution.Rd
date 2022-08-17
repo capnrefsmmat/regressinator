@@ -7,7 +7,8 @@
 sampling_distribution(fit, data, fn = tidy, nsim = 100, fixed_x = TRUE, ...)
 }
 \arguments{
-\item{fit}{A model fit to data, such as by \code{lm()} or \code{glm()}.}
+\item{fit}{A model fit to data, such as by \code{lm()} or \code{glm()}, to refit to
+each sample from the population.}
 
 \item{data}{Data drawn from a \code{population()}, using \code{sample_x()} and possibly
 \code{sample_y()}. The \code{population()} specification is used to draw the samples.}
@@ -75,6 +76,6 @@ rsquared <- function(fit) {
 sampling_distribution(fit, d, rsquared, nsim = 10)
 }
 \seealso{
-\code{\link[=diagnose_model]{diagnose_model()}} to simulate draws from the fitted model, rather
-than from the population
+\code{\link[=parametric_boot_distribution]{parametric_boot_distribution()}} to simulate draws from a fitted
+model, rather than from the population
 }

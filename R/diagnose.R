@@ -15,22 +15,18 @@
 #' include the residuals and fitted values for each observation; or it might
 #' be a single row containing a summary statistic or test statistic.
 #'
-#' `fn` will be called on the original `fit` provided. Then `simulate()` will be
-#' used to simulate data from the model fit `nsim - 1` times, the model will be
-#' refit to each of these datasets, and `fn` will be run on each refit model.
-#' The null distribution is conditional on X, i.e. the covariates used will be
-#' identical, and only the response values will be simulated. The data frames
-#' are concatenated with an additional `.sample` column identifying which fit
-#' each row came from.
+#' `fn` will be called on the original `fit` provided. Then
+#' `parametric_boot_distribution()` will be used to simulate data from the model
+#' fit `nsim - 1` times, refit the model to each simulated dataset, and run `fn`
+#' on each refit model. The null distribution is conditional on X, i.e. the
+#' covariates used will be identical, and only the response values will be
+#' simulated. The data frames are concatenated with an additional `.sample`
+#' column identifying which fit each row came from.
 #'
 #' When called, this function will print a message such as
 #' `decrypt("sD0f gCdC En JP2EdEPn ZY")`. This is how to get the location of the
 #' true diagnostics among the null diagnostics: evaluating this in the R console
 #' will produce a string such as `"True data in position 5"`.
-#'
-#' Because `diagnose_model()` uses the S3 generic methods `simulate()` and
-#' `update()`, it can be used with any model fit for which methods are provided.
-#' In base R, this includes `lm()` and `glm()`.
 #'
 #' @param fit A model fit to data, such as by `lm()` or `glm()`
 #' @param fn A diagnostic function. The function should take one argument, a
@@ -54,8 +50,9 @@
 #' @importFrom nullabor lineup
 #' @importFrom stats simulate update
 #' @importFrom tibble as_tibble
-#' @seealso [sampling_distribution()] to simulate draws from the population
-#'   distribution, rather than the null
+#' @seealso [parametric_boot_distribution()] to simulate draws by using the
+#'   fitted model to draw new response values; [sampling_distribution()] to
+#'   simulate draws from the population distribution, rather than from the model
 #' @examples
 #' fit <- lm(dist ~ speed, data = cars)
 #' diagnose_model(fit, nsim = 5)
@@ -71,24 +68,7 @@ diagnose_model <- function(fit, fn = augment, nsim = 20, ...) {
   true <- fn(fit, ...)
   check_fn_output(true)
 
-  orig_data <- fit$model
-  # get an empty data frame with the same column names
-  simulated_diagnostics <- true[c(), ]
-  simulated_ys <- simulate(fit, nsim = nsim - 1)
-  for (ii in seq_len(ncol(simulated_ys))) {
-    sim_data <- orig_data
-    sim_data$y <- simulated_ys[, ii]
-
-    sim_fit <- update(fit, data = sim_data)
-
-    diagnostics <- fn(sim_fit, ...)
-
-    check_fn_output(diagnostics)
-
-    diagnostics$.n <- ii
-
-    simulated_diagnostics <- rbind(simulated_diagnostics, diagnostics)
-  }
+  simulated_diagnostics <- parametric_boot_distribution(fit, fn, nsim = nsim - 1, ...)
 
   return(as_tibble(lineup(true = true, samples = simulated_diagnostics, n = nsim)))
 }
@@ -112,6 +92,61 @@ check_fn_output <- function(x) {
 #' @name decrypt
 NULL
 
+#' Simulate the distribution of estimates by parametric bootstrap
+#'
+#' Repeatedly simulates new response values by using the fitted model, holding
+#' the covariates fixed, and refits the model to each simulated dataset.
+#' Estimates, confidence intervals, or other quantities are extracted from each
+#' fitted model and returned as a tidy data frame.
+#'
+#' Because `diagnose_model()` uses the S3 generic methods `model.frame()`,
+#' `simulate()`, and `update()`, it can be used with any model fit for which
+#' methods are provided. In base R, this includes `lm()` and `glm()`.
+#'
+#' @param fit A model fit to data, such as by `lm()` or `glm()`, to simulate new
+#'   response values from.
+#' @param fn Function to call on each new model fit to produce a data frame of
+#'   estimates. Defaults to `broom::tidy()`, which produces a tidy data frame of
+#'   coefficients, estimates, standard errors, and hypothesis tests.
+#' @param nsim Number of total simulations to run.
+#' @param ... Additional arguments passed to `fn` each time it is called.
+#' @return A data frame (tibble) with columns corresponding to the columns
+#'   returned by `fn`. The additional column `.sample` indicates which fit each
+#'   row is from.
+#' @seealso [diagnose_model()] to use resampling to aid in regression
+#'   diagnostics; [sampling_distribution()] to simulate draws from the
+#'   population distribution, rather than the null
+#' @importFrom broom tidy
+#' @importFrom purrr map_dfr
+#' @importFrom tibble as_tibble
+#' @examples
+#' fit <- lm(dist ~ speed, data = cars)
+#' parametric_boot_distribution(fit, nsim = 5)
+#' @export
+parametric_boot_distribution <- function(fit, fn = tidy, nsim = 100, ...) {
+  simulated_ys <- simulate(fit, nsim = nsim)
+  orig_data <- model.frame(fit)
+
+  out <- map_dfr(
+    seq_len(ncol(simulated_ys)),
+    function(ii) {
+      sim_data <- orig_data
+      sim_data$y <- simulated_ys[, ii]
+
+      sim_fit <- update(fit, data = sim_data)
+
+      diagnostics <- fn(sim_fit, ...)
+
+      check_fn_output(diagnostics)
+
+      diagnostics$.n <- ii
+      return(diagnostics)
+    }
+  )
+
+  return(as_tibble(out))
+}
+
 #' Simulate the sampling distribution of estimates from a population
 #'
 #' Repeatedly refits the model to new samples from the population, calculates
@@ -127,7 +162,8 @@ NULL
 #' used with any model fit that supports `update()`. In base R, this includes
 #' `lm()` and `glm()`, and many other model fits.
 #'
-#' @param fit A model fit to data, such as by `lm()` or `glm()`.
+#' @param fit A model fit to data, such as by `lm()` or `glm()`, to refit to
+#'   each sample from the population.
 #' @param data Data drawn from a `population()`, using `sample_x()` and possibly
 #'   `sample_y()`. The `population()` specification is used to draw the samples.
 #' @param fn Function to call on each new model fit to produce a data frame of
@@ -142,8 +178,8 @@ NULL
 #'   concatenating together the data frames returned by `fn`. The `.sample`
 #'   column identifies which simulated sample each row came from. Rows with
 #'   `.sample == 0` come from the original `fit`.
-#' @seealso [diagnose_model()] to simulate draws from the fitted model, rather
-#'   than from the population
+#' @seealso [parametric_boot_distribution()] to simulate draws from a fitted
+#'   model, rather than from the population
 #' @importFrom broom tidy
 #' @examples
 #' pop <- population(

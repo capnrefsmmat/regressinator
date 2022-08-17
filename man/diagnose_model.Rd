@@ -51,22 +51,18 @@ frame. For instance, the data frame might contain one row per observation and
 include the residuals and fitted values for each observation; or it might
 be a single row containing a summary statistic or test statistic.
 
-\code{fn} will be called on the original \code{fit} provided. Then \code{simulate()} will be
-used to simulate data from the model fit \code{nsim - 1} times, the model will be
-refit to each of these datasets, and \code{fn} will be run on each refit model.
-The null distribution is conditional on X, i.e. the covariates used will be
-identical, and only the response values will be simulated. The data frames
-are concatenated with an additional \code{.sample} column identifying which fit
-each row came from.
+\code{fn} will be called on the original \code{fit} provided. Then
+\code{parametric_boot_distribution()} will be used to simulate data from the model
+fit \code{nsim - 1} times, refit the model to each simulated dataset, and run \code{fn}
+on each refit model. The null distribution is conditional on X, i.e. the
+covariates used will be identical, and only the response values will be
+simulated. The data frames are concatenated with an additional \code{.sample}
+column identifying which fit each row came from.
 
 When called, this function will print a message such as
 \code{decrypt("sD0f gCdC En JP2EdEPn ZY")}. This is how to get the location of the
 true diagnostics among the null diagnostics: evaluating this in the R console
 will produce a string such as \code{"True data in position 5"}.
-
-Because \code{diagnose_model()} uses the S3 generic methods \code{simulate()} and
-\code{update()}, it can be used with any model fit for which methods are provided.
-In base R, this includes \code{lm()} and \code{glm()}.
 }
 \examples{
 fit <- lm(dist ~ speed, data = cars)
@@ -79,6 +75,7 @@ resids_vs_speed <- function(f) {
 diagnose_model(fit, fn = resids_vs_speed, nsim = 5)
 }
 \seealso{
-\code{\link[=sampling_distribution]{sampling_distribution()}} to simulate draws from the population
-distribution, rather than the null
+\code{\link[=parametric_boot_distribution]{parametric_boot_distribution()}} to simulate draws by using the
+fitted model to draw new response values; \code{\link[=sampling_distribution]{sampling_distribution()}} to
+simulate draws from the population distribution, rather than from the model
 }
