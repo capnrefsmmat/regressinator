@@ -17,7 +17,10 @@ RoxygenNote: 7.2.1
 Imports:
         broom,
         cli,
+        dplyr,
+        ggplot2,
         nullabor,
+        purrr,
         rlang,
         tibble,
         tidyr
@@ -25,8 +28,6 @@ Suggests:
     rmarkdown,
     knitr,
     mvtnorm,
-    ggplot2,
-    dplyr,
     testthat (>= 3.0.0)
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr

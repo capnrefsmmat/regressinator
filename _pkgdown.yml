@@ -29,3 +29,5 @@ reference:
       - augment_longer
       - partial_residuals
       - binned_residuals
+      - bin_by_interval
+      - empirical_link

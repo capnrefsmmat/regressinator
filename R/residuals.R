@@ -99,7 +99,7 @@ partial_residuals <- function(fit) {
   return(as_tibble(out))
 }
 
-#' Obtained binned residuals for a model
+#' Obtain binned residuals for a model
 #'
 #' Construct a data frame by binning the fitted values or predictors of a model
 #' into discrete bins, and calculating the average value of the residuals within
@@ -111,7 +111,7 @@ partial_residuals <- function(fit) {
 #' regression, plotting the residuals versus covariates usually produces two
 #' curved lines.
 #'
-#' If we first bin the data, i.e. divide up the observations into `n_bins` bins
+#' If we first bin the data, i.e. divide up the observations into `breaks` bins
 #' based on their fitted values, we can calculate the average residual within
 #' each bin. This can be more informative: if a region has 20 observations and
 #' its average residual value is large, this suggests those observations are
@@ -123,88 +123,68 @@ partial_residuals <- function(fit) {
 #' @param term If `NULL`, bin the residuals with respect to the fitted values.
 #'   If non-`NULL`, this should be a string identifying a model term that will
 #'   be binned.
-#' @param n_bins The number of discrete bins to use. If `NULL`, the number of
-#'   bins is chosen heuristically to scale with the number of observations, to
-#'   ensure each bin has a reasonable number of observations.
+#' @param breaks Number of bins to create, or a numeric vector of two or more
+#'   unique cut points to use. Passed to `cut()` to create the cuts. If `NULL`,
+#'   a default number of breaks is chosen based on the number of rows in the
+#'   data.
 #' @param ... Additional arguments passed on to `residuals()`. The most useful
 #'   additional argument is typically `type`, to select the type of residuals to
 #'   produce (such as standardized residuals or deviance residuals).
-#' @return Data frame (tibble) with one row per bin.
+#' @return Data frame (tibble) with one row per bin, and the following columns:
 #'
-#' \item{.bin}{Bin number.}
-#' \item{.n}{Number of observations in this bin.}
-#' \item{.fitted.min, .fitted.max, .fitted.mean, .fitted.sd}{Minimum, maximum,
-#' mean, and standard deviation of the fitted values of observations in this
-#' bin. If `term` is not `NULL`, these are instead named after the term, e.g. if
-#' `term = "x1"` these are `x1.min` and so on.}
-#' \item{.resid.mean}{Mean residual in this bin.}
-#' \item{.resid.sd}{Standard deviation of residuals in this bin.}
+#' \item{bin}{Bin number.}
+#' \item{n}{Number of observations in this bin.}
+#' \item{min, max, mean, sd}{Minimum, maximum, mean, and standard deviation of
+#' either the fitted values of observations in this bin, or of the term if
+#' `term` is not `NULL`.}
+#' \item{resid.mean}{Mean residual in this bin.}
+#' \item{resid.sd}{Standard deviation of residuals in this bin.}
 #'
 #' @seealso [partial_residuals()] for the related partial residuals;
 #'   `vignette("logistic-regression-diagnostics")` for examples of use and
-#'   interpretation of binned residuals in logistic regression
+#'   interpretation of binned residuals in logistic regression;
+#'   [bin_by_interval()] to bin data and calculate other values in each bin
 #' @references Gelman, A. and Hill, J. (2006). Data Analysis Using Regression
 #'   and Multilevel/Hierarchical Models. Cambridge University Press.
+#' @importFrom dplyr n summarize
+#' @importFrom rlang sym .data
 #' @importFrom stats residuals sd
 #' @importFrom tibble as_tibble
 #' @examples
 #' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 #'
-#' binned_residuals(fit, n_bins = 5)
+#' binned_residuals(fit, breaks = 5)
 #'
 #' binned_residuals(fit, term = "cyl")
 #' @export
-binned_residuals <- function(fit, term = NULL, n_bins = NULL, ...) {
+binned_residuals <- function(fit, term = NULL, breaks = NULL, ...) {
+  d <- model.frame(fit)
+
   if (is.null(term)) {
     # fit on the response scale
-    x_vals <- fitted(fit)
-    colname <- ".fitted"
+    d$.fitted <- fitted(fit)
+    colname <- sym(".fitted")
   } else {
-    d <- model.frame(fit)
-
     if (!(term %in% colnames(d))) {
       cli_abort("term {.var {term}} is not in the model frame provided")
     }
 
-    x_vals <- d[, term]
-    colname <- term
+    colname <- sym(term)
   }
 
-  resids <- residuals(fit, ...)
+  d$.resid <- residuals(fit, ...)
 
-  n <- length(x_vals)
-
-  if (is.null(n_bins)) {
-    # size heuristic taken from the arm package
-    n_bins <- if (n <= 10) {
-      floor(n / 2)
-    } else if (n < 100) {
-      100
-    } else {
-      floor(sqrt(n))
-    }
-  }
-
-  binned <- cut(x_vals, n_bins, labels = FALSE)
-
-  uniq_bins <- unique(binned)
-
-  out <- data.frame(.bin = uniq_bins)
-
-  for (row in seq_len(nrow(out))) {
-    bin <- out$.bin[row]
-
-    out$.n[row] <- sum(binned == bin)
-
-    bin_x <- x_vals[binned == bin]
-
-    out[row, paste0(colname, c(".min", ".max", ".mean", ".sd"))] <-
-      c(min(bin_x), max(bin_x), mean(bin_x), sd(bin_x))
-
-    bin_resids <- resids[binned == bin]
-    out$.resid.mean[row] <- mean(bin_resids)
-    out$.resid.sd[row] <- sd(bin_resids)
-  }
+  out <- d |>
+    bin_by_interval(!!colname, breaks = breaks) |>
+    summarize(
+      n = n(),
+      min = min(!!colname),
+      max = max(!!colname),
+      mean = mean(!!colname),
+      sd = sd(!!colname),
+      resid.mean = mean(.data$.resid),
+      resid.sd = sd(.data$.resid)
+    )
 
   return(as_tibble(out))
 }
@@ -253,4 +233,82 @@ augment_longer <- function(x, ...) {
   return(pivot_longer(out, cols = !starts_with(".") & !any_of(response),
                       names_to = ".predictor_name",
                       values_to = ".predictor_value"))
+}
+
+#' Group a data frame into bins
+#'
+#' Groups a data frame (similarly to `dplyr::group_by()`) based on the values of
+#' a column, by dividing the numerical range of that column into equal-sized
+#' intervals and collecting all rows in each interval.
+#'
+#' @param .data Data frame to bin
+#' @param col Column to bin by
+#' @param breaks Number of bins to create, or a numeric vector of two or more
+#'   unique cut points to use. Passed to `cut()` to create the cuts. If `NULL`,
+#'   a default number of breaks is chosen based on the number of rows in the
+#'   data.
+#' @return Grouped data frame, similar to those returned by `dplyr::group_by()`.
+#'   An additional column `.bin` indicates the bin number for each group. Use
+#'   `dplyr::summarize()` to calculate values within each group, or other dplyr
+#'   operations that work on groups.
+#' @export
+#' @examples
+#' suppressMessages(library(dplyr))
+#' cars |>
+#'   bin_by_interval(speed, breaks = 5) |>
+#'   summarize(mean_speed = mean(speed),
+#'             mean_dist = mean(dist))
+#' @importFrom ggplot2 cut_interval
+#' @importFrom dplyr mutate group_by
+#' @importFrom rlang .data
+bin_by_interval <- function(.data, col, breaks = NULL) {
+  n <- nrow(.data)
+
+  if (is.null(breaks)) {
+    # size heuristic taken from the arm package's binned residuals function
+    breaks <- if (n <= 10) {
+      floor(n / 2)
+    } else if (n < 100) {
+      10
+    } else {
+      floor(sqrt(n))
+    }
+  }
+
+  mutate(.data,
+         .bin = cut({{ col }}, breaks = breaks, labels = FALSE)) |>
+    group_by(.data$.bin)
+}
+
+#' Empirically estimate response values on the link scale
+#'
+#' Calculates the average value of the response variable, and places this on the
+#' link scale. Plotting these against a predictor (by dividing the dataset into
+#' bins) can help assess the choice of link function.
+#'
+#' @param response Vector of response variable values.
+#' @param family Family object representing the response distribution and link
+#'   function. Only the link function will be used.
+#' @param na.rm Should `NA` values of the response be stripped? Passed to
+#'   `mean()` when calculating the mean of the response.
+#' @return Mean response value, on the link scale.
+#' @export
+#' @examples
+#' suppressMessages(library(dplyr))
+#' suppressMessages(library(ggplot2))
+#'
+#' mtcars |>
+#'   bin_by_interval(disp, breaks = 5) |>
+#'   summarize(
+#'     mean_disp = mean(disp),
+#'     link = empirical_link(am, binomial())
+#'   ) |>
+#'   ggplot(aes(x = mean_disp, y = link)) +
+#'   geom_point()
+empirical_link <- function(response, family, na.rm = FALSE) {
+  family <- normalize_family(family)
+
+  ybar <- mean(response, na.rm = na.rm)
+
+  return(family$linkfun(ybar))
 }

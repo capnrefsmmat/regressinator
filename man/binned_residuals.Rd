@@ -2,9 +2,9 @@
 % Please edit documentation in R/residuals.R
 \name{binned_residuals}
 \alias{binned_residuals}
-\title{Obtained binned residuals for a model}
+\title{Obtain binned residuals for a model}
 \usage{
-binned_residuals(fit, term = NULL, n_bins = NULL, ...)
+binned_residuals(fit, term = NULL, breaks = NULL, ...)
 }
 \arguments{
 \item{fit}{The model to obtain residuals for. This can be a model fit with
@@ -14,25 +14,25 @@ binned_residuals(fit, term = NULL, n_bins = NULL, ...)
 If non-\code{NULL}, this should be a string identifying a model term that will
 be binned.}
 
-\item{n_bins}{The number of discrete bins to use. If \code{NULL}, the number of
-bins is chosen heuristically to scale with the number of observations, to
-ensure each bin has a reasonable number of observations.}
+\item{breaks}{Number of bins to create, or a numeric vector of two or more
+unique cut points to use. Passed to \code{cut()} to create the cuts. If \code{NULL},
+a default number of breaks is chosen based on the number of rows in the
+data.}
 
 \item{...}{Additional arguments passed on to \code{residuals()}. The most useful
 additional argument is typically \code{type}, to select the type of residuals to
 produce (such as standardized residuals or deviance residuals).}
 }
 \value{
-Data frame (tibble) with one row per bin.
+Data frame (tibble) with one row per bin, and the following columns:
 
-\item{.bin}{Bin number.}
-\item{.n}{Number of observations in this bin.}
-\item{.fitted.min, .fitted.max, .fitted.mean, .fitted.sd}{Minimum, maximum,
-mean, and standard deviation of the fitted values of observations in this
-bin. If \code{term} is not \code{NULL}, these are instead named after the term, e.g. if
-\code{term = "x1"} these are \code{x1.min} and so on.}
-\item{.resid.mean}{Mean residual in this bin.}
-\item{.resid.sd}{Standard deviation of residuals in this bin.}
+\item{bin}{Bin number.}
+\item{n}{Number of observations in this bin.}
+\item{min, max, mean, sd}{Minimum, maximum, mean, and standard deviation of
+either the fitted values of observations in this bin, or of the term if
+\code{term} is not \code{NULL}.}
+\item{resid.mean}{Mean residual in this bin.}
+\item{resid.sd}{Standard deviation of residuals in this bin.}
 }
 \description{
 Construct a data frame by binning the fitted values or predictors of a model
@@ -46,7 +46,7 @@ values, causing strange patterns in the residuals. For instance, in logistic
 regression, plotting the residuals versus covariates usually produces two
 curved lines.
 
-If we first bin the data, i.e. divide up the observations into \code{n_bins} bins
+If we first bin the data, i.e. divide up the observations into \code{breaks} bins
 based on their fitted values, we can calculate the average residual within
 each bin. This can be more informative: if a region has 20 observations and
 its average residual value is large, this suggests those observations are
@@ -56,7 +56,7 @@ fitted values.
 \examples{
 fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 
-binned_residuals(fit, n_bins = 5)
+binned_residuals(fit, breaks = 5)
 
 binned_residuals(fit, term = "cyl")
 }
@@ -67,5 +67,6 @@ and Multilevel/Hierarchical Models. Cambridge University Press.
 \seealso{
 \code{\link[=partial_residuals]{partial_residuals()}} for the related partial residuals;
 \code{vignette("logistic-regression-diagnostics")} for examples of use and
-interpretation of binned residuals in logistic regression
+interpretation of binned residuals in logistic regression;
+\code{\link[=bin_by_interval]{bin_by_interval()}} to bin data and calculate other values in each bin
 }

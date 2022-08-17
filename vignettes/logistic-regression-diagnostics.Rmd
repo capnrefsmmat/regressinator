@@ -117,22 +117,22 @@ residuals are hard to interpret because $Y$ is only 0 or 1:
 
 ```{r}
 binned_residuals(fit) |>
-  ggplot(aes(x = .fitted.mean, y = .resid.mean, size = .n)) +
+  ggplot(aes(x = mean, y = resid.mean, size = n)) +
   geom_point() +
   labs(x = "Fitted value", y = "Residual mean",
        size = "N")
 ```
 
-Notice we have sized the points by `.n`, the number of observations in the bin,
+Notice we have sized the points by `n`, the number of observations in the bin,
 to avoid giving emphasis to outlying values in bins with small sample sizes. We
-could also use `.resid.sd / sqrt(.n)` to get an approximate standard error for the
+could also use `resid.sd / sqrt(n)` to get an approximate standard error for the
 mean residual, and scale the points by that (or its inverse).
 
 We can also bin by values of a specific predictor, such as `x1`:
 
 ```{r}
 binned_residuals(fit, term = "x1") |>
-  ggplot(aes(x = x1.mean, y = .resid.mean, size = .n)) +
+  ggplot(aes(x = mean, y = resid.mean, size = n)) +
   geom_point() +
   labs(x = "X1", y = "Residual mean",
        size = "N")
