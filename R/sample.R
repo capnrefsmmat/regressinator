@@ -82,7 +82,7 @@ parent_population <- function(sample) {
 #' @rdname sample_x
 sample_y <- function(xs) {
   if (!inherits(xs, "population_sample")) {
-    cli_abort(c("data passed to sample_y() must be from sample_x()",
+    cli_abort(c("data passed to {.fn sample_y} must be from {.fn sample_x}",
                 "i" = "other data frames do not have the necessary population attributes specifying the response distribution"))
   }
 
@@ -116,8 +116,7 @@ sample_y <- function(xs) {
     } else if (family_name == "custom_family") {
       y_resp <- response$family$simulate(NULL, 1, env = xs, ftd = y_resp)
     } else {
-      cli_abort(c("Unable to simulate from population family",
-                  "*" = "Population family is {family_name}",
+      cli_abort(c("Unable to simulate from population family {.val {family_name}}",
                   "i" = "Supported families are gaussian, ols_with_error, binomial, custom_family, and poisson"))
     }
 
