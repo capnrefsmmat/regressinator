@@ -5,7 +5,7 @@
 \alias{decrypt}
 \title{Calculate diagnostics for a model, and produce a lineup of those diagnostics.}
 \usage{
-diagnose_model(fit, fn = augment, nsim = 20)
+diagnose_model(fit, fn = augment, nsim = 20, ...)
 
 decrypt(...)
 }

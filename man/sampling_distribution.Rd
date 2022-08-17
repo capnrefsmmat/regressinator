@@ -4,7 +4,7 @@
 \alias{sampling_distribution}
 \title{Simulate the sampling distribution of estimates from a population}
 \usage{
-sampling_distribution(fit, data, fn = tidy, nsim = 100, fixed_x = TRUE)
+sampling_distribution(fit, data, fn = tidy, nsim = 100, fixed_x = TRUE, ...)
 }
 \arguments{
 \item{fit}{A model fit to data, such as by \code{lm()} or \code{glm()}.}
@@ -21,6 +21,8 @@ coefficients, estimates, standard errors, and hypothesis tests.}
 \item{fixed_x}{If \code{TRUE}, the default, the predictor variables are held fixed
 and only the response variables are redrawn from the population. If
 \code{FALSE}, the predictor and response variables are drawn jointly.}
+
+\item{...}{Additional arguments passed to \code{fn} each time it is called.}
 }
 \value{
 Data frame (tibble) of \code{nsim + 1} simulation results, formed by
@@ -54,8 +56,9 @@ d <- sample_x(pop, n = 20) |>
   sample_y()
 
 fit <- lm(y ~ x1 + x2, data = d)
-# using the default fn = broom::tidy()
-samples <- sampling_distribution(fit, d)
+# using the default fn = broom::tidy(). conf.int argument is passed to
+# broom::tidy()
+samples <- sampling_distribution(fit, d, conf.int = TRUE)
 samples
 
 suppressMessages(library(dplyr))

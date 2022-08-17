@@ -42,6 +42,7 @@
 #'   `methods(augment)`.
 #' @param nsim Number of total diagnostics. For example, if `nsim = 20`, the
 #'   diagnostics for `fit` are hidden among 19 null diagnostics.
+#' @param ... Additional arguments passed to `fn` each time it is called.
 #' @return For `diagnose_model()`, a data frame (tibble) with columns
 #'   corresponding to the columns returned by `fn`. The additional column
 #'   `.sample` indicates which set of diagnostics each row is from. For
@@ -66,8 +67,8 @@
 #' diagnose_model(fit, fn = resids_vs_speed, nsim = 5)
 #' @importFrom cli cli_abort
 #' @export
-diagnose_model <- function(fit, fn = augment, nsim = 20) {
-  true <- fn(fit)
+diagnose_model <- function(fit, fn = augment, nsim = 20, ...) {
+  true <- fn(fit, ...)
   check_fn_output(true)
 
   orig_data <- fit$model
@@ -80,7 +81,7 @@ diagnose_model <- function(fit, fn = augment, nsim = 20) {
 
     sim_fit <- update(fit, data = sim_data)
 
-    diagnostics <- fn(sim_fit)
+    diagnostics <- fn(sim_fit, ...)
 
     check_fn_output(diagnostics)
 
@@ -136,6 +137,7 @@ NULL
 #' @param fixed_x If `TRUE`, the default, the predictor variables are held fixed
 #'   and only the response variables are redrawn from the population. If
 #'   `FALSE`, the predictor and response variables are drawn jointly.
+#' @param ... Additional arguments passed to `fn` each time it is called.
 #' @return Data frame (tibble) of `nsim + 1` simulation results, formed by
 #'   concatenating together the data frames returned by `fn`. The `.sample`
 #'   column identifies which simulated sample each row came from. Rows with
@@ -154,8 +156,9 @@ NULL
 #'   sample_y()
 #'
 #' fit <- lm(y ~ x1 + x2, data = d)
-#' # using the default fn = broom::tidy()
-#' samples <- sampling_distribution(fit, d)
+#' # using the default fn = broom::tidy(). conf.int argument is passed to
+#' # broom::tidy()
+#' samples <- sampling_distribution(fit, d, conf.int = TRUE)
 #' samples
 #'
 #' suppressMessages(library(dplyr))
@@ -173,8 +176,8 @@ NULL
 #' @importFrom tibble as_tibble
 #' @export
 sampling_distribution <- function(fit, data, fn = tidy, nsim = 100,
-                                  fixed_x = TRUE) {
-  out <- fn(fit)
+                                  fixed_x = TRUE, ...) {
+  out <- fn(fit, ...)
   check_fn_output(out)
 
   out <- as_tibble(out)
@@ -186,7 +189,7 @@ sampling_distribution <- function(fit, data, fn = tidy, nsim = 100,
     } else {
       sample_y(sample_x(data, nrow(data)))
     }
-    new_fit <- fn(update(fit, data = new_data))
+    new_fit <- fn(update(fit, data = new_data), ...)
     check_fn_output(new_fit)
     new_fit$.sample <- b
 
