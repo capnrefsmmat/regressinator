@@ -14,8 +14,9 @@ knitr::opts_chunk$set(
 )
 ```
 
-```{r setup}
+```{r setup, message = FALSE}
 library(regressinator)
+library(dplyr)
 library(ggplot2)
 library(broom)
 ```
@@ -37,10 +38,53 @@ logistic_data <- sample_x(logistic_pop, n = 100) |>
 fit <- glm(y ~ x1 + x2, data = logistic_data, family = binomial)
 ```
 
+## Empirical logit plots
+
+Before fitting the model, we might have conducted exploratory data analysis to
+determine what model is appropriate. For example, an empirical logit plot can
+help us visualize the relationship between predictor and response. We break `x1`
+into bins, and within each bin, calculate the mean value of `x1` and the
+empirical link, meaning the mean of `y` on the log-odds scale. Our logistic
+regression assumed a linear relationship between `x1` and the log-odds of `y`
+being 1, so we can look at this relationship in the real data. The
+`bin_by_interval()` function groups the data into bins, while `empirical_link()`
+can calculate the empirical value of a variable on the link scale, for any GLM
+family:
+
+```{r}
+logistic_data |>
+  bin_by_interval(x1, breaks = 10) |>
+  summarize(x = mean(x1),
+            response = empirical_link(y, binomial),
+            n = n()) |>
+  ggplot(aes(x = x, y = response, size = n)) +
+  geom_point() +
+  labs(x = "X1", y = "logit(Y)")
+```
+
+This looks suspiciously nonlinear, though the sample size in some bins is small.
+
+Similarly for `x2`:
+
+```{r}
+logistic_data |>
+  bin_by_interval(x2, breaks = 10) |>
+  summarize(x = mean(x2),
+            response = empirical_link(y, binomial),
+            n = n()) |>
+  ggplot(aes(x = x, y = response, size = n)) +
+  geom_point() +
+  labs(x = "X2", y = "logit(Y)")
+```
+
+This looks more linear, though it is difficult to assess. We could also use
+`diagnose_model()` to examine similar plots when the model is correctly
+specified, to tell if these plots indicate a serious problem.
+
 ## Naive residual plots
 
-Ordinary standardized residuals are not very helpful for noticing the
-misspecification:
+Once we have fit the model, ordinary standardized residuals are not very helpful
+for noticing the misspecification:
 
 ```{r}
 augment(fit) |>
@@ -104,10 +148,6 @@ partial_residuals(fit) |>
 
 See the `partial_residuals()` documentation for more information how these are
 computed and interpreted.
-
-## Empirical logit plots
-
-TODO
 
 ## Binned residuals
 
