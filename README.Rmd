@@ -49,7 +49,7 @@ nonlin_sample <- pop |>
 
 fit <- lm(y ~ x, data = nonlin_sample)
 
-diagnose_model(fit) |>
+model_lineup(fit) |>
   ggplot(aes(x = x, y = .resid)) +
   geom_point() +
   facet_wrap(~ .sample) +

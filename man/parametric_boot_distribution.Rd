@@ -30,7 +30,7 @@ Estimates, confidence intervals, or other quantities are extracted from each
 fitted model and returned as a tidy data frame.
 }
 \details{
-Because \code{diagnose_model()} uses the S3 generic methods \code{model.frame()},
+Because \code{model_lineup()} uses the S3 generic methods \code{model.frame()},
 \code{simulate()}, and \code{update()}, it can be used with any model fit for which
 methods are provided. In base R, this includes \code{lm()} and \code{glm()}.
 }
@@ -39,7 +39,7 @@ fit <- lm(dist ~ speed, data = cars)
 parametric_boot_distribution(fit, nsim = 5)
 }
 \seealso{
-\code{\link[=diagnose_model]{diagnose_model()}} to use resampling to aid in regression
-diagnostics; \code{\link[=sampling_distribution]{sampling_distribution()}} to simulate draws from the
-population distribution, rather than the null
+\code{\link[=model_lineup]{model_lineup()}} to use resampling to aid in regression diagnostics;
+\code{\link[=sampling_distribution]{sampling_distribution()}} to simulate draws from the population
+distribution, rather than the null
 }

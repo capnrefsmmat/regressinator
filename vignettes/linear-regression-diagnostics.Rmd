@@ -66,12 +66,12 @@ augment_longer(fit) |>
   labs(x = "Predictor", y = "Residual")
 ```
 
-Using `diagnose_model()`, we can compare the true residual plots to several where
+Using `model_lineup()`, we can compare the true residual plots to several where
 the model is correctly specified. Each row gives the plots for one simulation,
 and one of the fives rows (at random) is the true residual plots:
 
 ```{r, fig.height=8}
-diagnose_model(fit, fn = augment_longer, n = 5) |>
+model_lineup(fit, fn = augment_longer, n = 5) |>
   ggplot(aes(x = .predictor_value, y = .resid)) +
   geom_point() +
   geom_smooth(se = FALSE) +
@@ -95,11 +95,11 @@ partial_residuals(fit) |>
   labs(x = "Predictor", y = "Partial residual")
 ```
 
-We can again use `diagnose_model()` to see how these compare to the partial
+We can again use `model_lineup()` to see how these compare to the partial
 residuals when the model is correctly specified:
 
 ```{r, fig.height=8}
-diagnose_model(fit, partial_residuals, n = 5) |>
+model_lineup(fit, partial_residuals, n = 5) |>
   ggplot(aes(x = predictor_value, y = partial_resid)) +
   geom_point() +
   geom_smooth(se = FALSE) +
@@ -144,7 +144,7 @@ It is difficult for novices to judge normality from a Q-Q plot, so a lineup can
 be helpful:
 
 ```{r, fig.height=8}
-diagnose_model(fit) |>
+model_lineup(fit) |>
   ggplot(aes(sample = .std.resid)) +
   geom_qq() +
   geom_qq_line() +

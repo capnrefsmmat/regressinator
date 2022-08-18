@@ -15,7 +15,7 @@ reference:
       - sample_x
       - sample_y
       - parametric_boot_distribution
-      - diagnose_model
+      - model_lineup
       - decrypt
       - sampling_distribution
   - title: "Working with factors"

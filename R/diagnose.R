@@ -1,8 +1,8 @@
-#' Calculate diagnostics for a model, and produce a lineup of those diagnostics.
+#' Produce a lineup for a fitted model
 #'
-#' A lineup hides the diagnostics among "null" diagnostics, i.e. the same
+#' A lineup hides diagnostics among "null" diagnostics, i.e. the same
 #' diagnostics calculated using models fit to data where all model assumptions
-#' are correct. For each null diagnostic, `diagnose_model()` simulates new
+#' are correct. For each null diagnostic, `model_lineup()` simulates new
 #' responses from the model using the fitted covariate values and the model's
 #' error distribution, link function, and so on. Hence the new response values
 #' are generated under ideal conditions: the fitted model is true and all
@@ -12,8 +12,8 @@
 #' To generate different kinds of diagnostics, the user can provide a custom
 #' `fn`. The `fn` should take a model fit as its argument and return a data
 #' frame. For instance, the data frame might contain one row per observation and
-#' include the residuals and fitted values for each observation; or it might
-#' be a single row containing a summary statistic or test statistic.
+#' include the residuals and fitted values for each observation; or it might be
+#' a single row containing a summary statistic or test statistic.
 #'
 #' `fn` will be called on the original `fit` provided. Then
 #' `parametric_boot_distribution()` will be used to simulate data from the model
@@ -29,17 +29,17 @@
 #' will produce a string such as `"True data in position 5"`.
 #'
 #' @param fit A model fit to data, such as by `lm()` or `glm()`
-#' @param fn A diagnostic function. The function should take one argument, a
-#'   fitted model, and return a data frame. The default is `broom::augment()`,
-#'   which produces a data frame containing the original data and additional
-#'   columns `.fitted`, `.resid`, and so on. To see a list of model types
-#'   supported by `broom::augment()`, and to find documentation on the columns
-#'   reported for each type of model, load the `broom` package and use
-#'   `methods(augment)`.
+#' @param fn A diagnostic function. The function's first argument should be the
+#'   fitted model, and it must return a data frame. Defaults to
+#'   `broom::augment()`, which produces a data frame containing the original
+#'   data and additional columns `.fitted`, `.resid`, and so on. To see a list
+#'   of model types supported by `broom::augment()`, and to find documentation
+#'   on the columns reported for each type of model, load the `broom` package
+#'   and use `methods(augment)`.
 #' @param nsim Number of total diagnostics. For example, if `nsim = 20`, the
 #'   diagnostics for `fit` are hidden among 19 null diagnostics.
 #' @param ... Additional arguments passed to `fn` each time it is called.
-#' @return For `diagnose_model()`, a data frame (tibble) with columns
+#' @return For `model_lineup()`, a data frame (tibble) with columns
 #'   corresponding to the columns returned by `fn`. The additional column
 #'   `.sample` indicates which set of diagnostics each row is from. For
 #'   instance, if the true data is in position 5, selecting rows with `.sample
@@ -55,16 +55,16 @@
 #'   simulate draws from the population distribution, rather than from the model
 #' @examples
 #' fit <- lm(dist ~ speed, data = cars)
-#' diagnose_model(fit, nsim = 5)
+#' model_lineup(fit, nsim = 5)
 #'
 #' resids_vs_speed <- function(f) {
 #'   data.frame(resid = residuals(f),
 #'              speed = model.frame(f)$speed)
 #' }
-#' diagnose_model(fit, fn = resids_vs_speed, nsim = 5)
+#' model_lineup(fit, fn = resids_vs_speed, nsim = 5)
 #' @importFrom cli cli_abort
 #' @export
-diagnose_model <- function(fit, fn = augment, nsim = 20, ...) {
+model_lineup <- function(fit, fn = augment, nsim = 20, ...) {
   true <- fn(fit, ...)
   check_fn_output(true)
 
@@ -83,10 +83,10 @@ check_fn_output <- function(x) {
   }
 }
 
-#' @rdname diagnose_model
+#' @rdname model_lineup
 #' @importFrom nullabor decrypt
-#' @usage decrypt(...)
-#' @param ... Message to decrypt, specifying the location of the true
+#' @usage decrypt(msg)
+#' @param msg Message to decrypt, specifying the location of the true
 #'   diagnostics
 #' @export decrypt
 #' @name decrypt
@@ -99,7 +99,7 @@ NULL
 #' Estimates, confidence intervals, or other quantities are extracted from each
 #' fitted model and returned as a tidy data frame.
 #'
-#' Because `diagnose_model()` uses the S3 generic methods `model.frame()`,
+#' Because `model_lineup()` uses the S3 generic methods `model.frame()`,
 #' `simulate()`, and `update()`, it can be used with any model fit for which
 #' methods are provided. In base R, this includes `lm()` and `glm()`.
 #'
@@ -113,9 +113,9 @@ NULL
 #' @return A data frame (tibble) with columns corresponding to the columns
 #'   returned by `fn`. The additional column `.sample` indicates which fit each
 #'   row is from.
-#' @seealso [diagnose_model()] to use resampling to aid in regression
-#'   diagnostics; [sampling_distribution()] to simulate draws from the
-#'   population distribution, rather than the null
+#' @seealso [model_lineup()] to use resampling to aid in regression diagnostics;
+#'   [sampling_distribution()] to simulate draws from the population
+#'   distribution, rather than the null
 #' @importFrom broom tidy
 #' @importFrom purrr map_dfr
 #' @importFrom tibble as_tibble

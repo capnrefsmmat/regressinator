@@ -1,7 +1,7 @@
-test_that("diagnose_model rejects invalid fn", {
+test_that("model_lineup rejects invalid fn", {
   fn <- function(fit) "duck"
 
-  expect_error(diagnose_model(lm(dist ~ speed, data = cars), fn),
+  expect_error(model_lineup(lm(dist ~ speed, data = cars), fn),
                class = "regressinator_diagnostic_class")
 })
 

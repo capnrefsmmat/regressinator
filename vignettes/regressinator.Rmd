@@ -243,7 +243,7 @@ modeling function that uses data frames.
 
 ## Diagnostics
 
-The regressinator provides the `diagnose_model()` function. It takes a model fit
+The regressinator provides the `model_lineup()` function. It takes a model fit
 and does the following:
 
 1. Get the diagnostics from that model, using `broom::augment()` by default.
@@ -288,7 +288,7 @@ augment(nonlinear_fit)
 
 library(ggplot2)
 
-diagnose_model(nonlinear_fit) |>
+model_lineup(nonlinear_fit) |>
   ggplot(aes(x = .fitted, y = .resid)) +
   geom_point() +
   facet_wrap(~ .sample) +
@@ -322,7 +322,7 @@ heavy_tail_sample <- heavy_tail_pop |>
 
 fit <- lm(y ~ x1 + x2, data = heavy_tail_sample)
 
-diagnose_model(fit) |>
+model_lineup(fit) |>
   ggplot(aes(sample = .resid)) +
   geom_qq() +
   geom_qq_line() +
