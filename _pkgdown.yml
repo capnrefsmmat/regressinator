@@ -1,5 +1,19 @@
 url: ~
 
+authors:
+  Alex Reinhart:
+    href: "https://www.refsmmat.com"
+
+template:
+  bootstrap: 5
+
+repo:
+  url:
+    home: https://github.com/capnrefsmmat/regressinator/
+    source: https://github.com/capnrefsmmat/regressinator/blob/HEAD/
+    issue: https://github.com/capnrefsmmat/regressinator/issues/
+    user: https://github.com/capnrefsmmat
+
 reference:
   - title: "Defining populations"
     desc: Define a population, including predictors and response variables.
