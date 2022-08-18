@@ -342,9 +342,9 @@ diagnostics, such as for partial residuals; see
 
 ## Sampling distributions
 
-The `sampling_distribution()` allows you to explore the sampling distribution of
-statistics and estimates from models fit to a population. Given a dataset drawn
-from a `population()` and a model fit to that data, it will:
+The `sampling_distribution()` function allows you to explore the sampling
+distribution of statistics and estimates from models fit to a population. Given
+a dataset drawn from a `population()` and a model fit to that data, it will:
 
 1. Draw repeated samples from the population. These can be with the predictors
    held fixed, only resampling the response, or can be new samples of predictors
@@ -374,7 +374,7 @@ sampling_distribution(fit, d, nsim = 4)
 Because the output is a tidy data frame, it's easy to visualize the full
 sampling distributions:
 
-```{r}
+```{r, fig.height=4}
 samples <- sampling_distribution(fit, d, nsim = 1000)
 
 samples |>
@@ -398,3 +398,61 @@ samples |>
 We could use this feature to explore how sampling distributions change as we
 change the sample size, change the complexity of the model, or introduce various
 types of model misspecification.
+
+## Parametric bootstrapping
+
+The `parametric_boot_distribution()` function allows you to explore the
+distribution of statistics and estimates from models fit to data *sampled from
+the model fit.* Given a fitted model, it will:
+
+1. Draw repeated samples from the model. The predictors are held fixed and the
+   model is used to sample new response values, following the response and error
+   distributions assumed by the model.
+2. For each sample, refit a model to that sample. This could be the same model
+   used to simulate the sample, for instance to explore diagnostics when the
+   model is true, or an alternative model.
+3. For each model fit, apply a function to get features of that model fit.
+4. Combined all the results in to a single data frame.
+
+As with `sampling_distribution()`, the default function applied to each fit is
+`broom::tidy()`.
+
+This function is used by `model_lineup()` to generate the "null" diagnostics. It
+could also be used for hypothesis testing. For example, let's consider the
+nonlinear example set up above. The data `nonlinear_data` comes from a
+population where the true relationship between `y` and `x1` is quadratic, but
+`nonlinear_fit` is a model fit with only a linear term. If we did not know a
+quadratic term was necessary and wanted to conduct a test, we could use an *F*
+test:
+
+```{r}
+quadratic_fit <- lm(y ~ x1 + I(x1^2), data = nonlinear_data)
+
+anova(nonlinear_fit, quadratic_fit)
+```
+
+This suggests the quadratic term is useful, as we would expect when the true
+relationship is quadratic and we have an adequate sample size. But if for some
+reason we do not want to use an *F* test, or if we are teaching simulation-based
+inference, we could instead use the parametric bootstrap. Under the null
+hypothesis, there is no quadratic relationship, so we simulate the null
+distribution of coefficient values under this null by simulating from
+`nonlinear_fit` and refitting `quadratic_fit`:
+
+```{r, fig.height=4}
+quadratic_coefs <- parametric_boot_distribution(nonlinear_fit, quadratic_fit) |>
+  filter(term == "I(x1^2)")
+
+ggplot(quadratic_coefs, aes(x = estimate)) +
+  geom_histogram() +
+  geom_vline(xintercept = coef(quadratic_fit)["I(x1^2)"],
+             color = "red") +
+  labs(x = "Quadratic term coefficient",
+       y = "Count",
+       title = "Null distribution of quadratic term")
+```
+
+We see the quadratic coefficient estimated on the original data (vertical red
+line) is far larger than any of the quadratic coefficients estimated when the
+null is true, leading us to reject the null hypothesis that the quadratic
+coefficient is zero.

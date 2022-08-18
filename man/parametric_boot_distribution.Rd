@@ -4,11 +4,21 @@
 \alias{parametric_boot_distribution}
 \title{Simulate the distribution of estimates by parametric bootstrap}
 \usage{
-parametric_boot_distribution(fit, fn = tidy, nsim = 100, ...)
+parametric_boot_distribution(
+  fit,
+  alternative_fit = fit,
+  fn = tidy,
+  nsim = 100,
+  ...
+)
 }
 \arguments{
 \item{fit}{A model fit to data, such as by \code{lm()} or \code{glm()}, to simulate new
 response values from.}
+
+\item{alternative_fit}{A model fit to data, to refit to the data sampled from
+\code{fit}. Defaults to \code{fit}, but an alternative model can be provided to
+examine its behavior when \code{fit} is the true model.}
 
 \item{fn}{Function to call on each new model fit to produce a data frame of
 estimates. Defaults to \code{broom::tidy()}, which produces a tidy data frame of
@@ -25,11 +35,21 @@ row is from.
 }
 \description{
 Repeatedly simulates new response values by using the fitted model, holding
-the covariates fixed, and refits the model to each simulated dataset.
-Estimates, confidence intervals, or other quantities are extracted from each
-fitted model and returned as a tidy data frame.
+the covariates fixed. By default, refits the same model to each simulated
+dataset, but an alternative model can be provided. Estimates, confidence
+intervals, or other quantities are extracted from each fitted model and
+returned as a tidy data frame.
 }
 \details{
+The default behavior samples from a model and refits the same model to the
+sampled data; this is useful when, for example, exploring how model
+diagnostics look when the model is well-specified. Another common use of the
+parametric bootstrap is hypothesis testing, where we might simulate from a
+null model and fit an alternative model to the data, to obtain the null
+distribution of a particular estimate or statistic. Provide \code{alternative_fit}
+to have a specific model fit to each simulated dataset, rather than the model
+they are simulated from.
+
 Because \code{model_lineup()} uses the S3 generic methods \code{model.frame()},
 \code{simulate()}, and \code{update()}, it can be used with any model fit for which
 methods are provided. In base R, this includes \code{lm()} and \code{glm()}.

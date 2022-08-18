@@ -19,6 +19,8 @@ analyses and diagnostics. It can:
 * Simulate populations with predictor variables from arbitrary distributions
 * Simulate response variables that are function of the predictor variables plus
   error, or are drawn from a distribution related to the predictors
+* Given a model, simulate from the population sampling distribution of that
+  model's estimates
 * Given a model fit to simulated data, generate new simulated data based on the
   model fit
 * Facilitate lineup plots comparing diagnostics on the fitted model to
@@ -29,7 +31,8 @@ between predictors in response, simulate data from that population, fit a model
 to that data, and simulate data from the model. If the fitted model is
 misspecified, we can simulate data from the model (where it is *correctly*
 specified), and make a lineup to compare the fitted model's diagnostics to null
-diagnostics.
+diagnostics. And we can obtain the population sampling distribution of the
+misspecified model's estimates.
 
 Here's a simple regression example:
 
@@ -60,16 +63,31 @@ Each of the 20 residual plots represents a simple regression fit. One of the
 regressions was fit to the simulated data with a nonlinear relationship; the
 others were fit to data simulated *from the linear model*, using the same model.
 (That is, they were simulated from `fit`, and then the same model was refit to
-them.) So one of these residual plots shows the residuals of a linear model fit
-to nonlinear data, and the others show the residuals of a linear model fit to
-*linear* data.
+them.) `model_lineup()`, by default, uses `broom::augment()` to obtain the data
+and residuals from each fit. So one of these residual plots shows the residuals
+of a linear model fit to nonlinear data, and the others show the residuals of a
+linear model fit to *linear* data.
+
+Similarly, we can quickly obtain samples from the population sampling
+distribution, to explore the behavior of this misspecified model's parameter
+estimates:
+
+```{r sampling-distribution}
+fit |>
+  sampling_distribution(nonlin_sample, nsim = 5)
+```
+
+Here `sampling_distribution()` defaults to using `broom::tidy()` to obtain the
+coefficients and standard errors for each fit. We could use this to assess bias,
+to compare the sampling distribution to standard errors and confidence
+intervals, or simply to visualize variation.
 
 The premise of the regressinator is that this kind of simulation can be a
 valuable teaching tool when students are learning to interpret regression
 diagnostics and determine how different kinds of misspecification might affect
 model fits.
 
-Check the Get Started guide for more detail.
+Check the Get Started guide (`vignette("regressinator")`) for more detail.
 
 ## Inspirations
 

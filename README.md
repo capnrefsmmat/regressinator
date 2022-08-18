@@ -12,6 +12,8 @@ regression analyses and diagnostics. It can:
 -   Simulate response variables that are function of the predictor
     variables plus error, or are drawn from a distribution related to
     the predictors
+-   Given a model, simulate from the population sampling distribution of
+    that model’s estimates
 -   Given a model fit to simulated data, generate new simulated data
     based on the model fit
 -   Facilitate lineup plots comparing diagnostics on the fitted model to
@@ -22,7 +24,8 @@ relationship between predictors in response, simulate data from that
 population, fit a model to that data, and simulate data from the model.
 If the fitted model is misspecified, we can simulate data from the model
 (where it is *correctly* specified), and make a lineup to compare the
-fitted model’s diagnostics to null diagnostics.
+fitted model’s diagnostics to null diagnostics. And we can obtain the
+population sampling distribution of the misspecified model’s estimates.
 
 Here’s a simple regression example:
 
@@ -42,14 +45,14 @@ nonlin_sample <- pop |>
 
 fit <- lm(y ~ x, data = nonlin_sample)
 
-diagnose_model(fit) |>
+model_lineup(fit) |>
   ggplot(aes(x = x, y = .resid)) +
   geom_point() +
   facet_wrap(~ .sample) +
   labs(x = "x", y = "Residual")
 ```
 
-    ## decrypt("23eg MuPu NE KwWNPNwE Ft")
+    ## decrypt("23eg MuPu NE KwWNPNwE 5Y")
 
 <img src="man/figures/README-example-regression-lineup-1.png" width="672" />
 
@@ -57,16 +60,49 @@ Each of the 20 residual plots represents a simple regression fit. One of
 the regressions was fit to the simulated data with a nonlinear
 relationship; the others were fit to data simulated *from the linear
 model*, using the same model. (That is, they were simulated from `fit`,
-and then the same model was refit to them.) So one of these residual
-plots shows the residuals of a linear model fit to nonlinear data, and
-the others show the residuals of a linear model fit to *linear* data.
+and then the same model was refit to them.) `model_lineup()`, by
+default, uses `broom::augment()` to obtain the data and residuals from
+each fit. So one of these residual plots shows the residuals of a linear
+model fit to nonlinear data, and the others show the residuals of a
+linear model fit to *linear* data.
+
+Similarly, we can quickly obtain samples from the population sampling
+distribution, to explore the behavior of this misspecified model’s
+parameter estimates:
+
+``` r
+fit |>
+  sampling_distribution(nonlin_sample, nsim = 5)
+```
+
+    ## # A tibble: 12 × 6
+    ##    term        estimate std.error statistic  p.value .sample
+    ##    <chr>          <dbl>     <dbl>     <dbl>    <dbl>   <dbl>
+    ##  1 (Intercept)  17.4        1.11    15.6    6.51e-12       0
+    ##  2 x            -0.147      0.345   -0.427  6.74e- 1       0
+    ##  3 (Intercept)  17.6        1.20    14.6    1.91e-11       1
+    ##  4 x            -0.0622     0.374   -0.166  8.70e- 1       1
+    ##  5 (Intercept)  16.6        1.17    14.2    3.39e-11       2
+    ##  6 x            -0.0180     0.365   -0.0492 9.61e- 1       2
+    ##  7 (Intercept)  16.4        1.14    14.4    2.43e-11       3
+    ##  8 x             0.0374     0.353    0.106  9.17e- 1       3
+    ##  9 (Intercept)  17.1        1.26    13.6    6.86e-11       4
+    ## 10 x             0.216      0.391    0.552  5.88e- 1       4
+    ## 11 (Intercept)  17.4        1.19    14.7    1.91e-11       5
+    ## 12 x             0.0348     0.370    0.0942 9.26e- 1       5
+
+Here `sampling_distribution()` defaults to using `broom::tidy()` to
+obtain the coefficients and standard errors for each fit. We could use
+this to assess bias, to compare the sampling distribution to standard
+errors and confidence intervals, or simply to visualize variation.
 
 The premise of the regressinator is that this kind of simulation can be
 a valuable teaching tool when students are learning to interpret
 regression diagnostics and determine how different kinds of
 misspecification might affect model fits.
 
-Check the Get Started guide for more detail.
+Check the Get Started guide (`vignette("regressinator")`) for more
+detail.
 
 ## Inspirations
 

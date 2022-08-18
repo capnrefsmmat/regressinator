@@ -68,7 +68,8 @@ model_lineup <- function(fit, fn = augment, nsim = 20, ...) {
   true <- fn(fit, ...)
   check_fn_output(true)
 
-  simulated_diagnostics <- parametric_boot_distribution(fit, fn, nsim = nsim - 1, ...)
+  simulated_diagnostics <- parametric_boot_distribution(fit, fn = fn,
+                                                        nsim = nsim - 1, ...)
 
   return(as_tibble(lineup(true = true, samples = simulated_diagnostics, n = nsim)))
 }
@@ -95,9 +96,19 @@ NULL
 #' Simulate the distribution of estimates by parametric bootstrap
 #'
 #' Repeatedly simulates new response values by using the fitted model, holding
-#' the covariates fixed, and refits the model to each simulated dataset.
-#' Estimates, confidence intervals, or other quantities are extracted from each
-#' fitted model and returned as a tidy data frame.
+#' the covariates fixed. By default, refits the same model to each simulated
+#' dataset, but an alternative model can be provided. Estimates, confidence
+#' intervals, or other quantities are extracted from each fitted model and
+#' returned as a tidy data frame.
+#'
+#' The default behavior samples from a model and refits the same model to the
+#' sampled data; this is useful when, for example, exploring how model
+#' diagnostics look when the model is well-specified. Another common use of the
+#' parametric bootstrap is hypothesis testing, where we might simulate from a
+#' null model and fit an alternative model to the data, to obtain the null
+#' distribution of a particular estimate or statistic. Provide `alternative_fit`
+#' to have a specific model fit to each simulated dataset, rather than the model
+#' they are simulated from.
 #'
 #' Because `model_lineup()` uses the S3 generic methods `model.frame()`,
 #' `simulate()`, and `update()`, it can be used with any model fit for which
@@ -105,6 +116,9 @@ NULL
 #'
 #' @param fit A model fit to data, such as by `lm()` or `glm()`, to simulate new
 #'   response values from.
+#' @param alternative_fit A model fit to data, to refit to the data sampled from
+#'   `fit`. Defaults to `fit`, but an alternative model can be provided to
+#'   examine its behavior when `fit` is the true model.
 #' @param fn Function to call on each new model fit to produce a data frame of
 #'   estimates. Defaults to `broom::tidy()`, which produces a tidy data frame of
 #'   coefficients, estimates, standard errors, and hypothesis tests.
@@ -123,7 +137,8 @@ NULL
 #' fit <- lm(dist ~ speed, data = cars)
 #' parametric_boot_distribution(fit, nsim = 5)
 #' @export
-parametric_boot_distribution <- function(fit, fn = tidy, nsim = 100, ...) {
+parametric_boot_distribution <- function(fit, alternative_fit = fit,
+                                         fn = tidy, nsim = 100, ...) {
   simulated_ys <- simulate(fit, nsim = nsim)
   orig_data <- model.frame(fit)
 
@@ -133,7 +148,7 @@ parametric_boot_distribution <- function(fit, fn = tidy, nsim = 100, ...) {
       sim_data <- orig_data
       sim_data$y <- simulated_ys[, ii]
 
-      sim_fit <- update(fit, data = sim_data)
+      sim_fit <- update(alternative_fit, data = sim_data)
 
       diagnostics <- fn(sim_fit, ...)
 
