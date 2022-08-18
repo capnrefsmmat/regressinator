@@ -104,6 +104,10 @@ example:
   for infovis](https://doi.org/10.1109/TVCG.2010.161). *IEEE Transactions on
   Visualization and Computer Graphics*, 16(6), 973–979.
 
+* Loy, A., Follett, L., & Hofmann, H. (2016). [Variations of Q-Q Plots: The
+  Power of Our Eyes!](https://doi.org/10.1080/00031305.2015.1077728) *The
+  American Statistician*, 70(2), 202–214.
+
 The idea of using visual inference to teach regression diagnostics is also not
 new:
 

@@ -52,7 +52,7 @@ model_lineup(fit) |>
   labs(x = "x", y = "Residual")
 ```
 
-    ## decrypt("23eg MuPu NE KwWNPNwE 5Y")
+    ## decrypt("23eg MuPu NE KwWNPNwE 5H")
 
 <img src="man/figures/README-example-regression-lineup-1.png" width="672" />
 
@@ -76,20 +76,20 @@ fit |>
 ```
 
     ## # A tibble: 12 × 6
-    ##    term        estimate std.error statistic  p.value .sample
-    ##    <chr>          <dbl>     <dbl>     <dbl>    <dbl>   <dbl>
-    ##  1 (Intercept)  17.4        1.11    15.6    6.51e-12       0
-    ##  2 x            -0.147      0.345   -0.427  6.74e- 1       0
-    ##  3 (Intercept)  17.6        1.20    14.6    1.91e-11       1
-    ##  4 x            -0.0622     0.374   -0.166  8.70e- 1       1
-    ##  5 (Intercept)  16.6        1.17    14.2    3.39e-11       2
-    ##  6 x            -0.0180     0.365   -0.0492 9.61e- 1       2
-    ##  7 (Intercept)  16.4        1.14    14.4    2.43e-11       3
-    ##  8 x             0.0374     0.353    0.106  9.17e- 1       3
-    ##  9 (Intercept)  17.1        1.26    13.6    6.86e-11       4
-    ## 10 x             0.216      0.391    0.552  5.88e- 1       4
-    ## 11 (Intercept)  17.4        1.19    14.7    1.91e-11       5
-    ## 12 x             0.0348     0.370    0.0942 9.26e- 1       5
+    ##    term        estimate std.error statistic       p.value .sample
+    ##    <chr>          <dbl>     <dbl>     <dbl>         <dbl>   <dbl>
+    ##  1 (Intercept)  13.8        1.35     10.2   0.00000000627       0
+    ##  2 x             0.664      0.561     1.18  0.252               0
+    ##  3 (Intercept)  14.1        1.38     10.2   0.00000000645       1
+    ##  4 x             0.420      0.572     0.734 0.472               1
+    ##  5 (Intercept)  14.0        1.31     10.8   0.00000000287       2
+    ##  6 x             0.462      0.543     0.851 0.406               2
+    ##  7 (Intercept)  14.0        1.33     10.6   0.00000000370       3
+    ##  8 x             0.359      0.551     0.651 0.523               3
+    ##  9 (Intercept)  14.1        1.36     10.4   0.00000000512       4
+    ## 10 x             0.461      0.566     0.814 0.426               4
+    ## 11 (Intercept)  14.4        1.29     11.1   0.00000000163       5
+    ## 12 x            -0.0747     0.537    -0.139 0.891               5
 
 Here `sampling_distribution()` defaults to using `broom::tidy()` to
 obtain the coefficients and standard errors for each fit. We could use
@@ -120,6 +120,11 @@ myself. For example:
     inference for infovis](https://doi.org/10.1109/TVCG.2010.161). *IEEE
     Transactions on Visualization and Computer Graphics*, 16(6),
     973–979.
+
+-   Loy, A., Follett, L., & Hofmann, H. (2016). [Variations of Q-Q
+    Plots: The Power of Our
+    Eyes!](https://doi.org/10.1080/00031305.2015.1077728) *The American
+    Statistician*, 70(2), 202–214.
 
 The idea of using visual inference to teach regression diagnostics is
 also not new:
