@@ -18,11 +18,6 @@ reference:
       - model_lineup
       - decrypt
       - sampling_distribution
-  - title: "Working with factors"
-    desc: Use factors to model categorical variables.
-    contents:
-      - rfactor
-      - by_level
   - title: "Extracting information from regression fits"
     desc: Get different types of diagnostics from fits.
     contents:
@@ -31,3 +26,8 @@ reference:
       - binned_residuals
       - bin_by_interval
       - empirical_link
+  - title: "Working with factors"
+    desc: Use factors to model categorical variables.
+    contents:
+      - rfactor
+      - by_level
