@@ -166,12 +166,12 @@ pop <- population(
     family = custom_family(zeroinfpois, exp)
   )
 )
-
-sample_x(pop, 10) |>
-  sample_y()
 ```
 
-Here `y` is sampled by evaluating `zeroinfpois(exp(0.7 + 0.8 * x1))`.
+Here `y` is sampled by evaluating `zeroinfpois(exp(0.7 + 0.8 * x1))`, and so 40%
+of the draws will be 0, and the rest will come from `rpois(lambda = exp(0.7 +
+0.8 * x1))`. This approach could also be used to simulate contaminated error
+distributions, inject outliers, or produce other unusual error patterns.
 
 ### Categorical predictors
 
