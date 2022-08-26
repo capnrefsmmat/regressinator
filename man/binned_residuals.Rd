@@ -61,8 +61,8 @@ binned_residuals(fit, breaks = 5)
 binned_residuals(fit, term = "cyl")
 }
 \references{
-Gelman, A. and Hill, J. (2006). Data Analysis Using Regression
-and Multilevel/Hierarchical Models. Cambridge University Press.
+Gelman, A., Hill, J., and Vehtari, A. (2021). Regression and
+Other Stories. Section 14.5. Cambridge University Press.
 }
 \seealso{
 \code{\link[=partial_residuals]{partial_residuals()}} for the related partial residuals;
