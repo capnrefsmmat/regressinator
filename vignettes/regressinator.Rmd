@@ -181,6 +181,10 @@ variable distributions can be specified. But categorical predictor variables
 `rfactor()` for drawing factor variables:
 
 ```{r}
+# default is equally likely levels
+rfactor(5, c("foo", "bar", "baz"))
+
+# but probabilities per level can be specified
 rfactor(5, c("foo", "bar", "baz"), c(0.4, 0.3, 0.3))
 ```
 

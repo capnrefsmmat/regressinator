@@ -4,7 +4,7 @@
 \alias{rfactor}
 \title{Draw random values from a factor variable}
 \usage{
-rfactor(n, levels, prob = 1/length(levels))
+rfactor(n, levels, prob = rep_len(1/length(levels), length(levels)))
 }
 \arguments{
 \item{n}{Number of values to draw}

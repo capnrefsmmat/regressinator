@@ -14,7 +14,8 @@
 #' @seealso [by_level()] to assign numeric values based on factor levels, such
 #'   as to set population regression coefficients by factor level
 #' @export
-rfactor <- function(n, levels, prob = 1 / length(levels)) {
+rfactor <- function(n, levels,
+                    prob = rep_len(1 / length(levels), length(levels))) {
   return(factor(sample(levels, size = n, prob = prob, replace = TRUE),
                 levels))
 }

@@ -1,3 +1,8 @@
+test_that("rfactor runs with default probabilities", {
+  # a previous bug caused this to fail
+  expect_equal(length(rfactor(10, c("duck", "goose"))), 10)
+})
+
 test_that("by_level calculates correctly", {
   foo <- factor(c("spam", "ham", "spam", "ducks"))
   res <- c("spam" = 4, "ham" = 10, "spam" = 4, "ducks" = 16.7)
