@@ -110,6 +110,9 @@ NULL
 #' to have a specific model fit to each simulated dataset, rather than the model
 #' they are simulated from.
 #'
+#' Only the response variable from the `fit` (or `alternative_fit`, if given) is
+#' redrawn; other response variables in the population are left unchanged.
+#'
 #' Because `model_lineup()` uses the S3 generic methods `model.frame()`,
 #' `simulate()`, and `update()`, it can be used with any model fit for which
 #' methods are provided. In base R, this includes `lm()` and `glm()`.
@@ -142,11 +145,13 @@ parametric_boot_distribution <- function(fit, alternative_fit = fit,
   simulated_ys <- simulate(fit, nsim = nsim)
   orig_data <- model.frame(fit)
 
+  response <- response_var(alternative_fit)
+
   out <- map_dfr(
     seq_len(ncol(simulated_ys)),
     function(ii) {
       sim_data <- orig_data
-      sim_data$y <- simulated_ys[, ii]
+      sim_data[, response] <- simulated_ys[, ii]
 
       sim_fit <- update(alternative_fit, data = sim_data)
 

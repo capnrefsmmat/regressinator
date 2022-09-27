@@ -50,6 +50,9 @@ distribution of a particular estimate or statistic. Provide \code{alternative_fi
 to have a specific model fit to each simulated dataset, rather than the model
 they are simulated from.
 
+Only the response variable from the \code{fit} (or \code{alternative_fit}, if given) is
+redrawn; other response variables in the population are left unchanged.
+
 Because \code{model_lineup()} uses the S3 generic methods \code{model.frame()},
 \code{simulate()}, and \code{update()}, it can be used with any model fit for which
 methods are provided. In base R, this includes \code{lm()} and \code{glm()}.
