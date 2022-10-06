@@ -243,7 +243,7 @@ sampling_distribution <- function(fit, data, fn = tidy, nsim = 100,
     new_data <- if (fixed_x) {
       sample_y(data)
     } else {
-      sample_y(sample_x(data, nrow(data)))
+      sample_y(sample_x(parent_population(data), nrow(data)))
     }
     new_fit <- fn(update(fit, data = new_data), ...)
     check_fn_output(new_fit)

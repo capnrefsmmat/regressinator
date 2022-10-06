@@ -29,3 +29,28 @@ test_that("parametric_boot_distribution produces new response data", {
 
   expect_true(all(coefs$sd > 0))
 })
+
+test_that("sampling_distribution resamples x when fixed_x = FALSE", {
+  # there was a bug that prevented fixed_x = FALSE from working correctly,
+  # because sampling_distribution() passed sample_x() the sample, not its parent
+  # population
+
+  pop <- population(
+    x = predictor("rnorm", mean = 0, sd = 1),
+    y = response(4 + 2 * x, family = gaussian(), error_scale = 1.0)
+  )
+
+  samp <- pop |>
+    sample_x(n = 100) |>
+    sample_y()
+
+  fit <- lm(y ~ x, data = samp)
+
+  samples <- sampling_distribution(fit, samp, fn = function(fit) {
+    data.frame(x = model.frame(fit)$x)
+  }, nsim = 2, fixed_x = FALSE)
+
+  # most of the Xs should not be unique. Technically all, but of course I don't
+  # trust floats to be unique like real numbers
+  expect_gt(length(unique(samples$x)), 150)
+})
