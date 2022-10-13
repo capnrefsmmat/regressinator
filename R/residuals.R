@@ -238,15 +238,18 @@ augment_longer <- function(x, ...) {
 #' Group a data frame into bins
 #'
 #' Groups a data frame (similarly to `dplyr::group_by()`) based on the values of
-#' a column, by dividing the numerical range of that column into equal-sized
-#' intervals and collecting all rows in each interval.
+#' a column, either by dividing up the range into equal pieces or by quantiles.
+#'
+#' `bin_by_interval()` breaks the numerical range of that column into
+#' equal-sized intervals, or into intervals specified by `breaks`.
+#' `bin_by_quantile()` splits the range into pieces based on quantiles of the
+#' data, so each interval contains roughly an equal number of observations.
 #'
 #' @param .data Data frame to bin
 #' @param col Column to bin by
-#' @param breaks Number of bins to create, or a numeric vector of two or more
-#'   unique cut points to use. Passed to `cut()` to create the cuts. If `NULL`,
-#'   a default number of breaks is chosen based on the number of rows in the
-#'   data.
+#' @param breaks Number of bins to create. `bin_by_interval()` also accepts a
+#'   numeric vector of two or more unique cut points to use. If `NULL`, a
+#'   default number of breaks is chosen based on the number of rows in the data.
 #' @return Grouped data frame, similar to those returned by `dplyr::group_by()`.
 #'   An additional column `.bin` indicates the bin number for each group. Use
 #'   `dplyr::summarize()` to calculate values within each group, or other dplyr
@@ -258,26 +261,49 @@ augment_longer <- function(x, ...) {
 #'   bin_by_interval(speed, breaks = 5) |>
 #'   summarize(mean_speed = mean(speed),
 #'             mean_dist = mean(dist))
-#' @importFrom ggplot2 cut_interval
+#'
+#' cars |>
+#'   bin_by_quantile(speed, breaks = 5) |>
+#'   summarize(mean_speed = mean(speed),
+#'             mean_dist = mean(dist))
 #' @importFrom dplyr mutate group_by
 #' @importFrom rlang .data
 bin_by_interval <- function(.data, col, breaks = NULL) {
   n <- nrow(.data)
 
   if (is.null(breaks)) {
-    # size heuristic taken from the arm package's binned residuals function
-    breaks <- if (n <= 10) {
-      floor(n / 2)
-    } else if (n < 100) {
-      10
-    } else {
-      floor(sqrt(n))
-    }
+    breaks <- size_heuristic(n)
   }
 
   mutate(.data,
          .bin = cut({{ col }}, breaks = breaks, labels = FALSE)) |>
     group_by(.data$.bin)
+}
+
+#' @rdname bin_by_interval
+#' @importFrom ggplot2 cut_number
+#' @export
+bin_by_quantile <- function(.data, col, breaks = NULL) {
+  n <- nrow(.data)
+
+  if (is.null(breaks)) {
+    breaks <- size_heuristic(n)
+  }
+
+  mutate(.data,
+         .bin = cut_number({{ col }}, n = breaks, labels = FALSE)) |>
+    group_by(.data$.bin)
+}
+
+size_heuristic <- function(n) {
+  # size heuristic taken from the arm package's binned residuals function
+  if (n <= 10) {
+    floor(n / 2)
+  } else if (n < 100) {
+    10
+  } else {
+    floor(sqrt(n))
+  }
 }
 
 #' Empirically estimate response values on the link scale

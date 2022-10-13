@@ -2,19 +2,21 @@
 % Please edit documentation in R/residuals.R
 \name{bin_by_interval}
 \alias{bin_by_interval}
+\alias{bin_by_quantile}
 \title{Group a data frame into bins}
 \usage{
 bin_by_interval(.data, col, breaks = NULL)
+
+bin_by_quantile(.data, col, breaks = NULL)
 }
 \arguments{
 \item{.data}{Data frame to bin}
 
 \item{col}{Column to bin by}
 
-\item{breaks}{Number of bins to create, or a numeric vector of two or more
-unique cut points to use. Passed to \code{cut()} to create the cuts. If \code{NULL},
-a default number of breaks is chosen based on the number of rows in the
-data.}
+\item{breaks}{Number of bins to create. \code{bin_by_interval()} also accepts a
+numeric vector of two or more unique cut points to use. If \code{NULL}, a
+default number of breaks is chosen based on the number of rows in the data.}
 }
 \value{
 Grouped data frame, similar to those returned by \code{dplyr::group_by()}.
@@ -24,13 +26,23 @@ operations that work on groups.
 }
 \description{
 Groups a data frame (similarly to \code{dplyr::group_by()}) based on the values of
-a column, by dividing the numerical range of that column into equal-sized
-intervals and collecting all rows in each interval.
+a column, either by dividing up the range into equal pieces or by quantiles.
+}
+\details{
+\code{bin_by_interval()} breaks the numerical range of that column into
+equal-sized intervals, or into intervals specified by \code{breaks}.
+\code{bin_by_quantile()} splits the range into pieces based on quantiles of the
+data, so each interval contains roughly an equal number of observations.
 }
 \examples{
 suppressMessages(library(dplyr))
 cars |>
   bin_by_interval(speed, breaks = 5) |>
+  summarize(mean_speed = mean(speed),
+            mean_dist = mean(dist))
+
+cars |>
+  bin_by_quantile(speed, breaks = 5) |>
   summarize(mean_speed = mean(speed),
             mean_dist = mean(dist))
 }
