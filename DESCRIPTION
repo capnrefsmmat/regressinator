@@ -8,12 +8,16 @@ Authors@R: person("Alex", "Reinhart",
                   comment = c(ORCID = "0000-0002-6658-514X"))
 Description: Simulate samples from populations with known covariate
     distributions, generate response variables according to common linear and
-    generalized linear model families, and perform visual inference on
-    diagnostics from model fits.
+    generalized linear model families, draw from sampling distributions of
+    regression estimates, and perform visual inference on diagnostics from model
+    fits.
+URL: https://www.refsmmat.com/regressinator/, https://github.com/capnrefsmmat/regressinator
+BugReports: https://github.com/capnrefsmmat/regressinator/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.2.1
+Depends: R (>= 4.1)
 Imports:
         broom,
         cli,
