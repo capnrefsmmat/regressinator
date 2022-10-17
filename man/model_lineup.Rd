@@ -2,12 +2,9 @@
 % Please edit documentation in R/diagnose.R
 \name{model_lineup}
 \alias{model_lineup}
-\alias{decrypt}
 \title{Produce a lineup for a fitted model}
 \usage{
 model_lineup(fit, fn = augment, nsim = 20, ...)
-
-decrypt(msg)
 }
 \arguments{
 \item{fit}{A model fit to data, such as by \code{lm()} or \code{glm()}}
@@ -24,17 +21,13 @@ and use \code{methods(augment)}.}
 diagnostics for \code{fit} are hidden among 19 null diagnostics.}
 
 \item{...}{Additional arguments passed to \code{fn} each time it is called.}
-
-\item{msg}{Message to decrypt, specifying the location of the true
-diagnostics}
 }
 \value{
-For \code{model_lineup()}, a data frame (tibble) with columns
-corresponding to the columns returned by \code{fn}. The additional column
-\code{.sample} indicates which set of diagnostics each row is from. For
-instance, if the true data is in position 5, selecting rows with \code{.sample == 5} will retrieve the diagnostics from the original model fit.
-
-For \code{decrypt()}, the decrypted message.
+A data frame (tibble) with columns corresponding to the columns
+returned by \code{fn}. The additional column \code{.sample} indicates which set of
+diagnostics each row is from. For instance, if the true data is in position
+5, selecting rows with \code{.sample == 5} will retrieve the diagnostics from
+the original model fit.
 }
 \description{
 A lineup hides diagnostics among "null" diagnostics, i.e. the same

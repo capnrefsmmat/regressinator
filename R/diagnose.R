@@ -39,13 +39,11 @@
 #' @param nsim Number of total diagnostics. For example, if `nsim = 20`, the
 #'   diagnostics for `fit` are hidden among 19 null diagnostics.
 #' @param ... Additional arguments passed to `fn` each time it is called.
-#' @return For `model_lineup()`, a data frame (tibble) with columns
-#'   corresponding to the columns returned by `fn`. The additional column
-#'   `.sample` indicates which set of diagnostics each row is from. For
-#'   instance, if the true data is in position 5, selecting rows with `.sample
-#'   == 5` will retrieve the diagnostics from the original model fit.
-#'
-#' For `decrypt()`, the decrypted message.
+#' @return A data frame (tibble) with columns corresponding to the columns
+#'   returned by `fn`. The additional column `.sample` indicates which set of
+#'   diagnostics each row is from. For instance, if the true data is in position
+#'   5, selecting rows with `.sample == 5` will retrieve the diagnostics from
+#'   the original model fit.
 #' @importFrom broom augment
 #' @importFrom nullabor lineup
 #' @importFrom stats simulate update
@@ -84,11 +82,16 @@ check_fn_output <- function(x) {
   }
 }
 
-#' @rdname model_lineup
+#' Decrypt message giving the location of the true plot in a lineup
+#'
+#' Decrypts the message printed by `model_lineup()` indicating the location of
+#' the true diagnostics in the lineup.
+#'
 #' @importFrom nullabor decrypt
-#' @usage decrypt(msg)
-#' @param msg Message to decrypt, specifying the location of the true
+#' @usage decrypt(...)
+#' @param ... Message to decrypt, specifying the location of the true
 #'   diagnostics
+#' @return The decrypted message.
 #' @export decrypt
 #' @name decrypt
 NULL
