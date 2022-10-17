@@ -71,14 +71,73 @@ print.predictor_dist <- function(x, ...) {
 #' setup. Let \eqn{Y} represent the response variable and \eqn{X} represent the
 #' predictor variables. We specify that
 #'
-#' \deqn{Y \sim \text{SomeDistribution}(g^{-1}(\mu(X)))}{%
-#'       Y ~ SomeDistribution(g^{-1}(\mu(X)))}
+#' \deqn{Y \mid X \sim \text{SomeDistribution}(g^{-1}(\mu(X))),}{%
+#'       Y | X ~ SomeDistribution(g^{-1}(\mu(X))),}
 #'
 #' where \eqn{\mu(X)} is the expression `expr`, and both the distribution and
 #' link function \eqn{g} are specified by the `family` provided. For instance,
 #' if the `family` is `gaussian()`, the distribution is Normal and the link is
 #' the identity function; if the `family` is `binomial()`, the distribution is
 #' binomial and the link is (by default) the logistic link.
+#'
+#' ## Response families
+#'
+#' The following response families are supported.
+#'
+#' \describe{
+#' \item{`gaussian()`}{
+#' The default family is `gaussian()` with the identity link function,
+#' specifying the relationship
+#'
+#' \deqn{Y \mid X \sim \text{Normal}(\mu(X), \sigma^2),}{%
+#'       Y | X ~ Normal(mu(X), \sigma^2),}
+#'
+#' where \eqn{\sigma^2} is given by `error_scale`.
+#' }
+#'
+#' \item{`ols_with_error()`}{Allows specification of custom non-Normal error
+#' distributions, specifying the relationship
+#'
+#' \deqn{Y = \mu(X) + e,}
+#'
+#' where \eqn{e} is drawn from an arbitrary distribution, specified by the
+#' `error` argument to `ols_with_error()`.
+#' }
+#'
+#' \item{`binomial()`}{Binomial responses include binary responses (as in logistic
+#' regression) and responses giving a total number of successes out of a number
+#' of trials. The response has distribution
+#'
+#' \deqn{Y \mid X \sim \text{Binomial}(N, g^{-1}(\mu(X))),}{%
+#'       Y | X ~ Binomial(N, g^{-1}(\mu(X))),
+#' }
+#'
+#' where \eqn{N} is set by the `size` argument and \eqn{g} is the link function.
+#' The default link is the logistic link, and others can be chosen with the
+#' `link` argument to `binomial()`. The default \eqn{N} is 1, representing a
+#' binary outcome.
+#' }
+#'
+#' \item{`poisson()`}{Poisson-distributed responses with distribution
+#'
+#' \deqn{Y \mid X \sim \text{Poisson}(g^{-1}(\mu(X))),}{%
+#'       Y | X ~ Poisson(g^{-1}(\mu(X))),
+#' }
+#'
+#' where \eqn{g} is the link function. The default link is the log link, and
+#' others can be chosen with the `link` argument to `poisson()`.
+#' }
+#'
+#' \item{`custom_family()`}{Responses drawn from an arbitrary distribution with
+#' arbitrary link function, i.e.
+#'
+#'  \deqn{Y \mid X \sim \text{SomeDistribution}(g^{-1}(\mu(X))),}{%
+#'        Y | X ~ SomeDistribution(g^{-1}(\mu(X))),}
+#'
+#' where both \eqn{g} and SomeDistribution are specified by arguments to
+#' `custom_family()`.
+#' }
+#' }
 #'
 #' @param expr An expression, in terms of other predictor or response variables,
 #'   giving this predictor's value on the link scale.
@@ -97,6 +156,7 @@ print.predictor_dist <- function(x, ...) {
 #'   response variables. For other families, `size` is ignored.
 #' @importFrom stats gaussian
 #' @importFrom cli cli_abort cli_warn
+#' @seealso [ols_with_error()], [custom_family()]
 #' @export
 response <- function(expr, family = gaussian(), error_scale = NULL,
                      size = 1L) {

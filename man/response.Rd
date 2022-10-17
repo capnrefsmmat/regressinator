@@ -39,12 +39,74 @@ Response variables are drawn based on a typical generalized linear model
 setup. Let \eqn{Y} represent the response variable and \eqn{X} represent the
 predictor variables. We specify that
 
-\deqn{Y \sim \text{SomeDistribution}(g^{-1}(\mu(X)))}{%
-      Y ~ SomeDistribution(g^{-1}(\mu(X)))}
+\deqn{Y \mid X \sim \text{SomeDistribution}(g^{-1}(\mu(X))),}{%
+      Y | X ~ SomeDistribution(g^{-1}(\mu(X))),}
 
 where \eqn{\mu(X)} is the expression \code{expr}, and both the distribution and
 link function \eqn{g} are specified by the \code{family} provided. For instance,
 if the \code{family} is \code{gaussian()}, the distribution is Normal and the link is
 the identity function; if the \code{family} is \code{binomial()}, the distribution is
 binomial and the link is (by default) the logistic link.
+\subsection{Response families}{
+
+The following response families are supported.
+
+\describe{
+\item{\code{gaussian()}}{
+The default family is \code{gaussian()} with the identity link function,
+specifying the relationship
+
+\deqn{Y \mid X \sim \text{Normal}(\mu(X), \sigma^2),}{%
+      Y | X ~ Normal(mu(X), \sigma^2),}
+
+where \eqn{\sigma^2} is given by \code{error_scale}.
+}
+
+\item{\code{ols_with_error()}}{Allows specification of custom non-Normal error
+distributions, specifying the relationship
+
+\deqn{Y = \mu(X) + e,}
+
+where \eqn{e} is drawn from an arbitrary distribution, specified by the
+\code{error} argument to \code{ols_with_error()}.
+}
+
+\item{\code{binomial()}}{Binomial responses include binary responses (as in logistic
+regression) and responses giving a total number of successes out of a number
+of trials. The response has distribution
+
+\deqn{Y \mid X \sim \text{Binomial}(N, g^{-1}(\mu(X))),}{%
+      Y | X ~ Binomial(N, g^{-1}(\mu(X))),
+}
+
+where \eqn{N} is set by the \code{size} argument and \eqn{g} is the link function.
+The default link is the logistic link, and others can be chosen with the
+\code{link} argument to \code{binomial()}. The default \eqn{N} is 1, representing a
+binary outcome.
+}
+
+\item{\code{poisson()}}{Poisson-distributed responses with distribution
+
+\deqn{Y \mid X \sim \text{Poisson}(g^{-1}(\mu(X))),}{%
+      Y | X ~ Poisson(g^{-1}(\mu(X))),
+}
+
+where \eqn{g} is the link function. The default link is the log link, and
+others can be chosen with the \code{link} argument to \code{poisson()}.
+}
+
+\item{\code{custom_family()}}{Responses drawn from an arbitrary distribution with
+arbitrary link function, i.e.
+
+\deqn{Y \mid X \sim \text{SomeDistribution}(g^{-1}(\mu(X))),}{%
+       Y | X ~ SomeDistribution(g^{-1}(\mu(X))),}
+
+where both \eqn{g} and SomeDistribution are specified by arguments to
+\code{custom_family()}.
+}
+}
+}
+}
+\seealso{
+\code{\link[=ols_with_error]{ols_with_error()}}, \code{\link[=custom_family]{custom_family()}}
 }
