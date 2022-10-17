@@ -36,8 +36,8 @@ either the fitted values of observations in this bin, or of the term if
 }
 \description{
 Construct a data frame by binning the fitted values or predictors of a model
-into discrete bins, and calculating the average value of the residuals within
-each bin.
+into discrete bins of equal width, and calculating the average value of the
+residuals within each bin.
 }
 \details{
 In many generalized linear models, the residual plots (Pearson or deviance)
@@ -68,5 +68,6 @@ Other Stories. Section 14.5. Cambridge University Press.
 \code{\link[=partial_residuals]{partial_residuals()}} for the related partial residuals;
 \code{vignette("logistic-regression-diagnostics")} for examples of use and
 interpretation of binned residuals in logistic regression;
-\code{\link[=bin_by_interval]{bin_by_interval()}} to bin data and calculate other values in each bin
+\code{\link[=bin_by_interval]{bin_by_interval()}} and \code{\link[=bin_by_quantile]{bin_by_quantile()}} to bin data and calculate other
+values in each bin
 }

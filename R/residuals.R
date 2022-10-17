@@ -102,8 +102,8 @@ partial_residuals <- function(fit) {
 #' Obtain binned residuals for a model
 #'
 #' Construct a data frame by binning the fitted values or predictors of a model
-#' into discrete bins, and calculating the average value of the residuals within
-#' each bin.
+#' into discrete bins of equal width, and calculating the average value of the
+#' residuals within each bin.
 #'
 #' In many generalized linear models, the residual plots (Pearson or deviance)
 #' are not useful because the response variable takes on very few possible
@@ -143,7 +143,8 @@ partial_residuals <- function(fit) {
 #' @seealso [partial_residuals()] for the related partial residuals;
 #'   `vignette("logistic-regression-diagnostics")` for examples of use and
 #'   interpretation of binned residuals in logistic regression;
-#'   [bin_by_interval()] to bin data and calculate other values in each bin
+#'   [bin_by_interval()] and [bin_by_quantile()] to bin data and calculate other
+#'   values in each bin
 #' @references Gelman, A., Hill, J., and Vehtari, A. (2021). Regression and
 #'   Other Stories. Section 14.5. Cambridge University Press.
 #' @importFrom dplyr n summarize

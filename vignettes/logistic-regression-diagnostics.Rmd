@@ -53,26 +53,24 @@ family:
 
 ```{r}
 logistic_data |>
-  bin_by_interval(x1, breaks = 10) |>
+  bin_by_quantile(x1, breaks = 6) |>
   summarize(x = mean(x1),
-            response = empirical_link(y, binomial),
-            n = n()) |>
-  ggplot(aes(x = x, y = response, size = n)) +
+            response = empirical_link(y, binomial)) |>
+  ggplot(aes(x = x, y = response)) +
   geom_point() +
   labs(x = "X1", y = "logit(Y)")
 ```
 
-This looks suspiciously nonlinear, though the sample size in some bins is small.
+This looks suspiciously nonlinear.
 
 Similarly for `x2`:
 
 ```{r}
 logistic_data |>
-  bin_by_interval(x2, breaks = 10) |>
+  bin_by_quantile(x2, breaks = 6) |>
   summarize(x = mean(x2),
-            response = empirical_link(y, binomial),
-            n = n()) |>
-  ggplot(aes(x = x, y = response, size = n)) +
+            response = empirical_link(y, binomial)) |>
+  ggplot(aes(x = x, y = response)) +
   geom_point() +
   labs(x = "X2", y = "logit(Y)")
 ```
