@@ -3,3 +3,6 @@
 ^_pkgdown\.yml$
 ^docs$
 ^pkgdown$
+^publish-docs.sh$
+^README.html$
+^README.Rmd$
