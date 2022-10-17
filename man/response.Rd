@@ -4,7 +4,7 @@
 \alias{response}
 \title{Specify a response variable in terms of predictors}
 \usage{
-response(expr, family = gaussian(), error_scale = NULL)
+response(expr, family = gaussian(), error_scale = NULL, size = 1L)
 }
 \arguments{
 \item{expr}{An expression, in terms of other predictor or response variables,
@@ -19,6 +19,12 @@ the response variable will be multiplied by this scale factor. The scale
 factor can be a scalar value (such as a fixed standard deviation), or an
 expression in terms of the predictors, which will be evaluated when
 simulating response data. For generalized linear models, leave as \code{NULL}.}
+
+\item{size}{When the \code{family} is \code{binomial()}, this is the number of trials
+for each observation. Defaults to 1, as in logistic regression. May be
+specified either as a vector of the same length as the number of
+observations or as a scalar. May be written terms of other predictor or
+response variables. For other families, \code{size} is ignored.}
 }
 \description{
 Response variables are related to predictors (and other response variables)

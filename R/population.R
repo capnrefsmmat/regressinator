@@ -90,12 +90,20 @@ print.predictor_dist <- function(x, ...) {
 #'   factor can be a scalar value (such as a fixed standard deviation), or an
 #'   expression in terms of the predictors, which will be evaluated when
 #'   simulating response data. For generalized linear models, leave as `NULL`.
+#' @param size When the `family` is `binomial()`, this is the number of trials
+#'   for each observation. Defaults to 1, as in logistic regression. May be
+#'   specified either as a vector of the same length as the number of
+#'   observations or as a scalar. May be written terms of other predictor or
+#'   response variables. For other families, `size` is ignored.
 #' @importFrom stats gaussian
 #' @importFrom cli cli_abort cli_warn
 #' @export
-response <- function(expr, family = gaussian(), error_scale = NULL) {
+response <- function(expr, family = gaussian(), error_scale = NULL,
+                     size = 1L) {
   response_expr <- substitute(expr)
   error_scale <- substitute(error_scale)
+  size <- substitute(size)
+
   family <- normalize_family(family)
 
   if (!(family$family %in% c("gaussian", "ols_with_error")) &&
@@ -111,7 +119,8 @@ response <- function(expr, family = gaussian(), error_scale = NULL) {
   return(structure(
     list(response_expr = response_expr,
          family = family,
-         error_scale = error_scale),
+         error_scale = error_scale,
+         size = size),
     class = "response_dist"))
 }
 

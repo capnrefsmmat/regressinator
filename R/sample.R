@@ -110,7 +110,18 @@ sample_y <- function(xs) {
         response$family$simulate(NULL, 1, env = xs, ftd = rep(0, n)) *
         eval(response$error_scale, envir = xs)
     } else if (family_name == "binomial") {
-      y_resp <- rbinom(n, size = 1, prob = y_resp)
+      size <- eval(response$size, envir = xs)
+
+      if (!isTRUE(all.equal(size, as.integer(size)))) {
+        cli_abort("{.arg size} for {.fn binomial} families must be an integer or vector of integers")
+      }
+
+      if (!(length(size) == 1 || length(size) == length(y_resp))) {
+        cli_abort(c("{.arg size} for {.fn binomial} families must be either length 1 or have one entry per observation",
+                    "*" = "{.arg size} has length {.val {length(size)}}, but data has length {.val {length(y_resp)}}"))
+      }
+
+      y_resp <- rbinom(n, size = size, prob = y_resp)
     } else if (family_name == "poisson") {
       y_resp <- rpois(n, lambda = y_resp)
     } else if (family_name == "custom_family") {
