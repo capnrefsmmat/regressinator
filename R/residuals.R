@@ -92,17 +92,17 @@
 #'   all predictors. Predictors can be specified using tidyselect syntax; see
 #'   `help("language", package = "tidyselect")`.
 #' @return Data frame (tibble) containing the model data and residuals in tidy
-#'   form. There is one row *per predictor* per observation, with the following
-#'   columns:
+#'   form. There is one row *per predictor* per observation. All predictors are
+#'   included as columns, plus the following additional columns:
 #'
-#' \item{obs}{Row number of this observation in the original model data frame.}
-#' \item{predictor_name}{Name of the predictor this row gives the partial
+#' \item{.obs}{Row number of this observation in the original model data frame.}
+#' \item{.predictor_name}{Name of the predictor this row gives the partial
 #' residual for.}
-#' \item{predictor_value}{Value of the predictor this row gives the partial
+#' \item{.predictor_value}{Value of the predictor this row gives the partial
 #' residual for.}
-#' \item{partial_resid}{Partial residual for this predictor for this
+#' \item{.partial_resid}{Partial residual for this predictor for this
 #' observation.}
-#' \item{predictor_effect}{Predictor effect \eqn{\hat \mu(X_{fi},
+#' \item{.predictor_effect}{Predictor effect \eqn{\hat \mu(X_{fi},
 #' 0)}{muhat(X_fi, 0)} for this observation.}
 #'
 #' @seealso [binned_residuals()] for the related binned residuals;
@@ -125,7 +125,7 @@
 #' @importFrom tidyselect everything eval_select
 #' @importFrom rlang enquo
 #' @importFrom purrr map_dfr
-#' @importFrom tibble tibble
+#' @importFrom tibble as_tibble
 #' @examples
 #' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 #' partial_residuals(fit)
@@ -183,22 +183,28 @@ partial_residuals <- function(fit, predictors = everything()) {
       df <- pred_data
       for (p in names(df)) {
         if (p != predictor) {
-          df[, p] <- 0
+          if (is.factor(df[, p])) {
+            df[, p] <- levels(penguins$species)[1]
+          } else if (is.logical(df[, p])) {
+            df[, p] <- FALSE
+          } else {
+            df[, p] <- 0
+          }
         }
       }
 
       effect <- predict(fit, newdata = df) - intercept
 
-      tibble(
-        predictor_name = predictor,
-        predictor_value = predictors[, predictor],
-        predictor_effect = effect,
-        partial_resid = effect + resids
-      )
+      out <- pred_data
+      out$.predictor_name <- predictor
+      out$.predictor_value <- predictors[, predictor]
+      out$.predictor_effect <- effect
+      out$.partial_resid <- effect + resids
+      return(out)
     }
   )
 
-  return(out)
+  return(as_tibble(out))
 }
 
 #' Determine if a predictor is involved in an interaction

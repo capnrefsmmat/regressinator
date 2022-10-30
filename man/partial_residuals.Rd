@@ -17,17 +17,17 @@ all predictors. Predictors can be specified using tidyselect syntax; see
 }
 \value{
 Data frame (tibble) containing the model data and residuals in tidy
-form. There is one row \emph{per predictor} per observation, with the following
-columns:
+form. There is one row \emph{per predictor} per observation. All predictors are
+included as columns, plus the following additional columns:
 
-\item{obs}{Row number of this observation in the original model data frame.}
-\item{predictor_name}{Name of the predictor this row gives the partial
+\item{.obs}{Row number of this observation in the original model data frame.}
+\item{.predictor_name}{Name of the predictor this row gives the partial
 residual for.}
-\item{predictor_value}{Value of the predictor this row gives the partial
+\item{.predictor_value}{Value of the predictor this row gives the partial
 residual for.}
-\item{partial_resid}{Partial residual for this predictor for this
+\item{.partial_resid}{Partial residual for this predictor for this
 observation.}
-\item{predictor_effect}{Predictor effect \eqn{\hat \mu(X_{fi},
+\item{.predictor_effect}{Predictor effect \eqn{\hat \mu(X_{fi},
 0)}{muhat(X_fi, 0)} for this observation.}
 }
 \description{
