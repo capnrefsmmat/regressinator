@@ -39,10 +39,15 @@ Response variables are drawn based on a typical generalized linear model
 setup. Let \eqn{Y} represent the response variable and \eqn{X} represent the
 predictor variables. We specify that
 
-\deqn{Y \mid X \sim \text{SomeDistribution}(g^{-1}(\mu(X))),}{%
-      Y | X ~ SomeDistribution(g^{-1}(\mu(X))),}
+\deqn{Y \mid X \sim \text{SomeDistribution},}{%
+      Y | X ~ SomeDistribution,}
 
-where \eqn{\mu(X)} is the expression \code{expr}, and both the distribution and
+where
+
+\deqn{\mathbb{E}[Y \mid X = x] = g^{-1}(\mu(x)).}{%
+      E[Y | X = x] = g^{-1}(\mu(x)).}
+
+Here \eqn{\mu(X)} is the expression \code{expr}, and both the distribution and
 link function \eqn{g} are specified by the \code{family} provided. For instance,
 if the \code{family} is \code{gaussian()}, the distribution is Normal and the link is
 the identity function; if the \code{family} is \code{binomial()}, the distribution is
@@ -108,5 +113,6 @@ where both \eqn{g} and SomeDistribution are specified by arguments to
 }
 }
 \seealso{
-\code{\link[=ols_with_error]{ols_with_error()}}, \code{\link[=custom_family]{custom_family()}}
+\code{\link[=predictor]{predictor()}} and \code{\link[=population]{population()}} to define populations;
+\code{\link[=ols_with_error]{ols_with_error()}} and \code{\link[=custom_family]{custom_family()}} for custom response distributions
 }

@@ -32,7 +32,7 @@ Multivariate predictors are successively numbered. For instance, if predictor
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{library(mvtnorm)
 predictor(dist = "rmvnorm", mean = c(0, 1),
-         sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2))
+          sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2))
 }\if{html}{\out{</div>}}
 
 then the population predictors will be named \code{X1} and \code{X2}, and will have

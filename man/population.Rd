@@ -45,6 +45,27 @@ population(
                family = binomial(link = "logit"))
 )
 
+# A binomial outcome Y, with 10 trials per observation, using a logistic link
+# to determine the probability of success for each trial
+population(
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2,
+               family = binomial(link = "logit"),
+               size = 10)
+)
+
+# Another binomial outcome, but the number of trials depends on another
+# predictor
+population(
+  x1 = predictor("rnorm", mean = 4, sd = 10),
+  x2 = predictor("runif", min = 0, max = 10),
+  trials = predictor("rpois", lambda = 20),
+  y = response(0.7 + 2.2 * x1 - 0.2 * x2,
+               family = binomial(link = "logit"),
+               size = trials)
+)
+
 # A population with a simple linear relationship and collinearity. Because X
 # is bivariate, there will be two predictors, named x1 and x2.
 library(mvtnorm)

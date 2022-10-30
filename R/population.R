@@ -25,7 +25,7 @@
 #' ```
 #' library(mvtnorm)
 #' predictor(dist = "rmvnorm", mean = c(0, 1),
-#'          sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2))
+#'           sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2))
 #' ```
 #'
 #' then the population predictors will be named `X1` and `X2`, and will have
@@ -71,10 +71,15 @@ print.predictor_dist <- function(x, ...) {
 #' setup. Let \eqn{Y} represent the response variable and \eqn{X} represent the
 #' predictor variables. We specify that
 #'
-#' \deqn{Y \mid X \sim \text{SomeDistribution}(g^{-1}(\mu(X))),}{%
-#'       Y | X ~ SomeDistribution(g^{-1}(\mu(X))),}
+#' \deqn{Y \mid X \sim \text{SomeDistribution},}{%
+#'       Y | X ~ SomeDistribution,}
 #'
-#' where \eqn{\mu(X)} is the expression `expr`, and both the distribution and
+#' where
+#'
+#' \deqn{\mathbb{E}[Y \mid X = x] = g^{-1}(\mu(x)).}{%
+#'       E[Y | X = x] = g^{-1}(\mu(x)).}
+#'
+#' Here \eqn{\mu(X)} is the expression `expr`, and both the distribution and
 #' link function \eqn{g} are specified by the `family` provided. For instance,
 #' if the `family` is `gaussian()`, the distribution is Normal and the link is
 #' the identity function; if the `family` is `binomial()`, the distribution is
@@ -156,7 +161,8 @@ print.predictor_dist <- function(x, ...) {
 #'   response variables. For other families, `size` is ignored.
 #' @importFrom stats gaussian
 #' @importFrom cli cli_abort cli_warn
-#' @seealso [ols_with_error()], [custom_family()]
+#' @seealso [predictor()] and [population()] to define populations;
+#'   [ols_with_error()] and [custom_family()] for custom response distributions
 #' @export
 response <- function(expr, family = gaussian(), error_scale = NULL,
                      size = 1L) {
@@ -191,6 +197,10 @@ print.response_dist <- function(x, ...) {
   if (!is.null(x$error_scale)) {
     cat(", error_scale = ", deparse(x$error_scale), sep = "")
   }
+  if (x$family$family == "binomial") {
+    cat(", size = ", deparse(x$size), sep = "")
+  }
+
   cat(")\n")
 
   invisible(x)
@@ -232,6 +242,27 @@ print.response_dist <- function(x, ...) {
 #'   x2 = predictor("runif", min = 0, max = 10),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
 #'                family = binomial(link = "logit"))
+#' )
+#'
+#' # A binomial outcome Y, with 10 trials per observation, using a logistic link
+#' # to determine the probability of success for each trial
+#' population(
+#'   x1 = predictor("rnorm", mean = 4, sd = 10),
+#'   x2 = predictor("runif", min = 0, max = 10),
+#'   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
+#'                family = binomial(link = "logit"),
+#'                size = 10)
+#' )
+#'
+#' # Another binomial outcome, but the number of trials depends on another
+#' # predictor
+#' population(
+#'   x1 = predictor("rnorm", mean = 4, sd = 10),
+#'   x2 = predictor("runif", min = 0, max = 10),
+#'   trials = predictor("rpois", lambda = 20),
+#'   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
+#'                family = binomial(link = "logit"),
+#'                size = trials)
 #' )
 #'
 #' # A population with a simple linear relationship and collinearity. Because X
