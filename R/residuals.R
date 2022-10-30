@@ -1,37 +1,96 @@
 #' Augment a model fit with partial residuals for all terms
 #'
-#' Construct a data frame containing the model data, partial residuals, fitted
-#' values, and linear predictor, for use in residual diagnostic plots and other
-#' analyses. The result is in tidy form (one row per predictor per observation),
-#' allowing it to be easily manipulated for plots and simulations.
+#' Construct a data frame containing the model data, partial residuals for all
+#' predictors, and predictor effects, for use in residual diagnostic plots and
+#' other analyses. The result is in tidy form (one row per predictor per
+#' observation), allowing it to be easily manipulated for plots and simulations.
 #'
-#' Consider a generalized linear model setting. We define \eqn{\mathbb{E}[Y \mid
-#' X] = \mu(X)}{E[Y | X] = \mu(X)}. Let \eqn{g} be the link function relating
-#' \eqn{\mu(X)} to the linear predictors, so \eqn{g(\mu(X)) = \beta^T X}. We
-#' define the partial residual for covariate \eqn{j} to be
+#' # Predictors and regressors
 #'
-#' \deqn{(Y - \hat \mu) g'(\hat \mu) + \hat \beta^T X_j}
+#' To define partial residuals, we must distinguish between the *predictors*,
+#' the measured variables we are using to fit our model, and the *regressors*,
+#' which are calculated from them. In a simple linear model, the regressors are
+#' equal to the predictors. But in a model with polynomials, splines, or other
+#' nonlinear terms, the regressors may be functions of the predictors.
 #'
-#' where \eqn{g'(\hat \mu)} is the first derivative of the link function with
-#' respect to \eqn{\mu}, and \eqn{\hat \mu} gives the predictions from our
-#' fitted model.
+#' For example, in a regression with a single predictor \eqn{X}, the regression
+#' model \eqn{Y = \beta_0 + \beta_1 X + e} has one regressor, \eqn{X}. But if we
+#' choose a polynomial of degree 3, the model is \eqn{Y = \beta_0 + \beta_1 X +
+#' \beta_2 X^2 + \beta_3 X^3}, and the regressors are \eqn{\{X, X^2, X^3\}}{{X,
+#' X^2, X^3}}.
 #'
-#' For example, in a linear model, \eqn{g'(\hat \mu) = 1}, so the partial
-#' residuals for covariate \eqn{j} are the ordinary residuals plus the
-#' contribution of \eqn{X_j} to the model fit. Since \eqn{\hat \mu} is also a
-#' linear combination of the predictors, this gives us the partial residual of
-#' \eqn{Y} on every predictor *except* \eqn{X_j}:
+#' Similarly, if we have predictors \eqn{X_1} and \eqn{X_2} and form a model
+#' with main effects and an interaction, the regressors are \eqn{\{X_1, X_2, X_1
+#' X_2\}}{{X_1, X_2, X_1 X_2}}.
 #'
-#' \deqn{Y - \sum_{k \neq j} \hat \beta_k X_k}
+#' Partial residuals are defined in terms of the predictors, not the regressors,
+#' and are intended to allow us to see the shape of the relationship between a
+#' particular predictor and the response, and to compare it to how we have
+#' chosen to model it with regressors. Partial residuals are not well-defined
+#' for predictors that have an interaction with other predictors in the model,
+#' as the shape of the modeled relationship varies depending on the other
+#' predictors they interact with.
 #'
-#' When plotted against \eqn{X_j}, we expect this to produce a line with slope
-#' \eqn{\hat \beta_j}. If instead the scatterplot has a curve, this suggests the
-#' relationship between \eqn{X_j} and \eqn{Y} is nonlinear.
+#' # Linear models
+#'
+#' Consider a linear model where \eqn{\mathbb{E}[Y \mid X = x] = \mu(x)}{E[Y | X
+#' = x] = \mu(x)}. The mean function \eqn{\mu(x)} is a linear combination of
+#' regressors. Let \eqn{\hat \mu}{muhat} be the fitted model and \eqn{\hat
+#' \beta_0}{beta0hat} be its intercept.
+#'
+#' Choose a predictor \eqn{X_f}, the *focal* predictor, to calculate partial
+#' residuals for. Write the mean function as \eqn{\mu(X_f, X_o)}, where
+#' \eqn{X_f} is the value of the focal predictor, and \eqn{X_o} represents all
+#' other predictors.
+#'
+#' If \eqn{e_i} is the residual for observation \eqn{i}, the partial residual is
+#'
+#' \deqn{r_{if} = e_i + (\hat \mu(x_{if}, 0) - \hat \beta_0).}{
+#' r_if = e_i + (muhat(x_if, 0) - beta0hat).}
+#'
+#' # Generalized linear models
+#'
+#' Consider a generalized linear model where \eqn{g(\mathbb{E}[Y \mid X = x]) =
+#' \mu(x)}{g(E[Y | X = x]) = \mu(x)}, where \eqn{g} is a link function. Let
+#' \eqn{\hat \mu}{muhat} be the fitted model and \eqn{\hat \beta_0}{beta0hat} be
+#' its intercept.
+#'
+#' Let \eqn{e_i} be the *working residual* for observation \eqn{i}, defined to
+#' be
+#'
+#' \deqn{e_i = (y_i - g^{-1}(x_i)) g'(x_i).}
+#'
+#' Choose a predictor \eqn{X_f}, the *focal* predictor, to calculate partial
+#' residuals for. Write \eqn{\mu} as \eqn{\mu(X_f, X_o)}, where \eqn{X_f} is the
+#' value of the focal predictor, and \eqn{X_o} represents all other predictors.
+#' Hence \eqn{\mu(X_f, X_o)} gives the model's prediction on the link scale.
+#'
+#' The partial residual is again
+#'
+#' \deqn{r_{if} = e_i + (\hat \mu(x_{if}, 0) - \hat \beta_0).}{
+#' r_if = e_i + (muhat(x_{if}, 0) - beta0hat).}
+#'
+#' # Interpretation
+#'
+#' Because the residuals \eqn{e_i} should have mean zero in a well-specified
+#' model, plotting the partial residuals against \eqn{x_f} should produce a
+#' shape matching the modeled relationship \eqn{\mu}. If the model is wrong, the
+#' partial residuals will appear to deviate from the fitted relationship.
+#'
+#' Additionally, the function \eqn{\mu(X_f, 0)} can be used to show the
+#' relationship between the focal predictor and the response. In a linear model,
+#' the function is linear; with polynomial or spline regressors, it is
+#' nonlinear. This function is the *predictor effect function*, and the
+#' estimated predictor effects \eqn{\hat \mu(X_{fi}, 0)}{muhat(X_fi, 0)} are
+#' included in this function's output.
 #'
 #' @param fit The model to obtain residuals for. This can be a model fit with
 #'   `lm()` or `glm()`, or any model whose `residuals()` method supports a `type
 #'   = "partial"` argument that returns a matrix or data frame of partial
 #'   residuals.
+#' @param predictors Predictors to calculate partial residuals for. Defaults to
+#'   all predictors. Predictors can be specified using tidyselect syntax; see
+#'   `help("language", package = "tidyselect")`.
 #' @return Data frame (tibble) containing the model data and residuals in tidy
 #'   form. There is one row *per predictor* per observation, with the following
 #'   columns:
@@ -43,11 +102,9 @@
 #' residual for.}
 #' \item{partial_resid}{Partial residual for this predictor for this
 #' observation.}
-#' \item{fitted}{Fitted value (on the response scale) for this observation,
-#' obtained using `fitted()`.}
-#' \item{linear_predictor}{Linear predictor for this observation, obtained using
-#' `predict()`. For linear models, the fitted values and linear predictor are
-#' identical.}
+#' \item{predictor_effect}{Predictor effect \eqn{\hat \mu(X_{fi},
+#' 0)}{muhat(X_fi, 0)} for this observation.}
+#'
 #' @seealso [binned_residuals()] for the related binned residuals;
 #'   `vignette("linear-regression-diagnostics")` for examples of plotting and
 #'   interpreting partial residuals
@@ -63,40 +120,110 @@
 #' Fox, J., & Weisberg, S. (2018). "Visualizing Fit and Lack of Fit in Complex
 #' Regression Models with Predictor Effect Plots and Partial Residuals." *Journal
 #' of Statistical Software*, 87(9). <https://doi.org/10.18637/jss.v087.i09>
-#' @importFrom stats predict fitted
-#' @importFrom tibble as_tibble
+#' @importFrom stats predict
+#' @importFrom insight get_predictors get_intercept
+#' @importFrom tidyselect everything eval_select
+#' @importFrom rlang enquo
+#' @importFrom purrr map_dfr
+#' @importFrom tibble tibble
 #' @examples
 #' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 #' partial_residuals(fit)
+#'
+#' # select predictors with tidyselect syntax
+#' partial_residuals(fit, c(disp, hp))
+#'
+#' # predictors with multiple regressors
+#' fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
+#' partial_residuals(fit2)
 #' @export
-partial_residuals <- function(fit) {
-  partials <- as.data.frame(residuals(fit, type = "partial"))
+partial_residuals <- function(fit, predictors = everything()) {
+  # TODO Automatically omit predictors in interactions
+  predictors <- enquo(predictors)
 
-  d <- model.frame(fit)
-  predictor_names <- names(partials)
-  num_predictors <- ncol(partials)
-  nobs <- nrow(partials)
+  pred_data <- get_predictors(fit)
+  selection <- eval_select(predictors, pred_data)
 
-  yhat <- fitted(fit)
-  lp <- predict(fit) # linear predictor, since glms default to type="link"
+  num_predictors <- length(selection)
+  predictors <- pred_data[, selection, drop = FALSE]
+  predictor_names <- names(predictors)
+  nobs <- nrow(predictors)
 
-  out <- data.frame(obs = rep(seq_len(num_predictors), times = nobs))
-
-  for (obs in seq_len(nobs)) {
-    for (pred in seq_len(num_predictors)) {
-      row <- (obs - 1) * num_predictors + pred
-
-      out$fitted[row] <- yhat[obs]
-      out$linear_predictor[row] <- lp[obs]
-
-      out$predictor_name[row] <- predictor_names[pred]
-      out$predictor_value[row] <- d[obs, predictor_names[pred]]
-
-      out$partial_resid[row] <- partials[obs, predictor_names[pred]]
-    }
+  intercept <- get_intercept(fit)
+  if (is.na(intercept)) {
+    intercept <- 0
   }
 
-  return(as_tibble(out))
+  resids <- residuals(fit, type = "working")
+
+  # FIXME
+  ## interacting_predictors <- Filter(
+  ##   function(p) in_interaction(formula(fit), p),
+  ##   predictor_names
+  ## )
+
+  ## if (length(interacting_predictors) > 0) {
+  ##   cli_warn(c("Partial residuals are not defined for predictors in interactions",
+  ##              "*" = "Skipped predictors: {.var {interacting_predictors}}"))
+  ## }
+
+  ## if (length(interacting_predictors) == length(predictor_names)) {
+  ##   return(tibble(
+  ##     predictor_name = character(),
+  ##     predictor_value = numeric(),
+  ##     predictor_effect = numeric(),
+  ##     partial_resid = numeric()
+  ##   ))
+  ## }
+
+  out <- map_dfr(
+    ## setdiff(predictor_names, interacting_predictors),
+    predictor_names,
+    function(predictor) {
+      df <- pred_data
+      for (p in names(df)) {
+        if (p != predictor) {
+          df[, p] <- 0
+        }
+      }
+
+      effect <- predict(fit, newdata = df) - intercept
+
+      tibble(
+        predictor_name = predictor,
+        predictor_value = predictors[, predictor],
+        predictor_effect = effect,
+        partial_resid = effect + resids
+      )
+    }
+  )
+
+  return(out)
+}
+
+#' Determine if a predictor is involved in an interaction
+#'
+#' This presently does not work for any term like `poly(x, 3)` or `I(x^2)`,
+#' since the terms object contains those names, not the names of the underlying
+#' predictors.
+#'
+#' @param formula Model formula
+#' @param predictor Predictor to check for, as character vector
+#' @return `TRUE` if in an interaction, `FALSE` otherwise
+#' @keywords internal
+in_interaction <- function(formula, predictor) {
+  terms <- terms(formula)
+
+  # indicates which predictors are in which model terms
+  factors <- attr(terms, "factors")
+
+  # drop columns where our predictor does not appear
+  factors <- factors[, factors[predictor, ] > 0, drop = FALSE]
+
+  # term with > 1 predictors is an interaction of some kind
+  interactions <- colSums(factors) > 1
+
+  return(any(interactions))
 }
 
 #' Obtain binned residuals for a model

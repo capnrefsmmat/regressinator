@@ -4,12 +4,16 @@
 \alias{partial_residuals}
 \title{Augment a model fit with partial residuals for all terms}
 \usage{
-partial_residuals(fit)
+partial_residuals(fit, predictors = everything())
 }
 \arguments{
 \item{fit}{The model to obtain residuals for. This can be a model fit with
 \code{lm()} or \code{glm()}, or any model whose \code{residuals()} method supports a \code{type = "partial"} argument that returns a matrix or data frame of partial
 residuals.}
+
+\item{predictors}{Predictors to calculate partial residuals for. Defaults to
+all predictors. Predictors can be specified using tidyselect syntax; see
+\code{help("language", package = "tidyselect")}.}
 }
 \value{
 Data frame (tibble) containing the model data and residuals in tidy
@@ -23,45 +27,104 @@ residual for.}
 residual for.}
 \item{partial_resid}{Partial residual for this predictor for this
 observation.}
-\item{fitted}{Fitted value (on the response scale) for this observation,
-obtained using \code{fitted()}.}
-\item{linear_predictor}{Linear predictor for this observation, obtained using
-\code{predict()}. For linear models, the fitted values and linear predictor are
-identical.}
+\item{predictor_effect}{Predictor effect \eqn{\hat \mu(X_{fi},
+0)}{muhat(X_fi, 0)} for this observation.}
 }
 \description{
-Construct a data frame containing the model data, partial residuals, fitted
-values, and linear predictor, for use in residual diagnostic plots and other
-analyses. The result is in tidy form (one row per predictor per observation),
-allowing it to be easily manipulated for plots and simulations.
+Construct a data frame containing the model data, partial residuals for all
+predictors, and predictor effects, for use in residual diagnostic plots and
+other analyses. The result is in tidy form (one row per predictor per
+observation), allowing it to be easily manipulated for plots and simulations.
 }
-\details{
-Consider a generalized linear model setting. We define \eqn{\mathbb{E}[Y \mid
-X] = \mu(X)}{E[Y | X] = \mu(X)}. Let \eqn{g} be the link function relating
-\eqn{\mu(X)} to the linear predictors, so \eqn{g(\mu(X)) = \beta^T X}. We
-define the partial residual for covariate \eqn{j} to be
+\section{Predictors and regressors}{
+To define partial residuals, we must distinguish between the \emph{predictors},
+the measured variables we are using to fit our model, and the \emph{regressors},
+which are calculated from them. In a simple linear model, the regressors are
+equal to the predictors. But in a model with polynomials, splines, or other
+nonlinear terms, the regressors may be functions of the predictors.
 
-\deqn{(Y - \hat \mu) g'(\hat \mu) + \hat \beta^T X_j}
+For example, in a regression with a single predictor \eqn{X}, the regression
+model \eqn{Y = \beta_0 + \beta_1 X + e} has one regressor, \eqn{X}. But if we
+choose a polynomial of degree 3, the model is \eqn{Y = \beta_0 + \beta_1 X +
+\beta_2 X^2 + \beta_3 X^3}, and the regressors are \eqn{\{X, X^2, X^3\}}{{X,
+X^2, X^3}}.
 
-where \eqn{g'(\hat \mu)} is the first derivative of the link function with
-respect to \eqn{\mu}, and \eqn{\hat \mu} gives the predictions from our
-fitted model.
+Similarly, if we have predictors \eqn{X_1} and \eqn{X_2} and form a model
+with main effects and an interaction, the regressors are \eqn{\{X_1, X_2, X_1
+X_2\}}{{X_1, X_2, X_1 X_2}}.
 
-For example, in a linear model, \eqn{g'(\hat \mu) = 1}, so the partial
-residuals for covariate \eqn{j} are the ordinary residuals plus the
-contribution of \eqn{X_j} to the model fit. Since \eqn{\hat \mu} is also a
-linear combination of the predictors, this gives us the partial residual of
-\eqn{Y} on every predictor \emph{except} \eqn{X_j}:
-
-\deqn{Y - \sum_{k \neq j} \hat \beta_k X_k}
-
-When plotted against \eqn{X_j}, we expect this to produce a line with slope
-\eqn{\hat \beta_j}. If instead the scatterplot has a curve, this suggests the
-relationship between \eqn{X_j} and \eqn{Y} is nonlinear.
+Partial residuals are defined in terms of the predictors, not the regressors,
+and are intended to allow us to see the shape of the relationship between a
+particular predictor and the response, and to compare it to how we have
+chosen to model it with regressors. Partial residuals are not well-defined
+for predictors that have an interaction with other predictors in the model,
+as the shape of the modeled relationship varies depending on the other
+predictors they interact with.
 }
+
+\section{Linear models}{
+Consider a linear model where \eqn{\mathbb{E}[Y \mid X = x] = \mu(x)}{E[Y | X
+= x] = \mu(x)}. The mean function \eqn{\mu(x)} is a linear combination of
+regressors. Let \eqn{\hat \mu}{muhat} be the fitted model and \eqn{\hat
+\beta_0}{beta0hat} be its intercept.
+
+Choose a predictor \eqn{X_f}, the \emph{focal} predictor, to calculate partial
+residuals for. Write the mean function as \eqn{\mu(X_f, X_o)}, where
+\eqn{X_f} is the value of the focal predictor, and \eqn{X_o} represents all
+other predictors.
+
+If \eqn{e_i} is the residual for observation \eqn{i}, the partial residual is
+
+\deqn{r_{if} = e_i + (\hat \mu(x_{if}, 0) - \hat \beta_0).}{
+r_if = e_i + (muhat(x_if, 0) - beta0hat).}
+}
+
+\section{Generalized linear models}{
+Consider a generalized linear model where \eqn{g(\mathbb{E}[Y \mid X = x]) =
+\mu(x)}{g(E[Y | X = x]) = \mu(x)}, where \eqn{g} is a link function. Let
+\eqn{\hat \mu}{muhat} be the fitted model and \eqn{\hat \beta_0}{beta0hat} be
+its intercept.
+
+Let \eqn{e_i} be the \emph{working residual} for observation \eqn{i}, defined to
+be
+
+\deqn{e_i = (y_i - g^{-1}(x_i)) g'(x_i).}
+
+Choose a predictor \eqn{X_f}, the \emph{focal} predictor, to calculate partial
+residuals for. Write \eqn{\mu} as \eqn{\mu(X_f, X_o)}, where \eqn{X_f} is the
+value of the focal predictor, and \eqn{X_o} represents all other predictors.
+Hence \eqn{\mu(X_f, X_o)} gives the model's prediction on the link scale.
+
+The partial residual is again
+
+\deqn{r_{if} = e_i + (\hat \mu(x_{if}, 0) - \hat \beta_0).}{
+r_if = e_i + (muhat(x_{if}, 0) - beta0hat).}
+}
+
+\section{Interpretation}{
+Because the residuals \eqn{e_i} should have mean zero in a well-specified
+model, plotting the partial residuals against \eqn{x_f} should produce a
+shape matching the modeled relationship \eqn{\mu}. If the model is wrong, the
+partial residuals will appear to deviate from the fitted relationship.
+
+Additionally, the function \eqn{\mu(X_f, 0)} can be used to show the
+relationship between the focal predictor and the response. In a linear model,
+the function is linear; with polynomial or spline regressors, it is
+nonlinear. This function is the \emph{predictor effect function}, and the
+estimated predictor effects \eqn{\hat \mu(X_{fi}, 0)}{muhat(X_fi, 0)} are
+included in this function's output.
+}
+
 \examples{
 fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 partial_residuals(fit)
+
+# select predictors with tidyselect syntax
+partial_residuals(fit, c(disp, hp))
+
+# predictors with multiple regressors
+fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
+partial_residuals(fit2)
 }
 \references{
 R. Dennis Cook. "Exploring Partial Residual Plots",
