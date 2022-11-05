@@ -27,8 +27,8 @@ residual for.}
 residual for.}
 \item{.partial_resid}{Partial residual for this predictor for this
 observation.}
-\item{.predictor_effect}{Predictor effect \eqn{\hat \mu(X_{fi},
-0)}{muhat(X_fi, 0)} for this observation.}
+\item{.predictor_effect}{Predictor effect \eqn{\hat \mu(X_{if},
+0)}{muhat(X_if, 0)} for this observation.}
 }
 \description{
 Construct a data frame containing the model data, partial residuals for all
@@ -115,7 +115,7 @@ Additionally, the function \eqn{\mu(X_f, 0)} can be used to show the
 relationship between the focal predictor and the response. In a linear model,
 the function is linear; with polynomial or spline regressors, it is
 nonlinear. This function is the \emph{predictor effect function}, and the
-estimated predictor effects \eqn{\hat \mu(X_{fi}, 0)}{muhat(X_fi, 0)} are
+estimated predictor effects \eqn{\hat \mu(X_{if}, 0)}{muhat(X_if, 0)} are
 included in this function's output.
 }
 

@@ -85,7 +85,7 @@
 #' relationship between the focal predictor and the response. In a linear model,
 #' the function is linear; with polynomial or spline regressors, it is
 #' nonlinear. This function is the *predictor effect function*, and the
-#' estimated predictor effects \eqn{\hat \mu(X_{fi}, 0)}{muhat(X_fi, 0)} are
+#' estimated predictor effects \eqn{\hat \mu(X_{if}, 0)}{muhat(X_if, 0)} are
 #' included in this function's output.
 #'
 #' @param fit The model to obtain residuals for. This can be a model fit with
@@ -106,8 +106,8 @@
 #' residual for.}
 #' \item{.partial_resid}{Partial residual for this predictor for this
 #' observation.}
-#' \item{.predictor_effect}{Predictor effect \eqn{\hat \mu(X_{fi},
-#' 0)}{muhat(X_fi, 0)} for this observation.}
+#' \item{.predictor_effect}{Predictor effect \eqn{\hat \mu(X_{if},
+#' 0)}{muhat(X_if, 0)} for this observation.}
 #'
 #' @seealso [binned_residuals()] for the related binned residuals;
 #'   `vignette("linear-regression-diagnostics")` for examples of plotting and
