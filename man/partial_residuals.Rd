@@ -12,13 +12,13 @@ partial_residuals(fit, predictors = everything())
 residuals.}
 
 \item{predictors}{Predictors to calculate partial residuals for. Defaults to
-all predictors. Predictors can be specified using tidyselect syntax; see
-\code{help("language", package = "tidyselect")}.}
+all predictors, skipping factors. Predictors can be specified using
+tidyselect syntax; see \code{help("language", package = "tidyselect")}.}
 }
 \value{
 Data frame (tibble) containing the model data and residuals in tidy
-form. There is one row \emph{per predictor} per observation. All predictors are
-included as columns, plus the following additional columns:
+form. There is one row \emph{per selected predictor} per observation. All
+predictors are included as columns, plus the following additional columns:
 
 \item{.obs}{Row number of this observation in the original model data frame.}
 \item{.predictor_name}{Name of the predictor this row gives the partial
@@ -32,9 +32,10 @@ observation.}
 }
 \description{
 Construct a data frame containing the model data, partial residuals for all
-predictors, and predictor effects, for use in residual diagnostic plots and
-other analyses. The result is in tidy form (one row per predictor per
-observation), allowing it to be easily manipulated for plots and simulations.
+quantitative predictors, and predictor effects, for use in residual
+diagnostic plots and other analyses. The result is in tidy form (one row per
+predictor per observation), allowing it to be easily manipulated for plots
+and simulations.
 }
 \section{Predictors and regressors}{
 To define partial residuals, we must distinguish between the \emph{predictors},
@@ -60,6 +61,9 @@ chosen to model it with regressors. Partial residuals are not well-defined
 for predictors that have an interaction with other predictors in the model,
 as the shape of the modeled relationship varies depending on the other
 predictors they interact with.
+
+Partial residuals are not useful for categorical (factor) predictors, and so
+these are omitted.
 }
 
 \section{Linear models}{

@@ -1,9 +1,10 @@
 #' Augment a model fit with partial residuals for all terms
 #'
 #' Construct a data frame containing the model data, partial residuals for all
-#' predictors, and predictor effects, for use in residual diagnostic plots and
-#' other analyses. The result is in tidy form (one row per predictor per
-#' observation), allowing it to be easily manipulated for plots and simulations.
+#' quantitative predictors, and predictor effects, for use in residual
+#' diagnostic plots and other analyses. The result is in tidy form (one row per
+#' predictor per observation), allowing it to be easily manipulated for plots
+#' and simulations.
 #'
 #' # Predictors and regressors
 #'
@@ -30,6 +31,9 @@
 #' for predictors that have an interaction with other predictors in the model,
 #' as the shape of the modeled relationship varies depending on the other
 #' predictors they interact with.
+#'
+#' Partial residuals are not useful for categorical (factor) predictors, and so
+#' these are omitted.
 #'
 #' # Linear models
 #'
@@ -89,11 +93,11 @@
 #'   = "partial"` argument that returns a matrix or data frame of partial
 #'   residuals.
 #' @param predictors Predictors to calculate partial residuals for. Defaults to
-#'   all predictors. Predictors can be specified using tidyselect syntax; see
-#'   `help("language", package = "tidyselect")`.
+#'   all predictors, skipping factors. Predictors can be specified using
+#'   tidyselect syntax; see `help("language", package = "tidyselect")`.
 #' @return Data frame (tibble) containing the model data and residuals in tidy
-#'   form. There is one row *per predictor* per observation. All predictors are
-#'   included as columns, plus the following additional columns:
+#'   form. There is one row *per selected predictor* per observation. All
+#'   predictors are included as columns, plus the following additional columns:
 #'
 #' \item{.obs}{Row number of this observation in the original model data frame.}
 #' \item{.predictor_name}{Name of the predictor this row gives the partial
@@ -145,7 +149,7 @@ partial_residuals <- function(fit, predictors = everything()) {
   selection <- eval_select(predictors, pred_data)
 
   num_predictors <- length(selection)
-  predictors <- pred_data[, selection, drop = FALSE]
+  predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
   nobs <- nrow(predictors)
 
@@ -205,31 +209,6 @@ partial_residuals <- function(fit, predictors = everything()) {
   )
 
   return(as_tibble(out))
-}
-
-#' Determine if a predictor is involved in an interaction
-#'
-#' This presently does not work for any term like `poly(x, 3)` or `I(x^2)`,
-#' since the terms object contains those names, not the names of the underlying
-#' predictors.
-#'
-#' @param formula Model formula
-#' @param predictor Predictor to check for, as character vector
-#' @return `TRUE` if in an interaction, `FALSE` otherwise
-#' @keywords internal
-in_interaction <- function(formula, predictor) {
-  terms <- terms(formula)
-
-  # indicates which predictors are in which model terms
-  factors <- attr(terms, "factors")
-
-  # drop columns where our predictor does not appear
-  factors <- factors[, factors[predictor, ] > 0, drop = FALSE]
-
-  # term with > 1 predictors is an interaction of some kind
-  interactions <- colSums(factors) > 1
-
-  return(any(interactions))
 }
 
 #' Obtain binned residuals for a model
