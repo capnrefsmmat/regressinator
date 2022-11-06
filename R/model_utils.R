@@ -48,3 +48,31 @@ drop_factors <- function(df) {
 
   return(df[, !factors])
 }
+
+#' Get a prototype data frame for partial residuals
+#'
+#' All predictors, except the one we are calculating partial residuals for, are
+#' set to 0 (or their baseline level, for factors).
+#'
+#' @param df data frame of predictors
+#' @param predictor character vector identifying one predictor
+#' @return prototype data frame
+#' @keywords internal
+prototype_for <- function(df, predictor) {
+  for (p in names(df)) {
+    if (p != predictor) {
+      if (is.factor(df[, p])) {
+        lev <- levels(df[, p])
+        df[, p] <- factor(lev[1], levels = lev)
+      } else if (is.logical(df[, p])) {
+        df[, p] <- FALSE
+      } else if (is.character(df[, p])) {
+        # first factor level is the first string, in order
+        df[, p] <- sort(unique(df[, p]))[1]
+      } else {
+        df[, p] <- 0
+      }
+    }
+  }
+  return(df)
+}

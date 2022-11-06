@@ -184,18 +184,7 @@ partial_residuals <- function(fit, predictors = everything()) {
     ## setdiff(predictor_names, interacting_predictors),
     predictor_names,
     function(predictor) {
-      df <- pred_data
-      for (p in names(df)) {
-        if (p != predictor) {
-          if (is.factor(df[, p])) {
-            df[, p] <- levels(df[, p])[1]
-          } else if (is.logical(df[, p])) {
-            df[, p] <- FALSE
-          } else {
-            df[, p] <- 0
-          }
-        }
-      }
+      df <- prototype_for(pred_data, predictor)
 
       effect <- predict(fit, newdata = df) - intercept
 
