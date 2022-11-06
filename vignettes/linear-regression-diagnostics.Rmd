@@ -1,8 +1,9 @@
 ---
-title: "Example linear regression diagnostics"
+title: "Linear regression diagnostics"
+description: A tutorial on linear regression diagnostics using the regressinator.
 output: rmarkdown::html_vignette
 vignette: >
-  %\VignetteIndexEntry{Example linear regression diagnostics}
+  %\VignetteIndexEntry{Linear regression diagnostics}
   %\VignetteEngine{knitr::rmarkdown}
   %\VignetteEncoding{UTF-8}
 ---
@@ -19,6 +20,17 @@ library(regressinator)
 library(ggplot2)
 library(broom)
 ```
+
+The basic linear regression model assumes that
+$$
+Y = \beta_0 + \beta_1 X_1 + \dots + \beta_p X_p + \epsilon,
+$$
+where $\epsilon$ has mean zero and variance $\sigma^2$. The regressors $X_1,
+\dots, X_p$ might be the original predictors, or could be transformations and
+combinations of them, such as interactions or polynomials. The assumptions on
+the distribution of $\epsilon$ are used to obtain the variance of $\hat \beta$
+and hence are important for inference, while the assumption of a linear
+relationship determines whether our mean function is accurate.
 
 For these examples, we'll consider a simple multivariate setting where the
 population relationship is nonlinear and we misspecify the model:
@@ -43,7 +55,12 @@ diagnostic plots.
 
 ## Residual plots
 
-Residuals versus fitted values:
+Residual plots can detect misspecification of the mean function. When we plot
+the residuals against any linear combination of the regressors, they should have
+mean zero and constant variance. If they do not, the model may be incorrect.
+
+One such linear combination is the fitted values $\hat Y$. We can obtain the
+residuals and fitted values from `broom::augment()`:
 
 ```{r}
 augment(fit) |>
@@ -53,9 +70,14 @@ augment(fit) |>
   labs(x = "Fitted value", y = "Residual")
 ```
 
-To plot residuals versus the covariates, we can use `augment_longer()`, which is
-like `augment()` but converts the data to long form with one row per predictor
-per observation, making it easy to facet the residuals:
+There is a suspicious trend here, but it is hard to tell what specifically is
+wrong from the model from this. It would be more helpful to know which predictor
+is modeled incorrectly.
+
+To plot residuals versus the regressors, the regressinator provides
+`augment_longer()`, which is like `augment()` but converts the data to long form
+with one row per predictor per observation, making it easy to facet the
+residuals:
 
 ```{r}
 augment_longer(fit) |>
@@ -66,9 +88,15 @@ augment_longer(fit) |>
   labs(x = "Predictor", y = "Residual")
 ```
 
-Using `model_lineup()`, we can compare the true residual plots to several where
-the model is correctly specified. Each row gives the plots for one simulation,
-and one of the fives rows (at random) is the true residual plots:
+The trend in the residuals against `x1` makes it clear that something is wrong
+with our specification of `x1` in the model, which is correct: we modeled it as
+linear when it should be quadratic.
+
+Detecting misspecification is a matter of judgment, as the residuals are random
+and trends can appear even when the model is well-specified. Using
+`model_lineup()`, we can compare the true residual plots to several where the
+model is correctly specified. Each row gives the plots for one simulation, and
+one of the fives rows (at random) is the true residual plots:
 
 ```{r, fig.height=8}
 model_lineup(fit, fn = augment_longer, n = 5) |>
@@ -80,33 +108,54 @@ model_lineup(fit, fn = augment_longer, n = 5) |>
   labs(x = "Predictor", y = "Residual")
 ```
 
+This gives a sense of the variation to be expected when the model is
+well-specified. It should still be easy to spot the row containing the plots for
+our misspecified model.
+
 ## Partial residual plots
 
 The `partial_residuals()` function fetches partial residuals in a convenient
-data frame format. See its documentation for references on the use and
+data frame format. Partial residuals are defined in terms of the original
+predictors, not the regressors; we can think of a partial residual plot for a
+particular predictor as showing the relationship between that predictor and the
+response, after "adjusting for" the other predictors according to our fitted
+model. See the function documentation for references on the use and
 interpretation of partial residuals.
+
+Here the black line gives the fitted predictor effects (i.e. the model estimate
+of the relationship), while the blue line smooths the partial residuals. We can
+see that for `x1`, the blue line deviates systematically from the black line:
 
 ```{r}
 partial_residuals(fit) |>
-  ggplot(aes(x = predictor_value, y = partial_resid)) +
-  geom_point() +
-  geom_smooth(se = FALSE) +
-  facet_wrap(vars(predictor_name), scales = "free") +
+  ggplot(aes(x = .predictor_value, y = .partial_resid)) +
+  geom_point() + # partial residuals
+  geom_smooth(se = FALSE) + # smoothed residuals
+  geom_line(aes(x = .predictor_value, y = .predictor_effect)) + # effects
+  facet_wrap(vars(.predictor_name), scales = "free") +
   labs(x = "Predictor", y = "Partial residual")
 ```
+
+The shape of the blue line approximates the shape of the true relationship
+between `x1` and the response (provided the rest of the model is
+well-specified!), so we can use its shape to determine how to change our model.
 
 We can again use `model_lineup()` to see how these compare to the partial
 residuals when the model is correctly specified:
 
 ```{r, fig.height=8}
 model_lineup(fit, partial_residuals, n = 5) |>
-  ggplot(aes(x = predictor_value, y = partial_resid)) +
+  ggplot(aes(x = .predictor_value, y = .partial_resid)) +
   geom_point() +
   geom_smooth(se = FALSE) +
-  facet_grid(rows = vars(.sample), cols = vars(predictor_name),
-             scales = "free_x") +
+  geom_line(aes(x = .predictor_value, y = .predictor_effect)) +
+  facet_grid(rows = vars(.sample), cols = vars(.predictor_name),
+             scales = "free") +
   labs(x = "Predictor", y = "Partial residual")
 ```
+
+In the plots where the model is correctly specified, the blue and black lines
+coincide, making it easy to spot the misspecified model.
 
 ## Cook's distances
 
@@ -122,9 +171,15 @@ augment(fit) |>
   labs(x = "Row index", y = "Cook's distance")
 ```
 
-Note that the Cook's distance measures changes in fitted values, *not* in $\hat
-\beta$. If several predictors are collinear, a small change in an observation
-may change $\hat \beta$ dramatically but not change the fitted values much.
+Note that the Cook's distance measures changes in fitted values. If several
+regressors are collinear, a small change in an observation may change $\hat
+\beta$ dramatically but not change the fitted values much. (It can also be
+interpreted as the Mahalanobis distance between the fitted $\hat \beta$ with and
+without each observation, where the Mahalanobis distance takes into account the
+variance of $\hat \beta$; collinear regressors will tend to have high variance
+in their parameter estimates, so while dropping a covariate may change their
+entries in $\hat \beta$, this will not cause a great increase in the Mahalanobis
+distance.)
 
 ## Residual Q-Q plots
 

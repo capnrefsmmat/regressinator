@@ -28,6 +28,12 @@ use these samples to explore questions like:
 3. What happens to estimators when their assumptions are violated?
 
 
+The regressinator is also a diagnostic package for regression models. Once a
+model is fit, it provides tools to extract various kind of residuals in
+convenient (tidy) form, to simulate from the sampling distribution of any
+desired model parameter, and to conduct simulation-based inference on the model
+fit, including visual inference with lineups.
+
 The regressinator is intended for use in the classroom, as a tool for students
 to learn about regression in lab activities or homework assignments. Its
 flexibility makes it suitable for any regression course where students are
@@ -66,20 +72,22 @@ specifies the link and error scale. By default, the error distribution is
 Gaussian, and as the `gaussian()` family has errors with variance 1 by default,
 setting the `error_scale` to 1.5 means the errors have standard deviation 1.5.
 
-More generally, `population()` is defining a population according to the
-following relationship:
+More generally, `population()` defines a population according to the following
+relationship:
 
 $$
 \begin{align*}
-Y &\sim \text{SomeDistribution}(g^{-1}(\mu(X))) \\
-\mu(X) &= \text{any function of } X.
+Y &\sim \text{SomeDistribution} \\
+g(\mathbb{E}[Y \mid X = x]) &= \mu(x) \\
+\mu(x) &= \text{any function of } x.
 \end{align*}
 $$
 
-The function $\mu(X)$ is the first argument to `response()`, and the
-distribution is given by the `family` argument, just like families of GLMs. If
-no family is provided, the default family is Gaussian, i.e. normally distributed
-errors, and the link function $g$ is the identity.
+The function $\mu(x)$ is the first argument to `response()`, and can be any
+arbitrary R expression. The distribution is given by the `family` argument, just
+like families of GLMs in `glm()`. If no family is provided, the default family
+is Gaussian, i.e. normally distributed errors, and the link function $g$ is the
+identity.
 
 We can hence specify a population with binary outcomes and logistic link
 function:
@@ -245,16 +253,131 @@ The object this produces is a standard data frame (just with a few extra
 attributes), so it can be given to `lm()`, `glm()`, or any other standard
 modeling function that uses data frames.
 
-## Diagnostics
+## Fitting models
 
-The regressinator provides the `model_lineup()` function. It takes a model fit
+After we simulate a sample from a population, we can fit our chosen models to
+that sample. That model may simply use the predictors as-is, entering them into
+the design matrix and obtaining estimates through least square or maximum
+likelihood. But it is also common to represent the predictors differently in the
+model:
+
+* Factor predictors are typically represented as several columns, for instance
+  with one-hot encoding
+* Predictors might be transformed, so the transformed version enters the model
+* To fit a polynomial or spline, we might use several transformations of the
+  predictor in the model (such as linear, squared, and cubed terms)
+
+We call these transformed and recoded variables *regressors*. The coefficients
+of a model give the relationship between the *regressors* and the response, but
+the regressors may be transformed versions of the predictors. Many conventional
+diagnostics are based on the regressors, such as most residual plots, but as we
+will see below, others directly examine the relationship between the predictors
+and the response, however those predictors have been transformed and entered
+into the model.
+
+## Producing diagnostics
+
+Once we have a sample and fit a model, we can conduct diagnostics. Simple
+diagnostic plots can easily be made using `broom::augment()`, which generates a
+data frame with columns including the predictors, residuals, standardized
+residuals, fitted value, and other useful statistics for each observation. It
+also works for many common types of models; see the [broom
+documentation](https://broom.tidymodels.org/) for details.
+
+For example, consider a simple dataset where the true relationship between `x1`
+and `y` is not linear. We can quickly plot residuals versus fitted values:
+
+```{r, fig.width=4, fig.height=4}
+library(broom)
+
+nonlinear_pop <- population(
+  x1 = predictor("runif", min = 1, max = 8),
+  x2 = predictor("runif", min = 0, max = 10),
+  y = response(0.7 + x1**2 - x2, family = gaussian(),
+               error_scale = 4.0)
+)
+
+nonlinear_data <- nonlinear_pop |>
+  sample_x(n = 100) |>
+  sample_y()
+
+nonlinear_fit <- lm(y ~ x1 + x2, data = nonlinear_data)
+
+# to see the kind of information we get from an augmented fit
+augment(nonlinear_fit)
+
+library(ggplot2)
+
+ggplot(augment(nonlinear_fit),
+       aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  labs(x = "Fitted value", y = "Residual")
+```
+
+The regressinator builds on these tools to support additional diagnostics. For
+example, `augment_longer()` is like `broom::augment()`, but produces one row per
+regressor per observation, essentially putting the data in "long" format. This
+makes it easy to facet the data to plot residuals against each regressor:
+
+```{r, fig.height=4}
+ggplot(augment_longer(nonlinear_fit),
+       aes(x = .predictor_value, y = .resid)) +
+  geom_point() +
+  facet_wrap(vars(.predictor_name), scales = "free") +
+  labs(x = "Predictor value", y = "Residual")
+```
+
+Partial residuals are an extension of ordinary residuals that are defined in
+terms of the original predictors, not the regressors; we can think of a partial
+residual plot for a particular predictor as showing the relationship between
+that predictor and the response, after "adjusting for" the other predictors
+according to our fitted model. The `partial_residuals()` function calculates
+partial residuals in tidy format, and its documentation provides detailed
+references on the use and interpretation of partial residuals.
+
+Here the black line gives the fitted predictor effects (i.e. the model estimate
+of the relationship), while the blue line smooths the partial residuals. We can
+see that for `x1`, the blue line deviates systematically from the black line in
+a quadratic shape:
+
+```{r, fig.height=4}
+ggplot(partial_residuals(nonlinear_fit),
+       aes(x = .predictor_value, y = .partial_resid)) +
+  geom_point() + # partial residuals
+  geom_smooth(se = FALSE) + # smoothed residuals
+  geom_line(aes(x = .predictor_value, y = .predictor_effect)) + # effects
+  facet_wrap(vars(.predictor_name), scales = "free") +
+  labs(x = "Predictor value", y = "Partial residual")
+```
+
+If we fit a quadratic model for `x1`, the partial residuals reflect this. The
+black line for the effect of `x1` is now quadratic, and the partial residuals
+closely follow it:
+
+```{r fig.height=4}
+quadratic_fit <- lm(y ~ poly(x1, 2) + x2, data = nonlinear_data)
+
+ggplot(partial_residuals(quadratic_fit),
+       aes(x = .predictor_value, y = .partial_resid)) +
+  geom_point() + # partial residuals
+  geom_smooth(se = FALSE) + # smoothed residuals
+  geom_line(aes(x = .predictor_value, y = .predictor_effect)) + # effects
+  facet_wrap(vars(.predictor_name), scales = "free") +
+  labs(x = "Predictor value", y = "Partial residual")
+```
+
+These diagnostic functions work for linear models and also GLMs fit by `glm()`.
+See `vignette("linear-regression-diagnostics")` and
+`vignette("logistic-regression-diagnostics")` for further diagnostic examples.
+
+## Visual inference
+
+It can be difficult to tell whether a particular pattern in model diagnostics
+signifies a real problem or just an unlucky pattern. To help make this judgment,
+the regressinator provides the `model_lineup()` function. It takes a model fit
 and does the following:
 
 1. Get the diagnostics from that model, using `broom::augment()` by default.
-   `broom::augment()` generates a data frame with columns including the
-   residuals, standardized residuals, fitted value, and other useful statistics
-   for each row of the data. It also works for many common types of models; see
-   the [broom documentation](https://broom.tidymodels.org/) for details.
 2. Simulate 19 additional datasets using the model, using the standard
    assumptions for that model. (For instance, for linear regression, errors are
    drawn from a normal distribution.) In each dataset, the same X values are
@@ -270,32 +393,15 @@ looking at the 19 simulated datasets) to how the diagnostic plots of our real
 model look. This visual inference approach is taken from the
 [nullabor](https://cran.r-project.org/package=nullabor) package.
 
-For example, consider a simple dataset where the true relationship is not
-linear. We can quickly plot residuals versus fitted values:
+For example, consider the same dataset where the true relationship is not
+linear, but we use a linear fit. We can quickly plot residuals versus fitted
+values:
 
 ```{r, fig.width=6, fig.height=6}
-library(broom)
-
-nonlinear_pop <- population(
-  x1 = predictor("runif", min = 1, max = 8),
-  y = response(0.7 + x1**2, family = gaussian(), error_scale = 4.0)
-)
-
-nonlinear_data <- nonlinear_pop |>
-  sample_x(n = 100) |>
-  sample_y()
-
-nonlinear_fit <- lm(y ~ x1, data = nonlinear_data)
-
-# to see the kind of information we get from an augmented fit
-augment(nonlinear_fit)
-
-library(ggplot2)
-
 model_lineup(nonlinear_fit) |>
   ggplot(aes(x = .fitted, y = .resid)) +
   geom_point() +
-  facet_wrap(~ .sample) +
+  facet_wrap(vars(.sample)) +
   labs(x = "Fitted value", y = "Residual")
 ```
 
@@ -330,7 +436,7 @@ model_lineup(fit) |>
   ggplot(aes(sample = .resid)) +
   geom_qq() +
   geom_qq_line() +
-  facet_wrap(~ .sample) +
+  facet_wrap(vars(.sample)) +
   labs(x = "Theoretical quantiles", y = "Observed quantiles")
 ```
 
@@ -338,11 +444,6 @@ Here we have Q-Q plots of residuals for a linear regression where the true
 relationship is linear, but the error distribution is $t_3$. This is a good way
 to see if we can spot the heavy-tailed distribution from among the 19 other Q-Q
 plots that simulate normally distributed errors.
-
-The regressinator provides additional functions to facilitate residual
-diagnostics, such as for partial residuals; see
-`vignette("linear-regression-diagnostics")` and
-`vignette("logistic-regression-diagnostics")` for examples.
 
 ## Sampling distributions
 
@@ -430,7 +531,7 @@ quadratic term was necessary and wanted to conduct a test, we could use an *F*
 test:
 
 ```{r}
-quadratic_fit <- lm(y ~ x1 + I(x1^2), data = nonlinear_data)
+quadratic_fit <- lm(y ~ x1 + I(x1^2) + x2, data = nonlinear_data)
 
 anova(nonlinear_fit, quadratic_fit)
 ```
