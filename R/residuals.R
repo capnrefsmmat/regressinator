@@ -188,7 +188,7 @@ partial_residuals <- function(fit, predictors = everything()) {
       for (p in names(df)) {
         if (p != predictor) {
           if (is.factor(df[, p])) {
-            df[, p] <- levels(penguins$species)[1]
+            df[, p] <- levels(df[, p])[1]
           } else if (is.logical(df[, p])) {
             df[, p] <- FALSE
           } else {
