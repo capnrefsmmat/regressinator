@@ -69,16 +69,19 @@ model_lineup <- function(fit, fn = augment, nsim = 20, ...) {
   simulated_diagnostics <- parametric_boot_distribution(fit, fn = fn,
                                                         nsim = nsim - 1, ...)
 
-  return(as_tibble(lineup(true = true, samples = simulated_diagnostics, n = nsim)))
+  return(as_tibble(lineup(true = true, samples = simulated_diagnostics,
+                          n = nsim)))
 }
 
 #' @importFrom rlang caller_env
 check_fn_output <- function(x) {
   if (!inherits(x, "data.frame")) {
-    cli_abort(c("diagnostic function {.arg fn} must return a data frame or tibble",
-                "x" = "{.arg fn} returned a result of class {.cls {class(x)}}"),
-              class = "regressinator_diagnostic_class",
-              call = caller_env())
+    cli_abort(
+      c("diagnostic function {.arg fn} must return a data frame or tibble",
+        "x" = "{.arg fn} returned a result of class {.cls {class(x)}}"),
+      class = "regressinator_diagnostic_class",
+      call = caller_env()
+    )
   }
 }
 

@@ -122,8 +122,9 @@
 #' <https://doi.org/10.2307/2670123>
 #'
 #' Fox, J., & Weisberg, S. (2018). "Visualizing Fit and Lack of Fit in Complex
-#' Regression Models with Predictor Effect Plots and Partial Residuals." *Journal
-#' of Statistical Software*, 87(9). <https://doi.org/10.18637/jss.v087.i09>
+#' Regression Models with Predictor Effect Plots and Partial Residuals."
+#' *Journal of Statistical Software*, 87(9).
+#' <https://doi.org/10.18637/jss.v087.i09>
 #' @importFrom stats predict
 #' @importFrom insight get_predictors get_intercept
 #' @importFrom tidyselect everything eval_select
@@ -148,10 +149,8 @@ partial_residuals <- function(fit, predictors = everything()) {
   pred_data <- get_predictors(fit)
   selection <- eval_select(predictors, pred_data)
 
-  num_predictors <- length(selection)
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
-  nobs <- nrow(predictors)
 
   intercept <- get_intercept(fit)
   if (is.na(intercept)) {
