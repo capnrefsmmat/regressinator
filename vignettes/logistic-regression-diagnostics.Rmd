@@ -168,31 +168,16 @@ computed and interpreted.
 
 ## Binned residuals
 
-Binned residuals bin the observations based on their fitted values, and average
-the residual value in each bin. This avoids the problem that individual
+Binned residuals bin the observations based on their predictor values, and
+average the residual value in each bin. This avoids the problem that individual
 residuals are hard to interpret because $Y$ is only 0 or 1:
 
 ```{r, fig.width=5, fig.height=3}
 binned_residuals(fit) |>
-  ggplot(aes(x = mean, y = resid.mean, size = n)) +
+  ggplot(aes(x = predictor_mean, y = resid_mean)) +
+  facet_wrap(vars(predictor_name), scales = "free") +
   geom_point() +
-  labs(x = "Fitted value", y = "Residual mean",
-       size = "N")
-```
-
-Notice we have sized the points by `n`, the number of observations in the bin,
-to avoid giving emphasis to outlying values in bins with small sample sizes. We
-could also use `resid.sd / sqrt(n)` to get an approximate standard error for the
-mean residual, and scale the points by that (or its inverse).
-
-We can also bin by values of a specific predictor, such as `x1`:
-
-```{r, fig.width=5, fig.height=3}
-binned_residuals(fit, term = "x1") |>
-  ggplot(aes(x = mean, y = resid.mean, size = n)) +
-  geom_point() +
-  labs(x = "X1", y = "Residual mean",
-       size = "N")
+  labs(x = "Predictor", y = "Residual mean")
 ```
 
 This is comparable to the marginal model plots above: where the marginal model
@@ -200,3 +185,12 @@ plots show a smoothed curve of fitted values and a smoothed curve of actual
 values, the binned residuals show the average residuals, which are actual values
 minus fitted values. We can think of the binned residual plot as showing the
 difference between the lines in the marginal model plot.
+
+We can also bin by the fitted values of the model:
+
+```{r, fig.width=5, fig.height=3}
+binned_residuals(fit, predictor = .fitted) |>
+  ggplot(aes(x = predictor_mean, y = resid_mean)) +
+  geom_point() +
+  labs(x = "Fitted values", y = "Residual mean")
+```

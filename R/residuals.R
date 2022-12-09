@@ -215,30 +215,32 @@ partial_residuals <- function(fit, predictors = everything()) {
 #' based on their fitted values, we can calculate the average residual within
 #' each bin. This can be more informative: if a region has 20 observations and
 #' its average residual value is large, this suggests those observations are
-#' collectively poorly fit. By default, the binning is with respect to the
-#' fitted values.
+#' collectively poorly fit. We can also bin each predictor and calculate
+#' averages within those bins, allowing the detection of misspecification for
+#' specific model terms.
 #'
 #' @param fit The model to obtain residuals for. This can be a model fit with
-#'   `lm()` or `glm()`, or any model that has a `residuals()` method.
-#' @param term If `NULL`, bin the residuals with respect to the fitted values.
-#'   If non-`NULL`, this should be a string identifying a model term that will
-#'   be binned.
-#' @param breaks Number of bins to create, or a numeric vector of two or more
-#'   unique cut points to use. Passed to `cut()` to create the cuts. If `NULL`,
-#'   a default number of breaks is chosen based on the number of rows in the
-#'   data.
+#'   `lm()` or `glm()`, or any model that has `residuals()` and `fitted()`
+#'   methods.
+#' @param predictors Predictors to calculate binned residuals for. Defaults to
+#'   all predictors, skipping factors. Predictors can be specified using
+#'   tidyselect syntax; see `help("language", package = "tidyselect")`. Specify
+#'   `predictors = .fitted` to obtain binned residuals versus fitted values.
+#' @param breaks Number of bins to create. If `NULL`, a default number of breaks
+#'   is chosen based on the number of rows in the data.
 #' @param ... Additional arguments passed on to `residuals()`. The most useful
 #'   additional argument is typically `type`, to select the type of residuals to
 #'   produce (such as standardized residuals or deviance residuals).
-#' @return Data frame (tibble) with one row per bin, and the following columns:
+#' @return Data frame (tibble) with one row per bin *per selected predictor*,
+#'   and the following columns:
 #'
 #' \item{.bin}{Bin number.}
 #' \item{n}{Number of observations in this bin.}
-#' \item{min, max, mean, sd}{Minimum, maximum, mean, and standard deviation of
-#' either the fitted values of observations in this bin, or of the term if
-#' `term` is not `NULL`.}
-#' \item{resid.mean}{Mean residual in this bin.}
-#' \item{resid.sd}{Standard deviation of residuals in this bin.}
+#' \item{predictor_name}{Name of the predictor that has been binned.}
+#' \item{predictor_min, predictor_max, predictor_mean, predictor_sd}{Minimum,
+#' maximum, mean, and standard deviation of the predictor (or fitted values).}
+#' \item{resid_mean}{Mean residual in this bin.}
+#' \item{resid_sd}{Standard deviation of residuals in this bin.}
 #'
 #' @seealso [partial_residuals()] for the related partial residuals;
 #'   `vignette("logistic-regression-diagnostics")` for examples of use and
@@ -248,44 +250,55 @@ partial_residuals <- function(fit, predictors = everything()) {
 #' @references Gelman, A., Hill, J., and Vehtari, A. (2021). Regression and
 #'   Other Stories. Section 14.5. Cambridge University Press.
 #' @importFrom dplyr n summarize
+#' @importFrom insight get_predictors
+#' @importFrom purrr map_dfr
 #' @importFrom rlang sym .data
 #' @importFrom stats residuals sd
 #' @importFrom tibble as_tibble
 #' @examples
-#' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+#' fit <- lm(mpg ~ disp + hp, data = mtcars)
 #'
+#' # automatically bins both predictors
 #' binned_residuals(fit, breaks = 5)
 #'
-#' binned_residuals(fit, term = "cyl")
+#' # just bin one predictor
+#' binned_residuals(fit, disp, breaks = 5)
+#'
+#' # bin the fitted values
+#' binned_residuals(fit, predictors = .fitted)
 #' @export
-binned_residuals <- function(fit, term = NULL, breaks = NULL, ...) {
-  d <- model.frame(fit)
+binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
+                             ...) {
+  predictors <- enquo(predictors)
 
-  if (is.null(term)) {
-    # fit on the response scale
-    d$.fitted <- fitted(fit)
-    colname <- sym(".fitted")
-  } else {
-    if (!(term %in% colnames(d))) {
-      cli_abort("term {.var {term}} is not in the model frame provided")
+  pred_data <- get_predictors(fit)
+  pred_data$.fitted <- fitted(fit)
+
+  selection <- eval_select(predictors, pred_data)
+
+  predictors <- drop_factors(pred_data[, selection, drop = FALSE])
+  predictor_names <- names(predictors)
+
+  predictors$.resid <- residuals(fit, ...)
+
+  out <- map_dfr(
+    predictor_names,
+    function(predictor) {
+      pred <- sym(predictor)
+      predictors |>
+        bin_by_quantile(!!pred, breaks = breaks) |>
+        summarize(
+          n = n(),
+          predictor_name = predictor,
+          predictor_min = min(!!pred),
+          predictor_max = max(!!pred),
+          predictor_mean = mean(!!pred),
+          predictor_sd = sd(!!pred),
+          resid_mean = mean(.data$.resid),
+          resid_sd = sd(.data$.resid)
+        )
     }
-
-    colname <- sym(term)
-  }
-
-  d$.resid <- residuals(fit, ...)
-
-  out <- d |>
-    bin_by_interval(!!colname, breaks = breaks) |>
-    summarize(
-      n = n(),
-      min = min(!!colname),
-      max = max(!!colname),
-      mean = mean(!!colname),
-      sd = sd(!!colname),
-      resid.mean = mean(.data$.resid),
-      resid.sd = sd(.data$.resid)
-    )
+  )
 
   return(as_tibble(out))
 }
@@ -333,7 +346,8 @@ augment_longer <- function(x, ...) {
 
   return(pivot_longer(out, cols = !starts_with(".") & !any_of(response),
                       names_to = ".predictor_name",
-                      values_to = ".predictor_value"))
+                      values_to = ".predictor_value"
+                      ))
 }
 
 #' Group a data frame into bins
@@ -351,6 +365,8 @@ augment_longer <- function(x, ...) {
 #' @param breaks Number of bins to create. `bin_by_interval()` also accepts a
 #'   numeric vector of two or more unique cut points to use. If `NULL`, a
 #'   default number of breaks is chosen based on the number of rows in the data.
+#'   In `bin_by_quantile()`, if the number of unique values of the column is
+#'   smaller than `breaks`, fewer bins will be produced.
 #' @return Grouped data frame, similar to those returned by `dplyr::group_by()`.
 #'   An additional column `.bin` indicates the bin number for each group. Use
 #'   `dplyr::summarize()` to calculate values within each group, or other dplyr
@@ -368,7 +384,7 @@ augment_longer <- function(x, ...) {
 #'   summarize(mean_speed = mean(speed),
 #'             mean_dist = mean(dist))
 #' @importFrom dplyr mutate group_by
-#' @importFrom rlang .data
+#' @importFrom rlang .data enquo as_name
 bin_by_interval <- function(.data, col, breaks = NULL) {
   n <- nrow(.data)
 
@@ -386,13 +402,22 @@ bin_by_interval <- function(.data, col, breaks = NULL) {
 #' @export
 bin_by_quantile <- function(.data, col, breaks = NULL) {
   n <- nrow(.data)
+  col <- enquo(col)
+
+  # drop = TRUE is necessary because in data frames, this indexing produces a
+  # vector for which length() is appropriate; but tibble indexing always
+  # produces a tibble, where length() is the number of columns, unless we force
+  # drop behavior.
+  n_unique <- length(unique(.data[, as_name(col), drop = TRUE]))
 
   if (is.null(breaks)) {
     breaks <- size_heuristic(n)
   }
 
+  breaks <- min(breaks, n_unique - 1)
+
   mutate(.data,
-         .bin = cut_number({{ col }}, n = breaks, labels = FALSE)) |>
+         .bin = cut_number(!!col, n = breaks, labels = FALSE)) |>
     group_by(.data$.bin)
 }
 

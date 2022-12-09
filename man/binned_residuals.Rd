@@ -4,35 +4,36 @@
 \alias{binned_residuals}
 \title{Obtain binned residuals for a model}
 \usage{
-binned_residuals(fit, term = NULL, breaks = NULL, ...)
+binned_residuals(fit, predictors = !".fitted", breaks = NULL, ...)
 }
 \arguments{
 \item{fit}{The model to obtain residuals for. This can be a model fit with
-\code{lm()} or \code{glm()}, or any model that has a \code{residuals()} method.}
+\code{lm()} or \code{glm()}, or any model that has \code{residuals()} and \code{fitted()}
+methods.}
 
-\item{term}{If \code{NULL}, bin the residuals with respect to the fitted values.
-If non-\code{NULL}, this should be a string identifying a model term that will
-be binned.}
+\item{predictors}{Predictors to calculate binned residuals for. Defaults to
+all predictors, skipping factors. Predictors can be specified using
+tidyselect syntax; see \code{help("language", package = "tidyselect")}. Specify
+\code{predictors = .fitted} to obtain binned residuals versus fitted values.}
 
-\item{breaks}{Number of bins to create, or a numeric vector of two or more
-unique cut points to use. Passed to \code{cut()} to create the cuts. If \code{NULL},
-a default number of breaks is chosen based on the number of rows in the
-data.}
+\item{breaks}{Number of bins to create. If \code{NULL}, a default number of breaks
+is chosen based on the number of rows in the data.}
 
 \item{...}{Additional arguments passed on to \code{residuals()}. The most useful
 additional argument is typically \code{type}, to select the type of residuals to
 produce (such as standardized residuals or deviance residuals).}
 }
 \value{
-Data frame (tibble) with one row per bin, and the following columns:
+Data frame (tibble) with one row per bin \emph{per selected predictor},
+and the following columns:
 
-\item{bin}{Bin number.}
+\item{.bin}{Bin number.}
 \item{n}{Number of observations in this bin.}
-\item{min, max, mean, sd}{Minimum, maximum, mean, and standard deviation of
-either the fitted values of observations in this bin, or of the term if
-\code{term} is not \code{NULL}.}
-\item{resid.mean}{Mean residual in this bin.}
-\item{resid.sd}{Standard deviation of residuals in this bin.}
+\item{predictor_name}{Name of the predictor that has been binned.}
+\item{predictor_min, predictor_max, predictor_mean, predictor_sd}{Minimum,
+maximum, mean, and standard deviation of the predictor (or fitted values).}
+\item{resid_mean}{Mean residual in this bin.}
+\item{resid_sd}{Standard deviation of residuals in this bin.}
 }
 \description{
 Construct a data frame by binning the fitted values or predictors of a model
@@ -50,15 +51,21 @@ If we first bin the data, i.e. divide up the observations into \code{breaks} bin
 based on their fitted values, we can calculate the average residual within
 each bin. This can be more informative: if a region has 20 observations and
 its average residual value is large, this suggests those observations are
-collectively poorly fit. By default, the binning is with respect to the
-fitted values.
+collectively poorly fit. We can also bin each predictor and calculate
+averages within those bins, allowing the detection of misspecification for
+specific model terms.
 }
 \examples{
-fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+fit <- lm(mpg ~ disp + hp, data = mtcars)
 
+# automatically bins both predictors
 binned_residuals(fit, breaks = 5)
 
-binned_residuals(fit, term = "cyl")
+# just bin one predictor
+binned_residuals(fit, disp, breaks = 5)
+
+# bin the fitted values
+binned_residuals(fit, predictors = .fitted)
 }
 \references{
 Gelman, A., Hill, J., and Vehtari, A. (2021). Regression and

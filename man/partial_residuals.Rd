@@ -141,8 +141,9 @@ American Statistical Association} 93, no. 442 (1998): 730–39.
 \url{https://doi.org/10.2307/2670123}
 
 Fox, J., & Weisberg, S. (2018). "Visualizing Fit and Lack of Fit in Complex
-Regression Models with Predictor Effect Plots and Partial Residuals." \emph{Journal
-of Statistical Software}, 87(9). \url{https://doi.org/10.18637/jss.v087.i09}
+Regression Models with Predictor Effect Plots and Partial Residuals."
+\emph{Journal of Statistical Software}, 87(9).
+\url{https://doi.org/10.18637/jss.v087.i09}
 }
 \seealso{
 \code{\link[=binned_residuals]{binned_residuals()}} for the related binned residuals;

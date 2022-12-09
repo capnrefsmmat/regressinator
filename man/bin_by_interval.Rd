@@ -16,7 +16,9 @@ bin_by_quantile(.data, col, breaks = NULL)
 
 \item{breaks}{Number of bins to create. \code{bin_by_interval()} also accepts a
 numeric vector of two or more unique cut points to use. If \code{NULL}, a
-default number of breaks is chosen based on the number of rows in the data.}
+default number of breaks is chosen based on the number of rows in the data.
+In \code{bin_by_quantile()}, if the number of unique values of the column is
+smaller than \code{breaks}, fewer bins will be produced.}
 }
 \value{
 Grouped data frame, similar to those returned by \code{dplyr::group_by()}.
