@@ -2,8 +2,6 @@
 # TODO Allow creating a population from a (large) data frame, and sampling from
 # it just by sampling with replacement
 
-# TODO Make an example of using the framework for hypothesis testing.
-
 # TODO Support mixture distributions of covariates and of errors, for easy study
 # of outliers. Maybe "rmixture" that take multiple distributions as arguments?
 

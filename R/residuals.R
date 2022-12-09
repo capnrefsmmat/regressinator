@@ -232,7 +232,7 @@ partial_residuals <- function(fit, predictors = everything()) {
 #'   produce (such as standardized residuals or deviance residuals).
 #' @return Data frame (tibble) with one row per bin, and the following columns:
 #'
-#' \item{bin}{Bin number.}
+#' \item{.bin}{Bin number.}
 #' \item{n}{Number of observations in this bin.}
 #' \item{min, max, mean, sd}{Minimum, maximum, mean, and standard deviation of
 #' either the fitted values of observations in this bin, or of the term if
