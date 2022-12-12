@@ -89,9 +89,8 @@
 #' included in this function's output.
 #'
 #' @param fit The model to obtain residuals for. This can be a model fit with
-#'   `lm()` or `glm()`, or any model whose `residuals()` method supports a `type
-#'   = "partial"` argument that returns a matrix or data frame of partial
-#'   residuals.
+#'   `lm()` or `glm()`, or any model with a `predict()` method that accepts a
+#'   `newdata` argument.
 #' @param predictors Predictors to calculate partial residuals for. Defaults to
 #'   all predictors, skipping factors. Predictors can be specified using
 #'   tidyselect syntax; see `help("language", package = "tidyselect")`.
@@ -319,6 +318,11 @@ response_var <- function(formula) {
 #' information, then reformat the resulting data frame into a "long" format with
 #' one row per predictor per observation, to facilitate plotting of the result.
 #'
+#' When there are factor predictors, this function is less useful. Because a
+#' data frame column can contain values of only one type, factor or character
+#' values will force all values of the `.predictor_value` column, including for
+#' other predictors, to be converted.
+#'
 #' The name comes by analogy to `tidyr::pivot_longer()`, and the concept of long
 #' versus wide data formats.
 #'
@@ -332,6 +336,7 @@ response_var <- function(formula) {
 #'   observation numbers so results can be matched to observations in the
 #'   original model data.
 #' @importFrom broom augment
+#' @importFrom dplyr relocate
 #' @importFrom tidyr pivot_longer starts_with any_of
 #' @examples
 #' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
@@ -344,10 +349,10 @@ augment_longer <- function(x, ...) {
   out$.obs <- rownames(out)
   response <- response_var(x)
 
-  return(pivot_longer(out, cols = !starts_with(".") & !any_of(response),
-                      names_to = ".predictor_name",
-                      values_to = ".predictor_value"
-                      ))
+  pivot_longer(out, cols = !starts_with(".") & !any_of(response),
+               names_to = ".predictor_name",
+               values_to = ".predictor_value") |>
+    relocate(.data$.predictor_name, .data$.predictor_value)
 }
 
 #' Group a data frame into bins

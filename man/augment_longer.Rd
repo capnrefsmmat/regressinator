@@ -26,6 +26,11 @@ information, then reformat the resulting data frame into a "long" format with
 one row per predictor per observation, to facilitate plotting of the result.
 }
 \details{
+When there are factor predictors, this function is less useful. Because a
+data frame column can contain values of only one type, factor or character
+values will force all values of the \code{.predictor_value} column, including for
+other predictors, to be converted.
+
 The name comes by analogy to \code{tidyr::pivot_longer()}, and the concept of long
 versus wide data formats.
 }

@@ -8,8 +8,8 @@ partial_residuals(fit, predictors = everything())
 }
 \arguments{
 \item{fit}{The model to obtain residuals for. This can be a model fit with
-\code{lm()} or \code{glm()}, or any model whose \code{residuals()} method supports a \code{type = "partial"} argument that returns a matrix or data frame of partial
-residuals.}
+\code{lm()} or \code{glm()}, or any model with a \code{predict()} method that accepts a
+\code{newdata} argument.}
 
 \item{predictors}{Predictors to calculate partial residuals for. Defaults to
 all predictors, skipping factors. Predictors can be specified using
