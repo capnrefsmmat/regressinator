@@ -58,8 +58,14 @@ Because \code{model_lineup()} uses the S3 generic methods \code{model.frame()},
 methods are provided. In base R, this includes \code{lm()} and \code{glm()}.
 }
 \examples{
+# Bootstrap distribution of estimates:
 fit <- lm(dist ~ speed, data = cars)
 parametric_boot_distribution(fit, nsim = 5)
+
+# Bootstrap distribution of estimates for a quadratic model, when true
+# relationship is linear:
+quad_fit <- lm(dist ~ poly(speed, 2), data = cars)
+parametric_boot_distribution(fit, quad_fit, nsim = 5)
 }
 \seealso{
 \code{\link[=model_lineup]{model_lineup()}} to use resampling to aid in regression diagnostics;

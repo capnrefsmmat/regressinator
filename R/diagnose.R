@@ -143,8 +143,14 @@ NULL
 #' @importFrom purrr map_dfr
 #' @importFrom tibble as_tibble
 #' @examples
+#' # Bootstrap distribution of estimates:
 #' fit <- lm(dist ~ speed, data = cars)
 #' parametric_boot_distribution(fit, nsim = 5)
+#'
+#' # Bootstrap distribution of estimates for a quadratic model, when true
+#' # relationship is linear:
+#' quad_fit <- lm(dist ~ poly(speed, 2), data = cars)
+#' parametric_boot_distribution(fit, quad_fit, nsim = 5)
 #' @export
 parametric_boot_distribution <- function(fit, alternative_fit = fit,
                                          fn = tidy, nsim = 100, ...) {
