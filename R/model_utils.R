@@ -34,19 +34,20 @@ in_interaction <- function(formula, predictor) {
 #' @keywords internal
 #' @importFrom cli cli_inform
 drop_factors <- function(df) {
-  classes <- unlist(lapply(df, class))
-
-  factors <- (classes == "factor" | classes == "logical")
+  is_factor <- function(obj) {
+    inherits(obj, c("factor", "logical", "character"))
+  }
+  factors <- unlist(lapply(df, is_factor))
 
   if (!any(factors)) {
     return(df)
   }
 
-  factor_names <- names(classes)[factors]
+  factor_names <- names(df)[factors]
   cli_inform(c("Factor predictors were dropped:",
                "*" = "{.var {factor_names}}"))
 
-  return(df[, !factors])
+  return(df[, !factors, drop = FALSE])
 }
 
 #' Get a prototype data frame for partial residuals

@@ -42,3 +42,20 @@ test_that("prototype_for produces sensible data frames", {
                x4 = "a")
   )
 })
+
+test_that("drop_factors handles all kinds of factors", {
+  foo <- data.frame(
+    foo = 1:4,
+    bar = c(TRUE, FALSE, TRUE, FALSE),
+    baz = c("Ducks", "Geese", "Penguins", "Walruses"),
+    spam = 2:5
+  )
+
+  expected <- data.frame(foo = 1:4, spam = 2:5)
+
+  expect_equal(suppressMessages(drop_factors(foo)), expected)
+
+  # ensure result isn't a vector when there's only one remaining column
+  expect_equal(suppressMessages(drop_factors(foo[, -4])),
+               expected[, -2, drop = FALSE])
+})
