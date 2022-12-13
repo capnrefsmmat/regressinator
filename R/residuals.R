@@ -352,7 +352,7 @@ augment_longer <- function(x, ...) {
   pivot_longer(out, cols = !starts_with(".") & !any_of(response),
                names_to = ".predictor_name",
                values_to = ".predictor_value") |>
-    relocate(.data$.predictor_name, .data$.predictor_value)
+    relocate(".predictor_name", ".predictor_value")
 }
 
 #' Group a data frame into bins
