@@ -210,3 +210,95 @@ model_lineup(fit) |>
 
 The true Q-Q plot does not stand out here, so we have little evidence for a
 systematically non-normal residuals.
+
+## A case study
+
+Let's illustrate the use of these diagnostics on a real dataset: the [Palmer
+Penguins](https://allisonhorst.github.io/palmerpenguins/) data, giving
+measurements of 344 penguins in the Palmer Archipelago in Antarctica.
+
+```{r}
+library(palmerpenguins)
+```
+
+Let's consider building a model of bill length as a function of flipper length
+and species:
+
+```{r}
+penguin_1 <- lm(bill_length_mm ~ flipper_length_mm + species,
+                data = penguins)
+```
+
+This model allows a different intercept per species, but not a different slope.
+Let's plot the partial residuals for flipper length:
+
+```{r}
+partial_residuals(penguin_1, flipper_length_mm) |>
+  ggplot(aes(x = .predictor_value, y = .partial_resid)) +
+  geom_point(aes(color = species)) +
+  geom_smooth(aes(color = species), se = FALSE) +
+  geom_line(aes(y = .predictor_effect)) +
+  labs(x = "Flipper length (mm)", y = "Partial residual",
+       color = "Species")
+```
+
+Here we can see that gentoo penguins tend to have longer flippers than Adélie
+and chinstrap penguins. Looking at the partial residuals in each group, there
+appear to be varying slopes: there is a consistent upward trend in the residuals
+for gentoo penguins relative to the overall trend, for instance. This suggests
+that perhaps there is an interaction, and the slope of the relationship differs
+for each species.
+
+Let's fit a new model with an interaction.
+
+```{r}
+penguin_2 <- lm(bill_depth_mm ~ flipper_length_mm * species,
+                data = penguins)
+```
+
+Now the residuals do not seem to have separate trends in each group:
+
+```{r}
+partial_residuals(penguin_2, flipper_length_mm) |>
+  ggplot(aes(x = .predictor_value, y = .partial_resid)) +
+  geom_point(aes(color = species)) +
+  geom_smooth(aes(color = species), se = FALSE) +
+  geom_line(aes(y = .predictor_effect)) +
+  labs(x = "Flipper length (mm)", y = "Partial residual",
+       color = "Species")
+```
+
+We can now proceed to other diagnostics, such as checking for equal variance and
+normality of the residuals. Let's make a Q-Q plot of the standardized residuals
+for each species from this fit:
+
+```{r}
+augment(penguin_2) |>
+  ggplot(aes(sample = .std.resid)) +
+  geom_qq() +
+  geom_qq_line() +
+  facet_wrap(vars(species)) +
+  labs(title = "Normal Q-Q plot of standardized residuals",
+       x = "Theoretical quantiles", y = "Observed quantiles")
+```
+
+The residuals appear reasonably normally distributed, but notice the slopes are
+different for each species, indicating they have different variances. The
+residual variance appears to be largest for Adélie penguins and smallest for
+gentoo penguins. If we were using this model purely for prediction, this would
+not be a concern; but if we intend to conduct tests or produce confidence
+intervals, this may be an issue.
+
+There are no obvious major outliers either in the partial residual plots or
+residual Q-Q plots, so we have no reason to suspect there are highly influential
+observations. Nonetheless, we can check the Cook's distances:
+
+```{r}
+augment(penguin_2) |>
+  ggplot(aes(x = seq_along(.cooksd), y = .cooksd)) +
+  geom_col() +
+  labs(x = "Row index", y = "Cook's distance")
+```
+
+This looks fine. Even the most influential point still has a very small Cook's
+distance.
