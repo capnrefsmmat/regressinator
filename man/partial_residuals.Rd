@@ -119,16 +119,31 @@ estimated predictor effects \eqn{\hat \mu(X_{if}, 0)}{muhat(X_if, 0)} are
 included in this function's output.
 }
 
+\section{Limitations}{
+Factor predictors (as factors, logical, or character vectors) are detected
+automatically and omitted. However, if a numeric variable is converted to
+factor in the model formula, such as with \code{y ~ factor(x)}, the function
+cannot automatically detect this, and will fail to operate. Prepare the
+source data frame before fitting the model to avoid this issue.
+}
+
 \examples{
 fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 partial_residuals(fit)
 
-# select predictors with tidyselect syntax
+# You can select predictors with tidyselect syntax:
 partial_residuals(fit, c(disp, hp))
 
-# predictors with multiple regressors
+# Predictors with multiple regressors are supported:
 fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
 partial_residuals(fit2)
+
+# Allowing an interaction by number of cylinders is fine, but partial
+# residuals are not generated for the factor. Notice the factor must be
+# created first, not in the model formula:
+mtcars$cylinders <- factor(mtcars$cyl)
+fit3 <- lm(mpg ~ cylinders * disp + hp, data = mtcars)
+partial_residuals(fit3)
 }
 \references{
 R. Dennis Cook. "Exploring Partial Residual Plots",

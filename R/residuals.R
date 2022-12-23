@@ -88,6 +88,14 @@
 #' estimated predictor effects \eqn{\hat \mu(X_{if}, 0)}{muhat(X_if, 0)} are
 #' included in this function's output.
 #'
+#' # Limitations
+#'
+#' Factor predictors (as factors, logical, or character vectors) are detected
+#' automatically and omitted. However, if a numeric variable is converted to
+#' factor in the model formula, such as with `y ~ factor(x)`, the function
+#' cannot automatically detect this, and will fail to operate. Prepare the
+#' source data frame before fitting the model to avoid this issue.
+#'
 #' @param fit The model to obtain residuals for. This can be a model fit with
 #'   `lm()` or `glm()`, or any model with a `predict()` method that accepts a
 #'   `newdata` argument.
@@ -134,12 +142,19 @@
 #' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 #' partial_residuals(fit)
 #'
-#' # select predictors with tidyselect syntax
+#' # You can select predictors with tidyselect syntax:
 #' partial_residuals(fit, c(disp, hp))
 #'
-#' # predictors with multiple regressors
+#' # Predictors with multiple regressors are supported:
 #' fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
 #' partial_residuals(fit2)
+#'
+#' # Allowing an interaction by number of cylinders is fine, but partial
+#' # residuals are not generated for the factor. Notice the factor must be
+#' # created first, not in the model formula:
+#' mtcars$cylinders <- factor(mtcars$cyl)
+#' fit3 <- lm(mpg ~ cylinders * disp + hp, data = mtcars)
+#' partial_residuals(fit3)
 #' @export
 partial_residuals <- function(fit, predictors = everything()) {
   # TODO Automatically omit predictors in interactions
@@ -148,6 +163,7 @@ partial_residuals <- function(fit, predictors = everything()) {
   pred_data <- get_predictors(fit)
   selection <- eval_select(predictors, pred_data)
 
+  # TODO detect factor() in formulas and issue an appropriate error
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
 
@@ -257,14 +273,19 @@ partial_residuals <- function(fit, predictors = everything()) {
 #' @examples
 #' fit <- lm(mpg ~ disp + hp, data = mtcars)
 #'
-#' # automatically bins both predictors
+#' # Automatically bins both predictors:
 #' binned_residuals(fit, breaks = 5)
 #'
-#' # just bin one predictor
+#' # Just bin one predictor:
 #' binned_residuals(fit, disp, breaks = 5)
 #'
-#' # bin the fitted values
+#' # Bin the fitted values:
 #' binned_residuals(fit, predictors = .fitted)
+#'
+#' # Bins are made using the predictor, not regressors derived from it, so here
+#' # disp is binned, not its polynomial
+#' fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
+#' binned_residuals(fit2)
 #' @export
 binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
                              ...) {
@@ -275,6 +296,8 @@ binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
 
   selection <- eval_select(predictors, pred_data)
 
+  # TODO drop_factors() won't handle factors created with factor() in the model
+  # formula
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
 

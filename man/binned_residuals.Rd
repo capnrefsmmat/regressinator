@@ -58,14 +58,19 @@ specific model terms.
 \examples{
 fit <- lm(mpg ~ disp + hp, data = mtcars)
 
-# automatically bins both predictors
+# Automatically bins both predictors:
 binned_residuals(fit, breaks = 5)
 
-# just bin one predictor
+# Just bin one predictor:
 binned_residuals(fit, disp, breaks = 5)
 
-# bin the fitted values
+# Bin the fitted values:
 binned_residuals(fit, predictors = .fitted)
+
+# Bins are made using the predictor, not regressors derived from it, so here
+# disp is binned, not its polynomial
+fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
+binned_residuals(fit2)
 }
 \references{
 Gelman, A., Hill, J., and Vehtari, A. (2021). Regression and
