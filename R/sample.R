@@ -82,7 +82,7 @@ parent_population <- function(sample) {
 #' @rdname sample_x
 sample_y <- function(xs) {
   if (!inherits(xs, "population_sample")) {
-    cli_abort(c("data passed to {.fn sample_y} must be from {.fn sample_x}",
+    cli_abort(c("data passed to {.fn sample_y} must be a data frame from {.fn sample_x}",
                 "i" = "other data frames do not have the necessary population attributes specifying the response distribution"))
   }
 
