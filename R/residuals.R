@@ -102,7 +102,8 @@
 #'   `newdata` argument.
 #' @param predictors Predictors to calculate partial residuals for. Defaults to
 #'   all predictors, skipping factors. Predictors can be specified using
-#'   tidyselect syntax; see `help("language", package = "tidyselect")`.
+#'   tidyselect syntax; see `help("language", package = "tidyselect")` and the
+#'   examples below.
 #' @return Data frame (tibble) containing the model data and residuals in tidy
 #'   form. There is one row *per selected predictor* per observation. All
 #'   predictors are included as columns, plus the following additional columns:
@@ -242,8 +243,9 @@ partial_residuals <- function(fit, predictors = everything()) {
 #'   methods.
 #' @param predictors Predictors to calculate binned residuals for. Defaults to
 #'   all predictors, skipping factors. Predictors can be specified using
-#'   tidyselect syntax; see `help("language", package = "tidyselect")`. Specify
-#'   `predictors = .fitted` to obtain binned residuals versus fitted values.
+#'   tidyselect syntax; see `help("language", package = "tidyselect")` and the
+#'   examples below. Specify `predictors = .fitted` to obtain binned residuals
+#'   versus fitted values.
 #' @param breaks Number of bins to create. If `NULL`, a default number of breaks
 #'   is chosen based on the number of rows in the data.
 #' @param ... Additional arguments passed on to `residuals()`. The most useful
@@ -279,7 +281,8 @@ partial_residuals <- function(fit, predictors = everything()) {
 #' # Automatically bins both predictors:
 #' binned_residuals(fit, breaks = 5)
 #'
-#' # Just bin one predictor:
+#' # Just bin one predictor, selected with tidyselect syntax. Multiple could be
+#' # selected with c().
 #' binned_residuals(fit, disp, breaks = 5)
 #'
 #' # Bin the fitted values:

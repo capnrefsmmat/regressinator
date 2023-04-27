@@ -13,7 +13,8 @@ partial_residuals(fit, predictors = everything())
 
 \item{predictors}{Predictors to calculate partial residuals for. Defaults to
 all predictors, skipping factors. Predictors can be specified using
-tidyselect syntax; see \code{help("language", package = "tidyselect")}.}
+tidyselect syntax; see \code{help("language", package = "tidyselect")} and the
+examples below.}
 }
 \value{
 Data frame (tibble) containing the model data and residuals in tidy

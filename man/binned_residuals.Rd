@@ -13,8 +13,9 @@ methods.}
 
 \item{predictors}{Predictors to calculate binned residuals for. Defaults to
 all predictors, skipping factors. Predictors can be specified using
-tidyselect syntax; see \code{help("language", package = "tidyselect")}. Specify
-\code{predictors = .fitted} to obtain binned residuals versus fitted values.}
+tidyselect syntax; see \code{help("language", package = "tidyselect")} and the
+examples below. Specify \code{predictors = .fitted} to obtain binned residuals
+versus fitted values.}
 
 \item{breaks}{Number of bins to create. If \code{NULL}, a default number of breaks
 is chosen based on the number of rows in the data.}
@@ -61,7 +62,8 @@ fit <- lm(mpg ~ disp + hp, data = mtcars)
 # Automatically bins both predictors:
 binned_residuals(fit, breaks = 5)
 
-# Just bin one predictor:
+# Just bin one predictor, selected with tidyselect syntax. Multiple could be
+# selected with c().
 binned_residuals(fit, disp, breaks = 5)
 
 # Bin the fitted values:
