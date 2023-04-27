@@ -93,8 +93,9 @@
 #' Factor predictors (as factors, logical, or character vectors) are detected
 #' automatically and omitted. However, if a numeric variable is converted to
 #' factor in the model formula, such as with `y ~ factor(x)`, the function
-#' cannot automatically detect this, and will fail to operate. Prepare the
-#' source data frame before fitting the model to avoid this issue.
+#' cannot determine the appropriate type and will raise an error. Create factors
+#' as needed in the source data frame *before* fitting the model to avoid this
+#' issue.
 #'
 #' @param fit The model to obtain residuals for. This can be a model fit with
 #'   `lm()` or `glm()`, or any model with a `predict()` method that accepts a
@@ -157,13 +158,15 @@
 #' partial_residuals(fit3)
 #' @export
 partial_residuals <- function(fit, predictors = everything()) {
+  # Detect and reject factor() in formulas
+  detect_transmutation(formula(fit))
+
   # TODO Automatically omit predictors in interactions
   predictors <- enquo(predictors)
 
   pred_data <- get_predictors(fit)
   selection <- eval_select(predictors, pred_data)
 
-  # TODO detect factor() in formulas and issue an appropriate error
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
 

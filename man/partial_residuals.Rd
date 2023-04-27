@@ -123,8 +123,9 @@ included in this function's output.
 Factor predictors (as factors, logical, or character vectors) are detected
 automatically and omitted. However, if a numeric variable is converted to
 factor in the model formula, such as with \code{y ~ factor(x)}, the function
-cannot automatically detect this, and will fail to operate. Prepare the
-source data frame before fitting the model to avoid this issue.
+cannot determine the appropriate type and will raise an error. Create factors
+as needed in the source data frame \emph{before} fitting the model to avoid this
+issue.
 }
 
 \examples{

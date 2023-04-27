@@ -77,3 +77,43 @@ prototype_for <- function(df, predictor) {
   }
   return(df)
 }
+
+#' Detect transmutation in formulas, such as factor(), and raise an error
+#'
+#' We rely on predictors to occur in models with only one type (such as numeric
+#' or factor), but the use of factor() would make it possible for a predictor to
+#' appear both as a factor or as numeric. The use of factor() also makes it
+#' harder to correctly detect the types of predictors, since the methods for
+#' obtaining model predictors provide them before they are converted to factor,
+#' not after. So we reject formulas that transmute types inside the formula,
+#' such as with factor().
+#'
+#' Presently only factor() calls are rejected, but if other transmutations (such
+#' as conversions to logical or numeric) prove to be problems, they can be
+#' rejected as well.
+#'
+#' @param formula Model formula
+#' @param call Environment in which to raise the error, defaulting to the
+#'   calling environment. As this function is recursive, this reduces the
+#'   complexity of backtraces.
+#' @return No value. Raises an error if transmutation is present.
+#' @importFrom rlang is_formula
+#' @keywords internal
+detect_transmutation <- function(formula, call = parent.frame()) {
+  if (is_formula(formula)) {
+    # look on the RHS of the formula
+    detect_transmutation(formula[3], call)
+  }
+  if (is.call(formula)) {
+    sapply(as.list(formula),
+           function(el) {
+             detect_transmutation(el, call)
+           })
+  }
+  if (is.symbol(formula) && formula == "factor") {
+    cli_abort(c("Model formula contains a call to {.fun factor}",
+                "*" = "Convert variables to factors before fitting the model"),
+              class = "regressinator_transmutation_factor",
+              call = call)
+  }
+}

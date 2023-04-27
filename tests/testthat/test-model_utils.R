@@ -59,3 +59,21 @@ test_that("drop_factors handles all kinds of factors", {
   expect_equal(suppressMessages(drop_factors(foo[, -4])),
                expected[, -2, drop = FALSE])
 })
+
+test_that("detect_transmutation() rejects factor() calls", {
+  expect_no_error(detect_transmutation(foo ~ bar))
+
+  expect_error(detect_transmutation(foo ~ factor(bar)),
+               class = "regressinator_transmutation_factor")
+
+  expect_error(detect_transmutation(foo ~ factor(bar) + baz),
+               class = "regressinator_transmutation_factor")
+
+  expect_error(detect_transmutation(foo ~ factor(bar) * baz),
+               class = "regressinator_transmutation_factor")
+
+  expect_error(detect_transmutation(foo ~ ham + bar + factor(bar):baz),
+               class = "regressinator_transmutation_factor")
+
+  expect_no_error(detect_transmutation(foo ~ ham + bar + bar:baz))
+})
