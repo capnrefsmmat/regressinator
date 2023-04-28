@@ -58,13 +58,8 @@ X_2\}}{{X_1, X_2, X_1 X_2}}.
 Partial residuals are defined in terms of the predictors, not the regressors,
 and are intended to allow us to see the shape of the relationship between a
 particular predictor and the response, and to compare it to how we have
-chosen to model it with regressors. Partial residuals are not well-defined
-for predictors that have an interaction with other predictors in the model,
-as the shape of the modeled relationship varies depending on the other
-predictors they interact with.
-
-Partial residuals are not useful for categorical (factor) predictors, and so
-these are omitted.
+chosen to model it with regressors. Partial residuals are not useful for
+categorical (factor) predictors, and so these are omitted.
 }
 
 \section{Linear models}{
@@ -82,6 +77,9 @@ If \eqn{e_i} is the residual for observation \eqn{i}, the partial residual is
 
 \deqn{r_{if} = e_i + (\hat \mu(x_{if}, 0) - \hat \beta_0).}{
 r_if = e_i + (muhat(x_if, 0) - beta0hat).}
+
+Setting \eqn{X_o = 0} means setting all other numeric predictors to 0; factor
+predictors are set to their first (baseline) level.
 }
 
 \section{Generalized linear models}{

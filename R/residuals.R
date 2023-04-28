@@ -27,13 +27,8 @@
 #' Partial residuals are defined in terms of the predictors, not the regressors,
 #' and are intended to allow us to see the shape of the relationship between a
 #' particular predictor and the response, and to compare it to how we have
-#' chosen to model it with regressors. Partial residuals are not well-defined
-#' for predictors that have an interaction with other predictors in the model,
-#' as the shape of the modeled relationship varies depending on the other
-#' predictors they interact with.
-#'
-#' Partial residuals are not useful for categorical (factor) predictors, and so
-#' these are omitted.
+#' chosen to model it with regressors. Partial residuals are not useful for
+#' categorical (factor) predictors, and so these are omitted.
 #'
 #' # Linear models
 #'
@@ -51,6 +46,9 @@
 #'
 #' \deqn{r_{if} = e_i + (\hat \mu(x_{if}, 0) - \hat \beta_0).}{
 #' r_if = e_i + (muhat(x_if, 0) - beta0hat).}
+#'
+#' Setting \eqn{X_o = 0} means setting all other numeric predictors to 0; factor
+#' predictors are set to their first (baseline) level.
 #'
 #' # Generalized linear models
 #'
@@ -162,7 +160,6 @@ partial_residuals <- function(fit, predictors = everything()) {
   # Detect and reject factor() in formulas
   detect_transmutation(formula(fit))
 
-  # TODO Automatically omit predictors in interactions
   predictors <- enquo(predictors)
 
   pred_data <- get_predictors(fit)
@@ -178,28 +175,7 @@ partial_residuals <- function(fit, predictors = everything()) {
 
   resids <- residuals(fit, type = "working")
 
-  # FIXME
-  ## interacting_predictors <- Filter(
-  ##   function(p) in_interaction(formula(fit), p),
-  ##   predictor_names
-  ## )
-
-  ## if (length(interacting_predictors) > 0) {
-  ##   cli_warn(c("Partial residuals are not defined for predictors in interactions",
-  ##              "*" = "Skipped predictors: {.var {interacting_predictors}}"))
-  ## }
-
-  ## if (length(interacting_predictors) == length(predictor_names)) {
-  ##   return(tibble(
-  ##     predictor_name = character(),
-  ##     predictor_value = numeric(),
-  ##     predictor_effect = numeric(),
-  ##     partial_resid = numeric()
-  ##   ))
-  ## }
-
   out <- map_dfr(
-    ## setdiff(predictor_names, interacting_predictors),
     predictor_names,
     function(predictor) {
       df <- prototype_for(pred_data, predictor)

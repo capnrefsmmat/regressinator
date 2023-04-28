@@ -122,6 +122,8 @@ response, after "adjusting for" the other predictors according to our fitted
 model. See the function documentation for references on the use and
 interpretation of partial residuals.
 
+### Detecting basic misspecification
+
 Here the black line gives the fitted predictor effects (i.e. the model estimate
 of the relationship), while the blue line smooths the partial residuals. We can
 see that for `x1`, the blue line deviates systematically from the black line:
@@ -157,12 +159,90 @@ model_lineup(fit, partial_residuals, n = 5) |>
 In the plots where the model is correctly specified, the blue and black lines
 coincide, making it easy to spot the misspecified model.
 
+### Checking for interactions
+
+Partial residuals can also be used to detect interaction terms that should be
+included in the model. For example, let's define a population in which $X_2$ is
+a factor variable with two levels, and the slope and intercept of the
+relationship between $X_1$ and $Y$ depend on the value of $X_2$.
+
+```{r}
+intercepts <- c(
+  "foo" = -0.3,
+  "bar" = 1.7
+)
+
+slopes <- c(
+  "foo" = 1.8,
+  "bar" = -0.4
+)
+
+interact_pop <- population(
+  x1 = predictor("runif", min = 1, max = 8),
+  x2 = predictor("rfactor", levels = c("foo", "bar")),
+  y = response(by_level(x2, intercepts) + by_level(x2, slopes) * x1,
+               family = gaussian(), error_scale = 4.0)
+)
+
+interact_data <- sample_x(interact_pop, n = 100) |>
+  sample_y()
+
+no_interact_fit <- lm(y ~ x1 + x2, data = interact_data)
+```
+
+We have fit a model that does not account for the interaction, allowing a
+different intercept for the two groups but forcing the slope of $X_1$ to be the
+same. If we are concerned the interaction may be present, we can make the
+conventional partial residual plot, but with the points colored by the value of
+$X_2$:
+
+```{r}
+partial_residuals(no_interact_fit) |>
+  ggplot(aes(x = .predictor_value, y = .partial_resid, color = x2)) +
+  geom_point() + # partial residuals
+  geom_smooth(se = FALSE) + # smoothed residuals
+  geom_line(aes(x = .predictor_value, y = .predictor_effect, color = NULL)) + # effects
+  facet_wrap(vars(.predictor_name), scales = "free") +
+  labs(x = "Predictor", y = "Partial residual")
+```
+
+Notice the very distinct smoothing lines: the `foo` group appears to have a much
+steeper slope than the `bar` group. This is in fact true in the population. This
+may alert us that while our average slope is accurate, and the relationship
+appears reasonably linear, the slope may differ for the groups. We could, of
+course, produce a lineup to assess if the slope difference is significant, but
+it appears fairly large here.
+
+We can now fit a model with the interaction term and generate partial residuals
+again:
+
+```{r}
+interact_fit <- lm(y ~ x1 * x2, data = interact_data)
+
+partial_residuals(interact_fit) |>
+  ggplot(aes(x = .predictor_value, y = .partial_resid, color = x2)) +
+  geom_point() + # partial residuals
+  geom_smooth(se = FALSE) + # smoothed residuals
+  geom_line(aes(x = .predictor_value, y = .predictor_effect, color = NULL)) + # effects
+  facet_wrap(vars(.predictor_name), scales = "free") +
+  labs(x = "Predictor", y = "Partial residual")
+```
+
+In this plot, both groups appear to have the same linear trend, and so adding
+the interaction appears to have been a good idea.
+
+Note the positive slope in this plot. In the calculation of partial residuals
+for $X_1$, all other predictors are set to 0 or their baseline level, so $X_2$
+is set to `foo`. Hence the overall slope is approximately 1.8, even for points
+with $X_2 = \text{bar}$, which can be confusing.
+
 ## Cook's distances
 
 The Cook's distance for an observation represents how much the model fitted
 values would change if that observation were removed, scaled by the model's mean
 squared error. A Cook's distance of 1 is often considered a cutoff for a highly
-influential observation.
+influential observation. Returning to our original model fit to nonlinear data,
+we can produce the Cook's distances:
 
 ```{r}
 augment(fit) |>
@@ -183,8 +263,8 @@ distance.)
 
 ## Residual Q-Q plots
 
-To see the distribution of the standardized residuals, and compare it to a
-normal distribution:
+Q-Q plots are used to see the distribution of the standardized residuals, and
+compare it to a normal distribution:
 
 ```{r}
 augment(fit) |>
@@ -208,7 +288,7 @@ model_lineup(fit) |>
        x = "Theoretical quantiles", y = "Observed quantiles")
 ```
 
-The true Q-Q plot does not stand out here, so we have little evidence for a
+The true Q-Q plot does not stand out here, so we have little evidence for
 systematically non-normal residuals.
 
 ## A case study
