@@ -56,6 +56,15 @@ collectively poorly fit. We can also bin each predictor and calculate
 averages within those bins, allowing the detection of misspecification for
 specific model terms.
 }
+\section{Limitations}{
+Factor predictors (as factors, logical, or character vectors) are detected
+automatically and omitted. However, if a numeric variable is converted to
+factor in the model formula, such as with \code{y ~ factor(x)}, the function
+cannot determine the appropriate type and will raise an error. Create factors
+as needed in the source data frame \emph{before} fitting the model to avoid this
+issue.
+}
+
 \examples{
 fit <- lm(mpg ~ disp + hp, data = mtcars)
 

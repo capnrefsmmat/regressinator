@@ -238,6 +238,15 @@ partial_residuals <- function(fit, predictors = everything()) {
 #' averages within those bins, allowing the detection of misspecification for
 #' specific model terms.
 #'
+#' # Limitations
+#'
+#' Factor predictors (as factors, logical, or character vectors) are detected
+#' automatically and omitted. However, if a numeric variable is converted to
+#' factor in the model formula, such as with `y ~ factor(x)`, the function
+#' cannot determine the appropriate type and will raise an error. Create factors
+#' as needed in the source data frame *before* fitting the model to avoid this
+#' issue.
+#'
 #' @param fit The model to obtain residuals for. This can be a model fit with
 #'   `lm()` or `glm()`, or any model that has `residuals()` and `fitted()`
 #'   methods.
@@ -295,6 +304,9 @@ partial_residuals <- function(fit, predictors = everything()) {
 #' @export
 binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
                              ...) {
+  # Detect and reject factor() in formulas
+  detect_transmutation(formula(fit))
+
   predictors <- enquo(predictors)
 
   pred_data <- get_predictors(fit)
@@ -302,8 +314,6 @@ binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
 
   selection <- eval_select(predictors, pred_data)
 
-  # TODO drop_factors() won't handle factors created with factor() in the model
-  # formula
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
 
