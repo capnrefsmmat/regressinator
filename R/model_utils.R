@@ -97,23 +97,23 @@ prototype_for <- function(df, predictor) {
 #'   calling environment. As this function is recursive, this reduces the
 #'   complexity of backtraces.
 #' @return No value. Raises an error if transmutation is present.
-#' @importFrom rlang is_formula
+#' @importFrom rlang is_formula is_call
 #' @keywords internal
 detect_transmutation <- function(formula, call = parent.frame()) {
   if (is_formula(formula)) {
     # look on the RHS of the formula
-    detect_transmutation(formula[3], call)
+    detect_transmutation(formula[[3]], call)
+  }
+  if (is_call(formula, "factor")) {
+    cli_abort(c("Model formula contains a call to {.fun factor}",
+                "*" = "Convert variables to factors before fitting the model"),
+              class = "regressinator_transmutation_factor",
+              call = call)
   }
   if (is.call(formula)) {
     sapply(as.list(formula),
            function(el) {
              detect_transmutation(el, call)
            })
-  }
-  if (is.symbol(formula) && formula == "factor") {
-    cli_abort(c("Model formula contains a call to {.fun factor}",
-                "*" = "Convert variables to factors before fitting the model"),
-              class = "regressinator_transmutation_factor",
-              call = call)
   }
 }

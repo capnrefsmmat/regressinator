@@ -62,6 +62,7 @@ test_that("drop_factors handles all kinds of factors", {
 
 test_that("detect_transmutation() rejects factor() calls", {
   expect_no_error(detect_transmutation(foo ~ bar))
+  expect_no_error(detect_transmutation(foo ~ ham + bar + bar:baz))
 
   expect_error(detect_transmutation(foo ~ factor(bar)),
                class = "regressinator_transmutation_factor")
@@ -72,8 +73,14 @@ test_that("detect_transmutation() rejects factor() calls", {
   expect_error(detect_transmutation(foo ~ factor(bar) * baz),
                class = "regressinator_transmutation_factor")
 
-  expect_error(detect_transmutation(foo ~ ham + bar + factor(bar):baz),
+  expect_error(detect_transmutation(foo ~ I(ham^2) + bar + factor(bar):baz),
                class = "regressinator_transmutation_factor")
+})
 
-  expect_no_error(detect_transmutation(foo ~ ham + bar + bar:baz))
+test_that("detect_transmutation() permits variables named factor", {
+  expect_no_error(detect_transmutation(foo ~ factor + bar))
+
+  expect_no_error(detect_transmutation(foo ~ I(factor^2) + bar))
+
+  expect_no_error(detect_transmutation(foo ~ factor[2]))
 })
