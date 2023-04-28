@@ -134,7 +134,7 @@
 #' Regression Models with Predictor Effect Plots and Partial Residuals."
 #' *Journal of Statistical Software*, 87(9).
 #' <https://doi.org/10.18637/jss.v087.i09>
-#' @importFrom stats predict
+#' @importFrom stats predict formula
 #' @importFrom insight get_predictors get_intercept
 #' @importFrom tidyselect everything eval_select
 #' @importFrom rlang enquo
@@ -282,7 +282,7 @@ partial_residuals <- function(fit, predictors = everything()) {
 #' @importFrom insight get_predictors
 #' @importFrom purrr map_dfr
 #' @importFrom rlang sym .data
-#' @importFrom stats residuals sd
+#' @importFrom stats residuals sd formula
 #' @importFrom tibble as_tibble
 #' @examples
 #' fit <- lm(mpg ~ disp + hp, data = mtcars)
