@@ -267,8 +267,8 @@ partial_residuals <- function(fit, predictors = everything()) {
 #'   interpretation of binned residuals in logistic regression;
 #'   [bin_by_interval()] and [bin_by_quantile()] to bin data and calculate other
 #'   values in each bin
-#' @references Gelman, A., Hill, J., and Vehtari, A. (2021). Regression and
-#'   Other Stories. Section 14.5. Cambridge University Press.
+#' @references Gelman, A., Hill, J., and Vehtari, A. (2021). *Regression and
+#'   Other Stories*. Section 14.5. Cambridge University Press.
 #' @importFrom dplyr n summarize
 #' @importFrom insight get_predictors
 #' @importFrom purrr map_dfr

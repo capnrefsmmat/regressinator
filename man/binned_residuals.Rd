@@ -75,8 +75,8 @@ fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
 binned_residuals(fit2)
 }
 \references{
-Gelman, A., Hill, J., and Vehtari, A. (2021). Regression and
-Other Stories. Section 14.5. Cambridge University Press.
+Gelman, A., Hill, J., and Vehtari, A. (2021). \emph{Regression and
+Other Stories}. Section 14.5. Cambridge University Press.
 }
 \seealso{
 \code{\link[=partial_residuals]{partial_residuals()}} for the related partial residuals;
