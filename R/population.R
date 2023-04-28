@@ -2,9 +2,6 @@
 # TODO Allow creating a population from a (large) data frame, and sampling from
 # it just by sampling with replacement
 
-# TODO Support mixture distributions of covariates and of errors, for easy study
-# of outliers. Maybe "rmixture" that take multiple distributions as arguments?
-
 #' Specify the distribution of a predictor variable
 #'
 #' Predictor variables can have any marginal distribution as long as a function
@@ -325,6 +322,17 @@ print.population <- function(x, ...) {
 #'
 #' # Cauchy-distributed errors
 #' ols_with_error(rcauchy, scale = 3)
+#'
+#' # A contaminated error distribution, where
+#' # 95% of observations are Gaussian and 5% are Cauchy
+#' rcontaminated <- function(n) {
+#'   contaminant <- rbinom(n, 1, prob = 0.05)
+#'
+#'   return(ifelse(contaminant == 1,
+#'                 rcauchy(n, scale = 20),
+#'                 rnorm(n, sd = 1)))
+#' }
+#' ols_with_error(rcontaminated)
 #' @importFrom rlang eval_tidy
 #' @importFrom stats model.frame fitted gaussian
 #' @export
