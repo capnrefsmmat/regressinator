@@ -52,6 +52,7 @@ rfactor <- function(n, levels,
 #'                error_scale = 1.5)
 #' )
 #' sample_x(pop, 5)
+#' @importFrom cli cli_abort cli_warn
 #' @export
 by_level <- function(x, ...) {
   levels <- list(...)

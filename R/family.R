@@ -1,6 +1,7 @@
 #' Accept family arguments in the same way as glm(), convert to standardized
 #' form, and throw comprehensible errors.
 #'
+#' @importFrom cli cli_abort
 #' @importFrom rlang caller_arg
 #' @keywords internal
 normalize_family <- function(family, arg = caller_arg(family)) {

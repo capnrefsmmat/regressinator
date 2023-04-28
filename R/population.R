@@ -353,8 +353,12 @@ ols_with_error <- function(error, ...) {
       ftd <- fitted(object)
     }
 
-    # TODO what if nsim > 1? this will fail, but that may not matter -- when can
-    # nsim be > 1?
+    if (nsim > 1) {
+      cli_abort(c("{.fn ols_with_error} family simulation does not support {.arg nsim} > 1",
+                  "*" = "This error should not happen; please report it as a bug"),
+                class = "regressinator_error_nsim")
+    }
+
     n <- length(ftd) * nsim
 
     # Evaluate the error arguments in the model frame, so they can depend on the
@@ -420,7 +424,7 @@ custom_family <- function(distribution, inverse_link) {
 
   fam$initialize <- expression(
     cli_abort(c("{.fn custom_family} cannot be used to fit models, only to specify populations",
-                "i" = "see ?family for a list of families supported for model fits"))
+                "i" = "see {.topic stats::family} for a list of families supported for model fits"))
   )
   fam$link <- paste0("inverse of ", deparse(substitute(inverse_link)))
   fam$simulate <- function(object, nsim, env = model.frame(object), ftd = NULL) {

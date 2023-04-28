@@ -15,7 +15,7 @@
 #' @export
 sample_x <- function(population, n) {
   if (!inherits(population, "population")) {
-    cli_abort("population argument must be a population defined with `population()`")
+    cli_abort("population argument must be a population defined with {.fn population}")
   }
 
   predictors <- Filter(
@@ -83,7 +83,8 @@ parent_population <- function(sample) {
 sample_y <- function(xs) {
   if (!inherits(xs, "population_sample")) {
     cli_abort(c("data passed to {.fn sample_y} must be a data frame from {.fn sample_x}",
-                "i" = "other data frames do not have the necessary population attributes specifying the response distribution"))
+                "x" = "{.arg xs} has class {.cls {class(xs)}}, but should be a {.cls population_sample}",
+                "i" = "other types do not have the necessary population attributes specifying the response distribution"))
   }
 
   n <- nrow(xs)
@@ -128,7 +129,7 @@ sample_y <- function(xs) {
       y_resp <- response$family$simulate(NULL, 1, env = xs, ftd = y_resp)
     } else {
       cli_abort(c("Unable to simulate from population family {.val {family_name}}",
-                  "i" = "Supported families are gaussian, ols_with_error, binomial, custom_family, and poisson"))
+                  "i" = "Supported families are {.fn gaussian}, {.fn ols_with_error}, {.fn binomial}, {.fn custom_family}, and {.fn poisson}"))
     }
 
     xs[[response_name]] <- y_resp
