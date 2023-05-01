@@ -94,8 +94,8 @@ logistic_data |>
 ```
 
 This looks more linear, though it is difficult to assess. We could also use
-`diagnose_model()` to examine similar plots when the model is correctly
-specified, to tell if these plots indicate a serious problem.
+`model_lineup()` to examine similar plots when the model is correctly specified,
+to tell if these plots indicate a serious problem.
 
 ## Naive residual plots
 
