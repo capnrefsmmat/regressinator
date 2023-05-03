@@ -74,10 +74,16 @@
 #'
 #' # Interpretation
 #'
-#' Because the residuals \eqn{e_i} should have mean zero in a well-specified
-#' model, plotting the partial residuals against \eqn{x_f} should produce a
-#' shape matching the modeled relationship \eqn{\mu}. If the model is wrong, the
-#' partial residuals will appear to deviate from the fitted relationship.
+#' In linear regression, because the residuals \eqn{e_i} should have mean zero
+#' in a well-specified model, plotting the partial residuals against \eqn{x_f}
+#' should produce a shape matching the modeled relationship \eqn{\mu}. If the
+#' model is wrong, the partial residuals will appear to deviate from the fitted
+#' relationship. Provided the regressors are uncorrelated or approximately
+#' linearly related to each other, the plotted trend should approximate the true
+#' relationship between $x_f$ and the response.
+#'
+#' In generalized linear models, this is approximately true if the link function
+#' \eqn{g} is approximately linear over the range of observed $x$ values.
 #'
 #' Additionally, the function \eqn{\mu(X_f, 0)} can be used to show the
 #' relationship between the focal predictor and the response. In a linear model,
@@ -117,21 +123,21 @@
 #' 0)}{muhat(X_if, 0)} for this observation.}
 #'
 #' @seealso [binned_residuals()] for the related binned residuals;
-#'   `vignette("linear-regression-diagnostics")` for examples of plotting and
+#'   `vignette("linear-regression-diagnostics")`,
+#'   `vignette("logistic-regression-diagnostics")`, and
+#'   `vignette("other-glm-diagnostics")` for examples of plotting and
 #'   interpreting partial residuals
-#' @references R. Dennis Cook. "Exploring Partial Residual Plots",
-#'   *Technometrics*, 35:4 (1993), 351-362.
-#'   <https://doi.org/10.1080/00401706.1993.10485350>
+#' @references R. Dennis Cook (1993). "Exploring Partial Residual Plots",
+#'   *Technometrics*, 35:4, 351-362. \doi{10.1080/00401706.1993.10485350}
 #'
-#' Cook, R. Dennis, and Croos-Dabrera, R.
+#' Cook, R. Dennis, and Croos-Dabrera, R. (1998).
 #' "Partial Residual Plots in Generalized Linear Models." *Journal of the
-#' American Statistical Association* 93, no. 442 (1998): 730–39.
-#' <https://doi.org/10.2307/2670123>
+#' American Statistical Association* 93, no. 442: 730–39. \doi{10.2307/2670123}
 #'
-#' Fox, J., & Weisberg, S. (2018). "Visualizing Fit and Lack of Fit in Complex
-#' Regression Models with Predictor Effect Plots and Partial Residuals."
-#' *Journal of Statistical Software*, 87(9).
-#' <https://doi.org/10.18637/jss.v087.i09>
+#' Fox, J., & Weisberg, S. (2018).
+#' "Visualizing Fit and Lack of Fit in Complex Regression Models with Predictor
+#' Effect Plots and Partial Residuals." *Journal of Statistical Software*,
+#' 87(9). \doi{10.18637/jss.v087.i09}
 #' @importFrom stats predict formula
 #' @importFrom insight get_predictors get_intercept
 #' @importFrom tidyselect everything eval_select
@@ -248,10 +254,10 @@ partial_residuals <- function(fit, predictors = everything()) {
 #' \item{resid_sd}{Standard deviation of residuals in this bin.}
 #'
 #' @seealso [partial_residuals()] for the related partial residuals;
-#'   `vignette("logistic-regression-diagnostics")` for examples of use and
-#'   interpretation of binned residuals in logistic regression;
-#'   [bin_by_interval()] and [bin_by_quantile()] to bin data and calculate other
-#'   values in each bin
+#'   `vignette("logistic-regression-diagnostics")` and
+#'   `vignette("other-glm-diagnostics")` for examples of use and interpretation
+#'   of binned residuals in logistic regression and GLMs; [bin_by_interval()]
+#'   and [bin_by_quantile()] to bin data and calculate other values in each bin
 #' @references Gelman, A., Hill, J., and Vehtari, A. (2021). *Regression and
 #'   Other Stories*. Section 14.5. Cambridge University Press.
 #' @importFrom dplyr n summarize

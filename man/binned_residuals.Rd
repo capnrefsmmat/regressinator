@@ -89,8 +89,8 @@ Other Stories}. Section 14.5. Cambridge University Press.
 }
 \seealso{
 \code{\link[=partial_residuals]{partial_residuals()}} for the related partial residuals;
-\code{vignette("logistic-regression-diagnostics")} for examples of use and
-interpretation of binned residuals in logistic regression;
-\code{\link[=bin_by_interval]{bin_by_interval()}} and \code{\link[=bin_by_quantile]{bin_by_quantile()}} to bin data and calculate other
-values in each bin
+\code{vignette("logistic-regression-diagnostics")} and
+\code{vignette("other-glm-diagnostics")} for examples of use and interpretation
+of binned residuals in logistic regression and GLMs; \code{\link[=bin_by_interval]{bin_by_interval()}}
+and \code{\link[=bin_by_quantile]{bin_by_quantile()}} to bin data and calculate other values in each bin
 }

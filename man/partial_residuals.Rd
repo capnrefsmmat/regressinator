@@ -105,10 +105,16 @@ r_if = e_i + (muhat(x_{if}, 0) - beta0hat).}
 }
 
 \section{Interpretation}{
-Because the residuals \eqn{e_i} should have mean zero in a well-specified
-model, plotting the partial residuals against \eqn{x_f} should produce a
-shape matching the modeled relationship \eqn{\mu}. If the model is wrong, the
-partial residuals will appear to deviate from the fitted relationship.
+In linear regression, because the residuals \eqn{e_i} should have mean zero
+in a well-specified model, plotting the partial residuals against \eqn{x_f}
+should produce a shape matching the modeled relationship \eqn{\mu}. If the
+model is wrong, the partial residuals will appear to deviate from the fitted
+relationship. Provided the regressors are uncorrelated or approximately
+linearly related to each other, the plotted trend should approximate the true
+relationship between $x_f$ and the response.
+
+In generalized linear models, this is approximately true if the link function
+\eqn{g} is approximately linear over the range of observed $x$ values.
 
 Additionally, the function \eqn{\mu(X_f, 0)} can be used to show the
 relationship between the focal predictor and the response. In a linear model,
@@ -146,22 +152,22 @@ fit3 <- lm(mpg ~ cylinders * disp + hp, data = mtcars)
 partial_residuals(fit3)
 }
 \references{
-R. Dennis Cook. "Exploring Partial Residual Plots",
-\emph{Technometrics}, 35:4 (1993), 351-362.
-\url{https://doi.org/10.1080/00401706.1993.10485350}
+R. Dennis Cook (1993). "Exploring Partial Residual Plots",
+\emph{Technometrics}, 35:4, 351-362. \doi{10.1080/00401706.1993.10485350}
 
-Cook, R. Dennis, and Croos-Dabrera, R.
+Cook, R. Dennis, and Croos-Dabrera, R. (1998).
 "Partial Residual Plots in Generalized Linear Models." \emph{Journal of the
-American Statistical Association} 93, no. 442 (1998): 730–39.
-\url{https://doi.org/10.2307/2670123}
+American Statistical Association} 93, no. 442: 730–39. \doi{10.2307/2670123}
 
-Fox, J., & Weisberg, S. (2018). "Visualizing Fit and Lack of Fit in Complex
-Regression Models with Predictor Effect Plots and Partial Residuals."
-\emph{Journal of Statistical Software}, 87(9).
-\url{https://doi.org/10.18637/jss.v087.i09}
+Fox, J., & Weisberg, S. (2018).
+"Visualizing Fit and Lack of Fit in Complex Regression Models with Predictor
+Effect Plots and Partial Residuals." \emph{Journal of Statistical Software},
+87(9). \doi{10.18637/jss.v087.i09}
 }
 \seealso{
 \code{\link[=binned_residuals]{binned_residuals()}} for the related binned residuals;
-\code{vignette("linear-regression-diagnostics")} for examples of plotting and
+\code{vignette("linear-regression-diagnostics")},
+\code{vignette("logistic-regression-diagnostics")}, and
+\code{vignette("other-glm-diagnostics")} for examples of plotting and
 interpreting partial residuals
 }
