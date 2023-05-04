@@ -62,16 +62,16 @@ drop_factors <- function(df) {
 prototype_for <- function(df, predictor) {
   for (p in names(df)) {
     if (p != predictor) {
-      if (is.factor(df[, p])) {
-        lev <- levels(df[, p])
-        df[, p] <- factor(lev[1], levels = lev)
-      } else if (is.logical(df[, p])) {
-        df[, p] <- FALSE
-      } else if (is.character(df[, p])) {
+      if (is.factor(df[[p]])) {
+        lev <- levels(df[[p]])
+        df[[p]] <- factor(lev[1], levels = lev)
+      } else if (is.logical(df[[p]])) {
+        df[[p]] <- FALSE
+      } else if (is.character(df[[p]])) {
         # first factor level is the first string, in order
-        df[, p] <- sort(unique(df[, p]))[1]
+        df[[p]] <- sort(unique(df[[p]]))[1]
       } else {
-        df[, p] <- 0
+        df[[p]] <- 0
       }
     }
   }

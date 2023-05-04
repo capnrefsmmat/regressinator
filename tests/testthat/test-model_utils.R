@@ -1,4 +1,6 @@
-test_that("in_interaction handles all formula cases", {
+library(tibble)
+
+test_that("in_interaction() handles all formula cases", {
   skip("in_interaction implementation is incomplete")
 
   expect_true(in_interaction(y ~ x1 * x2, "x2"))
@@ -16,7 +18,7 @@ test_that("in_interaction handles all formula cases", {
   expect_false(in_interaction(y ~ (x1 + x2 + x3)^3 + x4, "x4"))
 })
 
-test_that("prototype_for produces sensible data frames", {
+test_that("prototype_for() produces sensible data frames", {
   expect_equal(
     prototype_for(
       data.frame(x1 = 1:2,
@@ -43,7 +45,20 @@ test_that("prototype_for produces sensible data frames", {
   )
 })
 
-test_that("drop_factors handles all kinds of factors", {
+test_that("prototype_for() handles tibbles", {
+  foo <- as.factor(c("a", "b"))
+  expect_equal(
+    prototype_for(
+      tibble(x1 = 1:2,
+             x2 = foo),
+      "x1"
+    ),
+    tibble(x1 = 1:2,
+           x2 = foo[1])
+  )
+})
+
+test_that("drop_factors() handles all kinds of factors", {
   foo <- data.frame(
     foo = 1:4,
     bar = c(TRUE, FALSE, TRUE, FALSE),
