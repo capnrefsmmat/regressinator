@@ -1,4 +1,4 @@
-library(dplyr)
+suppressMessages(library(dplyr))
 
 test_that("partial_residuals() produces correct amount of data", {
   fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
