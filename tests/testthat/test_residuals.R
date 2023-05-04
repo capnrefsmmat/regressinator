@@ -17,6 +17,29 @@ test_that("partial_residuals() produces correct amount of data", {
                   c("disp", "hp"))
 })
 
+test_that("partial_residuals() works on models fit to population samples", {
+  # partial_residuals() had a bug that caused it to rely on drop=TRUE behavior
+  # in data frames; if given a tibble or population sample, it would
+  # accidentally produce list columns instead of the correct columns
+  pop <- population(
+    x = predictor("rnorm"),
+    y = response(x, error_scale = 1)
+  )
+
+  samp <- pop |>
+    sample_x(n = 100) |>
+    sample_y()
+
+  fit <- lm(y ~ x, data = samp)
+
+  out <- partial_residuals(fit)
+
+  expect_type(out$.predictor_value, "double") # not a tibble
+  expect_setequal(names(out),
+                  c("x", ".predictor_name", ".predictor_value",
+                    ".predictor_effect", ".partial_resid"))
+})
+
 test_that("partial_residuals() omits factors", {
   mtcars$cylinders <- factor(mtcars$cyl)
 

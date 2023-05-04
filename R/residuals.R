@@ -190,7 +190,7 @@ partial_residuals <- function(fit, predictors = everything()) {
 
       out <- pred_data
       out$.predictor_name <- predictor
-      out$.predictor_value <- predictors[, predictor]
+      out$.predictor_value <- predictors[[predictor]]
       out$.predictor_effect <- effect
       out$.partial_resid <- effect + resids
       return(out)
