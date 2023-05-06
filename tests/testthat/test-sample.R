@@ -26,3 +26,28 @@ test_that("binomial family rejects invalid size", {
   expect_error(sample_y(samples))
 })
 
+test_that("sample_y() throws classed errors", {
+  pop <- population(
+    x = predictor("rnorm"),
+    y = response(foo, error_scale = 1)
+  )
+
+  expect_error(pop |> sample_x(10) |> sample_y(),
+               class = "regressinator_eval_response")
+
+  pop <- population(
+    x = predictor("rnorm"),
+    y = response(x, error_scale = x2 + 2)
+  )
+
+  expect_error(pop |> sample_x(10) |> sample_y(),
+               class = "regressinator_eval_error_scale")
+
+  pop <- population(
+    x = predictor("rnorm"),
+    y = response(x, family = binomial(), size = foo)
+  )
+
+  expect_error(pop |> sample_x(10) |> sample_y(),
+               class = "regressinator_eval_size")
+})

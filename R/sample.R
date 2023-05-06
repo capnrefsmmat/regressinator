@@ -79,6 +79,7 @@ parent_population <- function(sample) {
 #' xs |>
 #'   sample_y()
 #' @export
+#' @importFrom rlang current_env
 #' @rdname sample_x
 sample_y <- function(xs) {
   if (!inherits(xs, "population_sample")) {
@@ -99,19 +100,37 @@ sample_y <- function(xs) {
     response <- responses[[response_name]]
 
     # value on the response scale
-    y_resp <- response$family$linkinv(eval(response$response_expr, envir = xs))
+    y_resp <- response$family$linkinv(
+      .eval_verbosely(
+        response$response_expr, response_name,
+        "Failed to evaluate response variable {.var {response_name}}",
+        xs, "regressinator_eval_response", current_env()
+      )
+    )
 
     family_name <- response$family$family
 
+    if (family_name %in% c("gaussian", "ols_with_error")) {
+      error_scale <- .eval_verbosely(
+        response$error_scale, response_name,
+        "Failed to evaluate {.arg error_scale} for response variable {.var {response_name}}",
+        xs, "regressinator_eval_error_scale", current_env()
+      )
+    }
+
     if (family_name == "gaussian") {
       y_resp <- rnorm(n, mean = y_resp,
-                      sd = eval(response$error_scale, envir = xs))
+                      sd = error_scale)
     } else if (family_name == "ols_with_error") {
       y_resp <- y_resp +
         response$family$simulate(NULL, 1, env = xs, ftd = rep(0, n)) *
-        eval(response$error_scale, envir = xs)
+        error_scale
     } else if (family_name == "binomial") {
-      size <- eval(response$size, envir = xs)
+      size <- .eval_verbosely(
+        response$size, response_name,
+        "Failed to evaluate {.arg size} for response variable {.var {response_name}}",
+        xs, "regressinator_eval_size", current_env()
+      )
 
       if (!isTRUE(all.equal(size, as.integer(size)))) {
         cli_abort("{.arg size} for {.fn binomial} families must be an integer or vector of integers")
@@ -136,6 +155,23 @@ sample_y <- function(xs) {
   }
 
   return(xs)
+}
+
+#' @importFrom cli cli_abort
+.eval_verbosely <- function(expr, response_name, msg, xs, class, env) {
+  tryCatch(
+    eval(expr, envir = xs),
+    error = function(e) {
+      cli_abort(
+        c(msg,
+          "x" = "In expression {.code {deparse(expr)}}:",
+          "x" = conditionMessage(e),
+          "i" = "Available predictor and response variables: {.var {names(xs)}}"),
+        call = env,
+        class = class
+      )
+    }
+  )
 }
 
 #' @export
