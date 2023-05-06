@@ -48,7 +48,11 @@ predictor <- function(dist, ...) {
 
 #' @export
 print.predictor_dist <- function(x, ...) {
-  cat(x$dist, "(", deparse(x$args), ")\n", sep = "")
+  if (length(x$args) > 0) {
+    cat(x$dist, "(", deparse(x$args), ")\n", sep = "")
+  } else {
+    cat(x$dist, "()\n", sep = "")
+  }
 
   invisible(x)
 }
