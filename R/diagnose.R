@@ -60,7 +60,6 @@
 #'              speed = model.frame(f)$speed)
 #' }
 #' model_lineup(fit, fn = resids_vs_speed, nsim = 5)
-#' @importFrom cli cli_abort
 #' @export
 model_lineup <- function(fit, fn = augment, nsim = 20, ...) {
   true <- fn(fit, ...)
@@ -74,6 +73,7 @@ model_lineup <- function(fit, fn = augment, nsim = 20, ...) {
 }
 
 #' @importFrom rlang caller_env
+#' @importFrom cli cli_abort
 check_fn_output <- function(x) {
   if (!inherits(x, "data.frame")) {
     cli_abort(
