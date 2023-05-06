@@ -36,6 +36,7 @@ Suggests:
     knitr,
     mvtnorm,
     palmerpenguins,
+    patchwork,
     testthat (>= 3.0.0)
 Roxygen: list(markdown = TRUE)
 VignetteBuilder: knitr
