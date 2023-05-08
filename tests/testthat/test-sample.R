@@ -26,6 +26,16 @@ test_that("binomial family rejects invalid size", {
   expect_error(sample_y(samples))
 })
 
+test_that("sample_x() throws classed error", {
+  # invalid distribution function
+  pop <- population(x = predictor("nonexistent_fn", mean = 0),
+                    y = response(x, error_scale = 1))
+
+  expect_error(sample_x(pop, 10),
+               class = "regressinator_sample_dist")
+
+})
+
 test_that("sample_y() throws classed errors", {
   pop <- population(
     x = predictor("rnorm"),

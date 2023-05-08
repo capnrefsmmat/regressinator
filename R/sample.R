@@ -11,6 +11,7 @@
 #' @param n Number of observations to draw from the population.
 #' @return Data frame (tibble) of `n` rows, with columns matching the variables
 #'   specified in the population.
+#' @importFrom purrr imap
 #' @importFrom tibble as_tibble
 #' @export
 sample_x <- function(population, n) {
@@ -23,13 +24,30 @@ sample_x <- function(population, n) {
     population
   )
 
-  sampled_data <- lapply(
+  env <- current_env()
+  sampled_data <- imap(
     predictors,
-    function(var) {
-      args <- var$args
+    function(predictor, name) {
+      args <- predictor$args
       args$n <- n
-      do.call(var$dist, args)
-    })
+
+      tryCatch(
+        do.call(predictor$dist, args),
+        error = function(e) {
+          call_msg <- if (is.function(predictor$dist)) {
+            "While calling distribution function"
+          } else {
+            "While calling {.fn {predictor$dist}}"
+          }
+          cli_abort(c("Failed to sample predictor {.var {name}}",
+                      "x" = call_msg,
+                      "x" = conditionMessage(e)),
+                    class = "regressinator_sample_dist",
+                    call = env)
+        }
+      )
+    }
+  )
 
   # sampled_data is now a named list. names are variable names, entries are
   # vectors (for univariate predictors) or matrices (for multivariate
