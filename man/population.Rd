@@ -23,14 +23,23 @@ population marginal distribution of each predictor variable.
 }
 \examples{
 # A population with a simple linear relationship
-population(
+linear_pop <- population(
   x1 = predictor("rnorm", mean = 4, sd = 10),
   x2 = predictor("runif", min = 0, max = 10),
   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
 )
 
+# A population whose response depends on local variables
+slope <- 2.2
+intercept <- 0.7
+sigma <- 2.5
+variable_pop <- population(
+  x = predictor("rnorm"),
+  y = response(intercept + slope * x, error_scale = sigma)
+)
+
 # Response error scale is heteroskedastic and depends on predictors
-population(
+heteroskedastic_pop <- population(
   x1 = predictor("rnorm", mean = 4, sd = 10),
   x2 = predictor("runif", min = 0, max = 10),
   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
@@ -38,7 +47,7 @@ population(
 )
 
 # A binary outcome Y, using a binomial family with logistic link
-population(
+binary_pop <- population(
   x1 = predictor("rnorm", mean = 4, sd = 10),
   x2 = predictor("runif", min = 0, max = 10),
   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
@@ -47,7 +56,7 @@ population(
 
 # A binomial outcome Y, with 10 trials per observation, using a logistic link
 # to determine the probability of success for each trial
-population(
+binomial_pop <- population(
   x1 = predictor("rnorm", mean = 4, sd = 10),
   x2 = predictor("runif", min = 0, max = 10),
   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
@@ -57,7 +66,7 @@ population(
 
 # Another binomial outcome, but the number of trials depends on another
 # predictor
-population(
+binom_size_pop <- population(
   x1 = predictor("rnorm", mean = 4, sd = 10),
   x2 = predictor("runif", min = 0, max = 10),
   trials = predictor("rpois", lambda = 20),
@@ -69,7 +78,7 @@ population(
 # A population with a simple linear relationship and collinearity. Because X
 # is bivariate, there will be two predictors, named x1 and x2.
 library(mvtnorm)
-population(
+collinear_pop <- population(
   x = predictor("rmvnorm", mean = c(0, 1),
                 sigma = matrix(c(1, 0.8, 0.8, 1), nrow = 2)),
   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)

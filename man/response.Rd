@@ -111,6 +111,30 @@ where both \eqn{g} and SomeDistribution are specified by arguments to
 }
 }
 }
+
+\subsection{Evaluation and scoping}{
+
+The \code{expr}, \code{error_scale}, and \code{size} arguments are evaluated only when
+simulating data for this response variable. They are evaluated in an
+environment with access to the predictor variables and the preceding response
+variables, which they can refer to by name. Additionally, these arguments can
+refer to variables in scope when the enclosing \code{population()} was defined.
+See the Examples below.
+}
+}
+\examples{
+# Defining a binomial response. The expressions can refer to other predictors
+# and to the environment where the `population()` is defined:
+slope1 <- 2.5
+slope2 <- -3
+intercept <- -4.6
+size <- 10
+population(
+  x1 = predictor("rnorm"),
+  x2 = predictor("rnorm"),
+  y = response(intercept + slope1 * x1 + slope2 * x2,
+               family = binomial(), size = size)
+)
 }
 \seealso{
 \code{\link[=predictor]{predictor()}} and \code{\link[=population]{population()}} to define populations;
