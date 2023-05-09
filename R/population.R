@@ -276,7 +276,8 @@ print.response_dist <- function(x, ...) {
 population <- function(...) {
   variables <- list(...)
 
-  return(structure(variables, class = "population"))
+  return(structure(variables, class = "population",
+                   environment = parent.frame()))
 }
 
 #' @export

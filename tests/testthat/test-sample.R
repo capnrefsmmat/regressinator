@@ -62,6 +62,49 @@ test_that("sample_y() throws classed errors", {
                class = "regressinator_eval_size")
 })
 
+test_that("response expr evaluated in right environment", {
+  # Refer to local variables
+  slope <- 2.5
+  intercept <- 1.0
+  pop <- population(
+    x = predictor("rnorm"),
+    y = response(intercept + slope * x, error_scale = 1)
+  )
+
+  expect_no_error(pop |> sample_x(10) |> sample_y())
+
+  # refer to other environments
+  foo <- function() {
+    slope1 <- 2.5
+    intercept1 <- 1.0
+    return(population(
+      x = predictor("rnorm"),
+      y = response(intercept1 + slope1 * x, error_scale = 1)
+    ))
+  }
+
+  expect_no_error(foo() |> sample_x(10) |> sample_y())
+})
+
+test_that("error_scale argument evaluated in right environment", {
+  # Refer to prior predictors
+  pop <- population(
+    x = predictor("rnorm"),
+    y = response(x, error_scale = x**2)
+  )
+
+  expect_no_error(pop |> sample_x(10) |> sample_y())
+
+  # Refer to local variables
+  sigma <- 2
+  pop <- population(
+    x = predictor("rnorm"),
+    y = response(x, error_scale = sigma)
+  )
+
+  expect_no_error(pop |> sample_x(10) |> sample_y())
+})
+
 test_that("binomial response size argument evaluated in right environment", {
   # Should be able to refer to other predictors
   pop <- population(
@@ -84,4 +127,18 @@ test_that("binomial response size argument evaluated in right environment", {
                     sample_x(10) |>
                     sample_y())
   expect_true(all(out$y <= s))
+
+  # And variables in different environments
+  foo <- function() {
+    q <- 20
+    return(population(
+      x = predictor("rnorm"),
+      y = response(x, family = binomial(), size = q)
+    ))
+  }
+
+  expect_no_error(out <- foo() |>
+                    sample_x(10) |>
+                    sample_y())
+  expect_true(all(out$y <= 20))
 })

@@ -122,7 +122,7 @@ sample_y <- function(xs) {
       as.numeric(.eval_verbosely(
         response$response_expr, response_name,
         "Failed to evaluate response variable {.var {response_name}}",
-        xs, "regressinator_eval_response", current_env()
+        xs, "regressinator_eval_response", current_env(), attr(population, "environment")
       ))
     )
 
@@ -132,7 +132,7 @@ sample_y <- function(xs) {
       error_scale <- .eval_verbosely(
         response$error_scale, response_name,
         "Failed to evaluate {.arg error_scale} for response variable {.var {response_name}}",
-        xs, "regressinator_eval_error_scale", current_env()
+        xs, "regressinator_eval_error_scale", current_env(), attr(population, "environment")
       )
     }
 
@@ -147,7 +147,7 @@ sample_y <- function(xs) {
       size <- .eval_verbosely(
         response$size, response_name,
         "Failed to evaluate {.arg size} for response variable {.var {response_name}}",
-        xs, "regressinator_eval_size", current_env()
+        xs, "regressinator_eval_size", current_env(), attr(population, "environment")
       )
 
       if (!isTRUE(all.equal(size, as.integer(size)))) {
@@ -176,9 +176,10 @@ sample_y <- function(xs) {
 }
 
 #' @importFrom cli cli_abort
-.eval_verbosely <- function(expr, response_name, msg, xs, class, env) {
+.eval_verbosely <- function(expr, response_name, msg, xs, class, env,
+                            enclos = NULL) {
   tryCatch(
-    eval(expr, envir = xs),
+    eval(expr, envir = xs, enclos = enclos),
     error = function(e) {
       cli_abort(
         c(msg,
