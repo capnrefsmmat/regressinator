@@ -61,3 +61,27 @@ test_that("sample_y() throws classed errors", {
   expect_error(pop |> sample_x(10) |> sample_y(),
                class = "regressinator_eval_size")
 })
+
+test_that("binomial response size argument evaluated in right environment", {
+  # Should be able to refer to other predictors
+  pop <- population(
+    x = predictor("rpois", lambda = 10),
+    y = response(x / 10, family = binomial(), size = x)
+  )
+
+  expect_no_error(pop |>
+                    sample_x(10) |>
+                    sample_y())
+
+  # Should also be able to refer to local variables
+  s <- 14
+  pop <- population(
+    x = predictor("rnorm"),
+    y = response(x, family = binomial(), size = s)
+  )
+
+  expect_no_error(out <- pop |>
+                    sample_x(10) |>
+                    sample_y())
+  expect_true(all(out$y <= s))
+})

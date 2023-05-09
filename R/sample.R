@@ -119,11 +119,11 @@ sample_y <- function(xs) {
 
     # value on the response scale
     y_resp <- response$family$linkinv(
-      .eval_verbosely(
+      as.numeric(.eval_verbosely(
         response$response_expr, response_name,
         "Failed to evaluate response variable {.var {response_name}}",
         xs, "regressinator_eval_response", current_env()
-      )
+      ))
     )
 
     family_name <- response$family$family
