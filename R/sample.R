@@ -122,7 +122,7 @@ sample_y <- function(xs) {
       as.numeric(.eval_verbosely(
         response$response_expr, response_name,
         "Failed to evaluate response variable {.var {response_name}}",
-        xs, "regressinator_eval_response", current_env(), attr(population, "environment")
+        xs, "regressinator_eval_response", current_env()
       ))
     )
 
@@ -132,7 +132,7 @@ sample_y <- function(xs) {
       error_scale <- .eval_verbosely(
         response$error_scale, response_name,
         "Failed to evaluate {.arg error_scale} for response variable {.var {response_name}}",
-        xs, "regressinator_eval_error_scale", current_env(), attr(population, "environment")
+        xs, "regressinator_eval_error_scale", current_env()
       )
     }
 
@@ -147,7 +147,7 @@ sample_y <- function(xs) {
       size <- .eval_verbosely(
         response$size, response_name,
         "Failed to evaluate {.arg size} for response variable {.var {response_name}}",
-        xs, "regressinator_eval_size", current_env(), attr(population, "environment")
+        xs, "regressinator_eval_size", current_env()
       )
 
       if (!isTRUE(all.equal(size, as.integer(size)))) {
@@ -176,14 +176,14 @@ sample_y <- function(xs) {
 }
 
 #' @importFrom cli cli_abort
-.eval_verbosely <- function(expr, response_name, msg, xs, class, env,
-                            enclos = NULL) {
+#' @importFrom rlang eval_tidy quo_get_expr
+.eval_verbosely <- function(expr, response_name, msg, xs, class, env) {
   tryCatch(
-    eval(expr, envir = xs, enclos = enclos),
+    eval_tidy(expr, data = xs),
     error = function(e) {
       cli_abort(
         c(msg,
-          "x" = "In expression {.code {deparse(expr)}}:",
+          "x" = "In expression {.code {deparse(quo_get_expr(expr))}}:",
           "x" = conditionMessage(e),
           "i" = "Available predictor and response variables: {.var {names(xs)}}"),
         call = env,

@@ -184,17 +184,18 @@ print.predictor_dist <- function(x, ...) {
 #'   y = response(intercept + slope1 * x1 + slope2 * x2,
 #'                family = binomial(), size = size)
 #' )
+#' @importFrom rlang enquo quo_is_null
 #' @export
 response <- function(expr, family = gaussian(), error_scale = NULL,
                      size = 1L) {
-  response_expr <- substitute(expr)
-  error_scale <- substitute(error_scale)
-  size <- substitute(size)
+  response_expr <- enquo(expr)
+  error_scale <- enquo(error_scale)
+  size <- enquo(size)
 
   family <- normalize_family(family)
 
   if (!(family$family %in% c("gaussian", "ols_with_error")) &&
-        !is.null(error_scale)) {
+        !quo_is_null(error_scale)) {
     cli_warn("{.arg error_scale} was provided to {.fn population}, but family is not {.fn gaussian} or {.fn ols_with_error}, so it will be ignored")
   }
 
@@ -307,8 +308,7 @@ print.response_dist <- function(x, ...) {
 population <- function(...) {
   variables <- list(...)
 
-  return(structure(variables, class = "population",
-                   environment = parent.frame()))
+  return(structure(variables, class = "population"))
 }
 
 #' @export
