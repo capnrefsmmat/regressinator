@@ -111,10 +111,10 @@ should produce a shape matching the modeled relationship \eqn{\mu}. If the
 model is wrong, the partial residuals will appear to deviate from the fitted
 relationship. Provided the regressors are uncorrelated or approximately
 linearly related to each other, the plotted trend should approximate the true
-relationship between $x_f$ and the response.
+relationship between \eqn{x_f} and the response.
 
 In generalized linear models, this is approximately true if the link function
-\eqn{g} is approximately linear over the range of observed $x$ values.
+\eqn{g} is approximately linear over the range of observed \eqn{x} values.
 
 Additionally, the function \eqn{\mu(X_f, 0)} can be used to show the
 relationship between the focal predictor and the response. In a linear model,
