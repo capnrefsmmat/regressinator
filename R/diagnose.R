@@ -77,7 +77,7 @@ model_lineup <- function(fit, fn = augment, nsim = 20, ...) {
 check_fn_output <- function(x) {
   if (!inherits(x, "data.frame")) {
     cli_abort(
-      c("diagnostic function {.arg fn} must return a data frame or tibble",
+      c("Diagnostic function {.arg fn} must return a data frame or tibble",
         "x" = "{.arg fn} returned a result of class {.cls {class(x)}}"),
       class = "regressinator_diagnostic_class",
       call = caller_env()
@@ -154,6 +154,11 @@ NULL
 #' @export
 parametric_boot_distribution <- function(fit, alternative_fit = fit,
                                          fn = tidy, nsim = 100, ...) {
+  if (length(nsim) > 1 || nsim <= 0 || nsim %% 1 != 0) {
+    cli_abort(c("Number of simulations must be a positive integer",
+                "x" = "Received {.arg nsim} = {.val {nsim}}"))
+  }
+
   simulated_ys <- simulate(fit, nsim = nsim)
   orig_data <- model.frame(fit)
 
@@ -245,6 +250,11 @@ parametric_boot_distribution <- function(fit, alternative_fit = fit,
 #' @export
 sampling_distribution <- function(fit, data, fn = tidy, nsim = 100,
                                   fixed_x = TRUE, ...) {
+  if (length(nsim) > 1 || nsim <= 0 || nsim %% 1 != 0) {
+    cli_abort(c("Number of simulations must be a positive integer",
+                "x" = "Received {.arg nsim} = {.val {nsim}}"))
+  }
+
   out <- fn(fit, ...)
   check_fn_output(out)
 

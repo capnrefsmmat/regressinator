@@ -16,7 +16,8 @@
 #' @export
 sample_x <- function(population, n) {
   if (!inherits(population, "population")) {
-    cli_abort("population argument must be a population defined with {.fn population}")
+    cli_abort(c("{.arg population} argument must be a population defined with {.fn population}",
+                "i" = "Received {.type {population}} instead"))
   }
 
   predictors <- Filter(
@@ -101,8 +102,8 @@ parent_population <- function(sample) {
 #' @rdname sample_x
 sample_y <- function(xs) {
   if (!inherits(xs, "population_sample")) {
-    cli_abort(c("data passed to {.fn sample_y} must be a data frame from {.fn sample_x}",
-                "x" = "{.arg xs} has class {.cls {class(xs)}}, but should be a {.cls population_sample}",
+    cli_abort(c("Data passed to {.fn sample_y} must be a data frame from {.fn sample_x}",
+                "x" = "{.arg xs} is {.type {xs}}, but should be a {.cls population_sample}",
                 "i" = "other types do not have the necessary population attributes specifying the response distribution"))
   }
 
