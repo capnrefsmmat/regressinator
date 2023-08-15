@@ -67,10 +67,13 @@ linear_pop <- population(
 Notice how the predictors are defined using `predictor()`, each specifying its
 distribution (via the name of the R function used to simulate it, such as
 `rnorm()`) and any arguments to that distribution, such as mean or standard
-deviation. The response variable gives `y` as a function of the predictors and
-specifies the link and error scale. By default, the error distribution is
-Gaussian, and as the `gaussian()` family has errors with variance 1 by default,
-setting the `error_scale` to 1.5 means the errors have standard deviation 1.5.
+deviation. The response variable is defined by `response()`, whose first
+argument gives `y` as a function of the predictors. This expression can refer to
+the predictors by name, and will be used to simulate the response when sampling
+from the population. We can also specify the link and error scale. By default,
+the error distribution is Gaussian, and as the `gaussian()` family has errors
+with variance 1 by default, setting the `error_scale` to 1.5 means the errors
+have standard deviation 1.5.
 
 More generally, `population()` defines a population according to the following
 relationship:
@@ -122,7 +125,7 @@ to support this.
 
 First, we can represent heteroskedasticity (unequal variance) in linear
 regression by using the `error_scale` argument to `response()`. This argument is
-evaluated in the context of the sampled data frame, meaning it can be written in
+evaluated in the sampled data frame's environment, meaning it can be written in
 terms of the predictors. For example:
 
 ```{r}
