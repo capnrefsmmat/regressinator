@@ -6,3 +6,5 @@
 ^publish-docs.sh$
 ^README.html$
 ^README.Rmd$
+^\.github$
+^\.lintr$
