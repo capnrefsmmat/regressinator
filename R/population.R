@@ -29,7 +29,8 @@
 #' @param dist Name (as character vector) of the function to generate draws from
 #'   this predictor's distribution.
 #' @param ... Additional arguments to pass to `dist` when generating draws.
-#' @return A predictor distribution object
+#' @return A `predictor_dist` object, to be used in `population()` to specify a
+#'   population distribution
 #' @examples
 #' # Univariate normal distribution
 #' predictor(dist = "rnorm", mean = 10, sd = 2.5)
@@ -167,6 +168,8 @@ print.predictor_dist <- function(x, ...) {
 #'   specified either as a vector of the same length as the number of
 #'   observations or as a scalar. May be written terms of other predictor or
 #'   response variables. For other families, `size` is ignored.
+#' @return A `response_dist` object, to be used in `population()` to specify a
+#'   population distribution
 #' @importFrom stats gaussian
 #' @importFrom cli cli_abort cli_warn
 #' @seealso [predictor()] and [population()] to define populations;

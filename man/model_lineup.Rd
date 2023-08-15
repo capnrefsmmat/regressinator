@@ -68,6 +68,16 @@ resids_vs_speed <- function(f) {
              speed = model.frame(f)$speed)
 }
 model_lineup(fit, fn = resids_vs_speed, nsim = 5)
+
+}
+\references{
+Buja et al. (2009). Statistical inference for exploratory data
+analysis and model diagnostics. \emph{Philosophical Transactions of the Royal
+Society A}, 367 (1906), pp. 4361-4383. \doi{10.1098/rsta.2009.0120}
+
+Wickham et al. (2010). Graphical inference for infovis. \emph{IEEE Transactions on
+Visualization and Computer Graphics}, 16 (6), pp. 973-979.
+\doi{10.1109/TVCG.2010.161}
 }
 \seealso{
 \code{\link[=parametric_boot_distribution]{parametric_boot_distribution()}} to simulate draws by using the

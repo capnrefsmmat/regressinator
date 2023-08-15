@@ -13,7 +13,8 @@ this predictor's distribution.}
 \item{...}{Additional arguments to pass to \code{dist} when generating draws.}
 }
 \value{
-A predictor distribution object
+A \code{predictor_dist} object, to be used in \code{population()} to specify a
+population distribution
 }
 \description{
 Predictor variables can have any marginal distribution as long as a function

@@ -26,6 +26,10 @@ specified either as a vector of the same length as the number of
 observations or as a scalar. May be written terms of other predictor or
 response variables. For other families, \code{size} is ignored.}
 }
+\value{
+A \code{response_dist} object, to be used in \code{population()} to specify a
+population distribution
+}
 \description{
 Response variables are related to predictors (and other response variables)
 through a link function and response distribution. First the expression
