@@ -17,41 +17,46 @@ The regressinator is a pedagogical tool for conducting simulations of regression
 analyses and diagnostics. It can:
 
 * Simulate populations with predictor variables from arbitrary distributions
-* Simulate response variables that are function of the predictor variables plus
+* Simulate response variables that are functions of the predictor variables plus
   error, or are drawn from a distribution related to the predictors
 * Given a model, simulate from the population sampling distribution of that
   model's estimates
-* Given a model fit to simulated data, generate new simulated data based on the
-  model fit
+* Given a model fit to data, generate new simulated data based on the model fit
 * Facilitate lineup plots comparing diagnostics on the fitted model to
   diagnostics where all model assumptions are met.
 
-Or, in other words: We can specify a population with a known relationship
-between predictors in response, simulate data from that population, fit a model
-to that data, and simulate data from the model. If the fitted model is
-misspecified, we can simulate data from the model (where it is *correctly*
-specified), and make a lineup to compare the fitted model's diagnostics to null
-diagnostics. And we can obtain the population sampling distribution of the
-misspecified model's estimates.
+These features make it easy to create activities and examples for classes
+teaching regression using R. Lineup plots are great for helping students
+understand how regression diagnostics behave with different types of model
+misspecification, and for more advanced classes, simulating from sampling
+distributions helps students explore the properties of regression estimators.
+And the easy simulation features aren't just useful for students---instructors
+can easily generate examples for lectures, exams, and labs.
 
-Here's a simple regression example:
+For example, suppose we want to teach students how residual plots look when a
+linear regression is fit to nonlinear data. We can quickly specify a nonlinear
+relationship and generate a lineup plot that hides the residual plot among 19
+others where the model assumptions are met:
 
 ```{r example-regression-lineup, fig.width=7, fig.height=6, fig.retina=2}
 library(regressinator)
 library(ggplot2)
 
-# true relationship is nonlinear
+# define the population relationship
 pop <- population(
   x = predictor("runif", min = -5, max = 5),
   y = response(10 + 0.7 * x**2, family = gaussian(), error_scale = 2)
 )
 
+# obtain a random sample from the population
 nonlin_sample <- pop |>
   sample_x(n = 20) |>
   sample_y()
 
+# fit a model to the sample
 fit <- lm(y ~ x, data = nonlin_sample)
 
+# construct a lineup, with 19 models fit to data simulated from the linear model
 model_lineup(fit) |>
   ggplot(aes(x = x, y = .resid)) +
   geom_point() +
@@ -59,14 +64,13 @@ model_lineup(fit) |>
   labs(x = "x", y = "Residual")
 ```
 
-Each of the 20 residual plots represents a simple regression fit. One of the
-regressions was fit to the simulated data with a nonlinear relationship; the
-others were fit to data simulated *from the linear model*, using the same model.
-(That is, they were simulated from `fit`, and then the same model was refit to
-them.) `model_lineup()`, by default, uses `broom::augment()` to obtain the data
-and residuals from each fit. So one of these residual plots shows the residuals
-of a linear model fit to nonlinear data, and the others show the residuals of a
-linear model fit to *linear* data.
+If you can identify the "true" residual plot from the lineup, you have found
+model misspecification. This lineup is essentially a visual hypothesis test, and
+it helps students see the variation expected in diagnostics and what nonlinear
+trends look like. (For more on lineups and how they can be used in teaching, see
+[Inspirations](#inspirations) below.) `model_lineup()` achieves this by
+simulating 19 datasets from the fitted model (so the relationship is truly
+linear), then `broom::augment()` to obtain the data and residuals from each fit.
 
 Similarly, we can quickly obtain samples from the population sampling
 distribution, to explore the behavior of this misspecified model's parameter
