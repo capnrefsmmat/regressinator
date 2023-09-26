@@ -119,3 +119,35 @@ detect_transmutation <- function(formula, call = parent.frame()) {
            })
   }
 }
+
+#' Check that the model fit uses the data argument to provide data
+#'
+#' We simulate by passing simulated data arguments to update(). If the original
+#' fit does not use the data argument, and instead refers directly to variables
+#' in the environment, the simulations will not behave as expected. This may
+#' result in the "simulated" fits all using the original data, for instance.
+#'
+#' For example, in `lm(mtcars$mpg ~ mtcars$drat)`, simulating new data and
+#' providing it in `data =` will not change the data used for fitting.
+#'
+#' Detect a missing `data` argument and abort. It is still possible to provide
+#' `data` but also refer directly to the calling environment, but this is harder
+#' to detect.
+#'
+#' @param fit A fitted model object, whose call is to be examined
+#' @return No value. Raises an error if no `data` argument was used in `fit`.
+#'
+#' @importFrom cli cli_abort
+#' @importFrom stats getCall
+#' @keywords internal
+check_data_arg <- function(fit) {
+  call <- getCall(fit)
+
+  if (!("data" %in% names(call))) {
+    cli_abort(c("Model fit does not contain a {.arg data} argument; cannot refit with simulated data",
+                "*" = "Model call was: {.code {deparse(call)}}",
+                "i" = "Simulations work by updating {.arg data} argument and refitting",
+                ">" = "Refit model with a formula referring to columns in {.arg data}"),
+              class = "regressinator_data_arg")
+  }
+}

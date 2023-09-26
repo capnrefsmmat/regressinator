@@ -99,3 +99,18 @@ test_that("detect_transmutation() permits variables named factor", {
 
   expect_no_error(detect_transmutation(foo ~ factor[2]))
 })
+
+test_that("check_data_arg() detects missing data arguments", {
+  # core function
+  expect_error(check_data_arg(lm(mtcars$mpg ~ mtcars$drat)),
+               class = "regressinator_data_arg")
+
+  # callers thereof
+  expect_error(parametric_boot_distribution(lm(mtcars$mpg ~ mtcars$drat)),
+               class = "regressinator_data_arg")
+  expect_error(sampling_distribution(lm(mtcars$mpg ~ mtcars$drat), mtcars),
+               class = "regressinator_data_arg")
+
+
+  expect_no_error(check_data_arg(lm(mpg ~ drat, data = mtcars)))
+})

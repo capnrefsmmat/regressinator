@@ -52,11 +52,31 @@ they are simulated from.
 
 Only the response variable from the \code{fit} (or \code{alternative_fit}, if given) is
 redrawn; other response variables in the population are left unchanged.
-
-Because \code{model_lineup()} uses the S3 generic methods \code{model.frame()},
+}
+\section{Model Limitations}{
+Because this function uses S3 generic methods such as \code{model.frame()},
 \code{simulate()}, and \code{update()}, it can be used with any model fit for which
 methods are provided. In base R, this includes \code{lm()} and \code{glm()}.
+
+The model provided as \code{fit} must be fit using the \code{data} argument to provide
+a data frame. For example:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{fit <- lm(dist ~ speed, data = cars)
+}\if{html}{\out{</div>}}
+
+When simulating new data, this function provides the simulated data as the
+\code{data} argument and re-fits the model. If you instead refer directly to local
+variables in the model formula, this will not work. For example, if you fit a
+model this way:
+
+\if{html}{\out{<div class="sourceCode">}}\preformatted{# will not work
+fit <- lm(cars$dist ~ cars$speed)
+}\if{html}{\out{</div>}}
+
+It will not be possible to refit the model using simulated datasets, as that
+would require modifying your environment to edit \code{cars}.
 }
+
 \examples{
 # Bootstrap distribution of estimates:
 fit <- lm(dist ~ speed, data = cars)

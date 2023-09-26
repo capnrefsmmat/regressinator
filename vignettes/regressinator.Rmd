@@ -232,19 +232,19 @@ factor_slope_pop <- population(
 
 ## Sampling from the population
 
-We can use `sample_x()` to get a sample from a population:
+We can use `sample_x()` to get a sample from a population. `sample_y()` then
+works on this sample and adds a `y` column, following the relationship specified
+in the population.
 
 ```{r}
-sample_x(linear_pop, n = 10)
+linear_samp <- sample_y(sample_x(linear_pop, n = 10))
 ```
 
-`sample_y()` then works on this sample and adds a `y` column, following the
-relationship specified in the population. Sampling X and Y is separated because
-often, in regression theory, we treat X as fixed -- hence we want to conduct
-simulations where the same X data is used and we repeatedly draw new Y values
-according to the population relationship.
+Sampling X and Y is separated because often, in regression theory, we treat X as
+fixed -- hence we want to conduct simulations where the same X data is used and
+we repeatedly draw new Y values according to the population relationship.
 
-Using pipes, it's easy to put together a simple simulation:
+We can also use R pipes to put together simulations:
 
 ```{r}
 logistic_pop |>
@@ -277,6 +277,26 @@ diagnostics are based on the regressors, such as most residual plots, but as we
 will see below, others directly examine the relationship between the predictors
 and the response, however those predictors have been transformed and entered
 into the model.
+
+We can, in principle, do almost any regression we desire. The only constraint is
+that we must use the `data` argument to our modeling function (such as `lm()` or
+`glm()`) to provide the data. That is, we must do this:
+
+```{r}
+fit <- lm(y ~ x1 + x2, data = linear_samp)
+```
+
+But **not** this:
+
+```{r}
+fit <- lm(linear_samp$y ~ linear_samp$x1 + linear_samp$x2)
+```
+
+Using the `data` argument allows the regressinator to conduct simulations by
+passing new data in that argument; if you don't use it and refer to your local
+environment, there's no reliable way to change the data in your model. The
+relevant functions will automatically detect models without a `data` argument
+and complain.
 
 ## Producing diagnostics
 
