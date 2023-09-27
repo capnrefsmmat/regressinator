@@ -203,8 +203,9 @@ response <- function(expr, family = gaussian(), error_scale = NULL,
   }
 
   if (family$family %in% c("gaussian", "ols_with_error") &&
-        is.null(error_scale)) {
-    cli_abort("{.arg error_scale} must be provided for {.fn gaussian} and {.fn ols_with_error} families")
+        quo_is_null(error_scale)) {
+    cli_abort("{.arg error_scale} must be provided for {.fn gaussian} and {.fn ols_with_error} families",
+              class = "regressinator_error_scale")
   }
 
   return(structure(
@@ -219,7 +220,7 @@ response <- function(expr, family = gaussian(), error_scale = NULL,
 print.response_dist <- function(x, ...) {
   cat(x$family$family, "(", deparse(x$response_expr), sep = "")
 
-  if (!is.null(x$error_scale)) {
+  if (!quo_is_null(x$error_scale)) {
     cat(", error_scale = ", deparse(x$error_scale), sep = "")
   }
   if (x$family$family == "binomial") {

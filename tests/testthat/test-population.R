@@ -25,3 +25,7 @@ test_that("ols_with_error reports errors", {
   expect_error(fam$simulate(NULL, 1, data.frame(), 1:10),
                class = "regressinator_error_length")
 })
+
+test_that("response errors on missing error_scale", {
+  expect_error(response(4 + 2 * x), class = "regressinator_error_scale")
+})
