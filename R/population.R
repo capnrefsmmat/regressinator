@@ -217,14 +217,15 @@ response <- function(expr, family = gaussian(), error_scale = NULL,
 }
 
 #' @export
+#' @importFrom rlang quo_get_expr
 print.response_dist <- function(x, ...) {
-  cat(x$family$family, "(", deparse(x$response_expr), sep = "")
+  cat(x$family$family, "(", deparse(quo_get_expr(x$response_expr)), sep = "")
 
   if (!quo_is_null(x$error_scale)) {
-    cat(", error_scale = ", deparse(x$error_scale), sep = "")
+    cat(", error_scale = ", deparse(quo_get_expr(x$error_scale)), sep = "")
   }
   if (x$family$family == "binomial") {
-    cat(", size = ", deparse(x$size), sep = "")
+    cat(", size = ", deparse(quo_get_expr(x$size)), sep = "")
   }
 
   cat(")\n")
