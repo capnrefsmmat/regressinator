@@ -123,7 +123,8 @@
 #' 0)}{muhat(X_if, 0)} for this observation.}
 #'
 #' @seealso [binned_residuals()] for the related binned residuals;
-#'   `vignette("linear-regression-diagnostics")`,
+#'   [augment_longer()] for a similarly formatted data frame of ordinary
+#'   residuals; `vignette("linear-regression-diagnostics")`,
 #'   `vignette("logistic-regression-diagnostics")`, and
 #'   `vignette("other-glm-diagnostics")` for examples of plotting and
 #'   interpreting partial residuals
@@ -339,13 +340,20 @@ response_var <- function(formula) {
 #' information, then reformat the resulting data frame into a "long" format with
 #' one row per predictor per observation, to facilitate plotting of the result.
 #'
-#' When there are factor predictors, this function is less useful. Because a
-#' data frame column can contain values of only one type, factor or character
-#' values will force all values of the `.predictor_value` column, including for
-#' other predictors, to be converted.
-#'
 #' The name comes by analogy to `tidyr::pivot_longer()`, and the concept of long
 #' versus wide data formats.
+#'
+#' # Limitations
+#'
+#' Factor predictors (as factors, logical, or character vectors) can't coexist
+#' with numeric variables in the `.predictor_value` column. If there are some
+#' numeric and some factor predictors, the factor predictors will automatically
+#' be omitted. If all predictors are factors, they will be combined into one
+#' factor with all levels. However, if a numeric variable is converted to factor
+#' in the model formula, such as with `y ~ factor(x)`, the function cannot
+#' determine the appropriate types and will raise an error. Create factors as
+#' needed in the source data frame *before* fitting the model to avoid this
+#' issue.
 #'
 #' @param x A model fit object, such as those returned by `lm()` or `glm()`. See
 #'   the broom documentation for the full list of model types supported.
@@ -357,8 +365,9 @@ response_var <- function(formula) {
 #'   observation numbers so results can be matched to observations in the
 #'   original model data.
 #' @importFrom broom augment
-#' @importFrom dplyr relocate
+#' @importFrom dplyr relocate select
 #' @importFrom tidyr pivot_longer starts_with any_of
+#' @seealso [partial_residuals()], [binned_residuals()]
 #' @examples
 #' fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 #'
@@ -366,11 +375,26 @@ response_var <- function(formula) {
 #' augment_longer(fit)
 #' @export
 augment_longer <- function(x, ...) {
+  # Detect and reject factor() in formulas
+  detect_transmutation(formula(x))
+
   out <- augment(x, ...)
   out$.obs <- rownames(out)
   response <- response_var(x)
 
-  pivot_longer(out, cols = !starts_with(".") & !any_of(response),
+  predictor_cols <- select(out, !starts_with(".") & !any_of(response))
+
+  factor_cols <- factor_columns(predictor_cols)
+  if (all(factor_cols)) {
+    factor_names <- NULL
+  } else {
+    # Omit factors if they're going to be combined with numerics
+    factor_names <- names(predictor_cols)[factor_cols]
+  }
+
+  pivot_longer(out,
+               cols = !starts_with(".") & !any_of(response) &
+                 !any_of(factor_names),
                names_to = ".predictor_name",
                values_to = ".predictor_value") |>
     relocate(".predictor_name", ".predictor_value")

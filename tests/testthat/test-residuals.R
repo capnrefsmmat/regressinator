@@ -109,3 +109,36 @@ test_that("binned_residuals() rejects factor() in formulas", {
   expect_error(binned_residuals(fit, breaks = 5),
                class = "regressinator_transmutation_factor")
 })
+
+test_that("augment_longer() produces correct amount of data", {
+  fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+
+  out <- augment_longer(fit)
+
+  expect_equal(nrow(out), nrow(mtcars) * 3)
+  expect_setequal(unique(out$.predictor_name),
+                  c("cyl", "disp", "hp"))
+})
+
+test_that("augment_longer() omits factors", {
+  mtcars$cylinders <- factor(mtcars$cyl)
+
+  fit <- lm(mpg ~ cylinders * disp + hp, data = mtcars)
+
+  out <- augment_longer(fit)
+
+  expect_equal(nrow(out), nrow(mtcars) * 2)
+  expect_setequal(unique(out$.predictor_name),
+                  c("disp", "hp"))
+})
+
+test_that("augment_longer() keeps factors if there are no numerics", {
+  mtcars$cylinders <- factor(mtcars$cyl)
+  mtcars$engine_shape <- factor(mtcars$vs)
+
+  fit <- lm(mpg ~ cylinders + engine_shape, data = mtcars)
+
+  out <- augment_longer(fit)
+
+  expect_equal(nrow(out), nrow(mtcars) * 2)
+})

@@ -25,6 +25,21 @@ in_interaction <- function(formula, predictor) {
   return(any(interactions))
 }
 
+#' Check whether each column in a data frame is a factor
+#'
+#' @param df Data frame to process
+#' @return Logical vector with same number of entries as columns in `df`. Each
+#'   entry is `TRUE` if the corresponding column is a factor.
+#' @keywords internal
+factor_columns <- function(df) {
+  is_factor <- function(obj) {
+    inherits(obj, c("factor", "logical", "character"))
+  }
+  factors <- unlist(lapply(df, is_factor))
+
+  return(factors)
+}
+
 #' Drop factor columns from a data frame
 #'
 #' Issues messages for the columns dropped.
@@ -34,10 +49,7 @@ in_interaction <- function(formula, predictor) {
 #' @keywords internal
 #' @importFrom cli cli_inform
 drop_factors <- function(df) {
-  is_factor <- function(obj) {
-    inherits(obj, c("factor", "logical", "character"))
-  }
-  factors <- unlist(lapply(df, is_factor))
+  factors <- factor_columns(df)
 
   if (!any(factors)) {
     return(df)

@@ -166,7 +166,8 @@ Effect Plots and Partial Residuals." \emph{Journal of Statistical Software},
 }
 \seealso{
 \code{\link[=binned_residuals]{binned_residuals()}} for the related binned residuals;
-\code{vignette("linear-regression-diagnostics")},
+\code{\link[=augment_longer]{augment_longer()}} for a similarly formatted data frame of ordinary
+residuals; \code{vignette("linear-regression-diagnostics")},
 \code{vignette("logistic-regression-diagnostics")}, and
 \code{vignette("other-glm-diagnostics")} for examples of plotting and
 interpreting partial residuals

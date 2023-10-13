@@ -26,17 +26,27 @@ information, then reformat the resulting data frame into a "long" format with
 one row per predictor per observation, to facilitate plotting of the result.
 }
 \details{
-When there are factor predictors, this function is less useful. Because a
-data frame column can contain values of only one type, factor or character
-values will force all values of the \code{.predictor_value} column, including for
-other predictors, to be converted.
-
 The name comes by analogy to \code{tidyr::pivot_longer()}, and the concept of long
 versus wide data formats.
 }
+\section{Limitations}{
+Factor predictors (as factors, logical, or character vectors) can't coexist
+with numeric variables in the \code{.predictor_value} column. If there are some
+numeric and some factor predictors, the factor predictors will automatically
+be omitted. If all predictors are factors, they will be combined into one
+factor with all levels. However, if a numeric variable is converted to factor
+in the model formula, such as with \code{y ~ factor(x)}, the function cannot
+determine the appropriate types and will raise an error. Create factors as
+needed in the source data frame \emph{before} fitting the model to avoid this
+issue.
+}
+
 \examples{
 fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 
 # each observation appears 3 times, once per predictor:
 augment_longer(fit)
+}
+\seealso{
+\code{\link[=partial_residuals]{partial_residuals()}}, \code{\link[=binned_residuals]{binned_residuals()}}
 }

@@ -1,6 +1,6 @@
 # regressinator 0.1.3
 
-This version fixes two bugs that arose during classroom use.
+This version fixes several bugs that arose during classroom use.
 
 - Simulation functions (`model_lineup()`, `parametric_boot_distribution()`, and
   `sampling_distribution()`) now check to determine if the model being simulated
@@ -29,6 +29,10 @@ This version fixes two bugs that arose during classroom use.
 
 - `response()` now correctly detects when the `error_scale` argument was missing
   and issues the appropriate error.
+
+- `augment_longer()` now supports models with factor predictors. If there are
+  some factors and some continuous predictors, the factors are omitted from the
+  result; if the predictors are all factors, they are kept.
 
 # regressinator 0.1.2
 
