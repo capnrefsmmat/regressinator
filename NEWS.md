@@ -34,6 +34,12 @@ This version fixes several bugs that arose during classroom use.
   some factors and some continuous predictors, the factors are omitted from the
   result; if the predictors are all factors, they are kept.
 
+- `parametric_boot_distribution()` now supports simulations when
+  `alternative_fit` uses predictors that were not used in `fit`. Previously,
+  these would fail because the simulated data frame only contained the
+  predictors used in `fit`. Supply the new `data` argument to specify the data
+  frame used in simulations.
+
 # regressinator 0.1.2
 
 First version released to CRAN.

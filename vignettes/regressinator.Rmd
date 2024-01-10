@@ -568,7 +568,8 @@ distribution of coefficient values under this null by simulating from
 `nonlinear_fit` and refitting `quadratic_fit`:
 
 ```{r, fig.height=4}
-quadratic_coefs <- parametric_boot_distribution(nonlinear_fit, quadratic_fit) |>
+quadratic_coefs <- parametric_boot_distribution(nonlinear_fit, quadratic_fit,
+                                                data = nonlinear_data) |>
   filter(term == "I(x1^2)")
 
 ggplot(quadratic_coefs, aes(x = estimate)) +

@@ -152,7 +152,8 @@ NULL
 #' they are simulated from.
 #'
 #' Only the response variable from the `fit` (or `alternative_fit`, if given) is
-#' redrawn; other response variables in the population are left unchanged.
+#' redrawn; other response variables in the population are left unchanged from
+#' their values in `data`.
 #'
 #' @inheritSection model_lineup Model limitations
 #'
@@ -161,6 +162,9 @@ NULL
 #' @param alternative_fit A model fit to data, to refit to the data sampled from
 #'   `fit`. Defaults to `fit`, but an alternative model can be provided to
 #'   examine its behavior when `fit` is the true model.
+#' @param data Data frame to be used in the simulation. Must contain the
+#'   predictors needed for both `fit` and `alternative_fit`. Defaults to the
+#'   predictors used in `fit`.
 #' @param fn Function to call on each new model fit to produce a data frame of
 #'   estimates. Defaults to `broom::tidy()`, which produces a tidy data frame of
 #'   coefficients, estimates, standard errors, and hypothesis tests.
@@ -177,15 +181,22 @@ NULL
 #' @importFrom tibble as_tibble
 #' @examples
 #' # Bootstrap distribution of estimates:
-#' fit <- lm(dist ~ speed, data = cars)
+#' fit <- lm(mpg ~ hp, data = mtcars)
 #' parametric_boot_distribution(fit, nsim = 5)
 #'
 #' # Bootstrap distribution of estimates for a quadratic model, when true
 #' # relationship is linear:
-#' quad_fit <- lm(dist ~ poly(speed, 2), data = cars)
+#' quad_fit <- lm(mpg ~ poly(hp, 2), data = mtcars)
 #' parametric_boot_distribution(fit, quad_fit, nsim = 5)
+#'
+#' # Bootstrap distribution of estimates for a model with an additional
+#' # predictor, when it's truly zero. data argument must be provided so
+#' # alternative fit has all predictors available, not just hp:
+#' alt_fit <- lm(mpg ~ hp + wt, data = mtcars)
+#' parametric_boot_distribution(fit, alt_fit, data = mtcars, nsim = 5)
 #' @export
 parametric_boot_distribution <- function(fit, alternative_fit = fit,
+                                         data = model.frame(fit),
                                          fn = tidy, nsim = 100, ...) {
   if (length(nsim) > 1 || nsim <= 0 || nsim %% 1 != 0) {
     cli_abort(c("Number of simulations must be a positive integer",
@@ -194,8 +205,11 @@ parametric_boot_distribution <- function(fit, alternative_fit = fit,
 
   check_data_arg(fit)
 
+  # ensure fit uses the same predictors that alternative_fit will get
+  orig_data <- data
+  fit <- update(fit, data = data)
+
   simulated_ys <- simulate(fit, nsim = nsim)
-  orig_data <- model.frame(fit)
 
   response <- response_var(alternative_fit)
 
