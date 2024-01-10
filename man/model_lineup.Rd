@@ -59,7 +59,7 @@ When called, this function will print a message such as
 true diagnostics among the null diagnostics: evaluating this in the R console
 will produce a string such as \code{"True data in position 5"}.
 }
-\section{Model Limitations}{
+\section{Model limitations}{
 Because this function uses S3 generic methods such as \code{model.frame()},
 \code{simulate()}, and \code{update()}, it can be used with any model fit for which
 methods are provided. In base R, this includes \code{lm()} and \code{glm()}.

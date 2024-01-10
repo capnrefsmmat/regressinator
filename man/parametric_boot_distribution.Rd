@@ -53,7 +53,7 @@ they are simulated from.
 Only the response variable from the \code{fit} (or \code{alternative_fit}, if given) is
 redrawn; other response variables in the population are left unchanged.
 }
-\section{Model Limitations}{
+\section{Model limitations}{
 Because this function uses S3 generic methods such as \code{model.frame()},
 \code{simulate()}, and \code{update()}, it can be used with any model fit for which
 methods are provided. In base R, this includes \code{lm()} and \code{glm()}.

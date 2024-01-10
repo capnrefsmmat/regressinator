@@ -28,7 +28,7 @@
 #' true diagnostics among the null diagnostics: evaluating this in the R console
 #' will produce a string such as `"True data in position 5"`.
 #'
-#' # Model Limitations
+#' # Model limitations
 #'
 #' Because this function uses S3 generic methods such as `model.frame()`,
 #' `simulate()`, and `update()`, it can be used with any model fit for which
@@ -154,7 +154,7 @@ NULL
 #' Only the response variable from the `fit` (or `alternative_fit`, if given) is
 #' redrawn; other response variables in the population are left unchanged.
 #'
-#' @inheritSection model_lineup Model Limitations
+#' @inheritSection model_lineup Model limitations
 #'
 #' @param fit A model fit to data, such as by `lm()` or `glm()`, to simulate new
 #'   response values from.
@@ -230,7 +230,7 @@ parametric_boot_distribution <- function(fit, alternative_fit = fit,
 #' estimated coefficient and include the coefficient and its standard error; or
 #' it might contain only one row of model summary statistics.
 #'
-#' @inheritSection model_lineup Model Limitations
+#' @inheritSection model_lineup Model limitations
 #'
 #' @param fit A model fit to data, such as by `lm()` or `glm()`, to refit to
 #'   each sample from the population.

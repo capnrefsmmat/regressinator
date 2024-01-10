@@ -42,7 +42,7 @@ return a data frame. For instance, the data frame might contain one row per
 estimated coefficient and include the coefficient and its standard error; or
 it might contain only one row of model summary statistics.
 }
-\section{Model Limitations}{
+\section{Model limitations}{
 Because this function uses S3 generic methods such as \code{model.frame()},
 \code{simulate()}, and \code{update()}, it can be used with any model fit for which
 methods are provided. In base R, this includes \code{lm()} and \code{glm()}.
