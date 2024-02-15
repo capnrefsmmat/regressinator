@@ -2,7 +2,7 @@ Package: regressinator
 Type: Package
 Title: Simulate and Diagnose (Generalized) Linear Models
 Version: 0.1.3
-Date: 2023-10-05
+Date: 2024-01-11
 Authors@R: person("Alex", "Reinhart",
                   email = "areinhar@stat.cmu.edu",
                   role = c("aut", "cre"),
