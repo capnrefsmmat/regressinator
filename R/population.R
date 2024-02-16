@@ -328,6 +328,30 @@ print.population <- function(x, ...) {
   invisible(x)
 }
 
+#' Get the predictors of a population
+#'
+#' @param population Population object
+#' @return Named list of predictors
+#' @keywords internal
+population_predictors <- function(population) {
+  Filter(
+    function(v) { inherits(v, "predictor_dist") },
+    population
+  )
+}
+
+#' Get the response variables of a population
+#'
+#' @param population Population object
+#' @return Named list of response variables
+#' @keywords internal
+population_response <- function(population) {
+  Filter(
+    function(v) { inherits(v, "response_dist") },
+    population
+  )
+}
+
 #' Family representing a linear relationship with non-Gaussian errors
 #'
 #' The `ols_with_error()` family can represent any non-Gaussian error, provided

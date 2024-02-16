@@ -23,11 +23,15 @@ reference:
       - response
       - ols_with_error
       - custom_family
+  - title: "Designing experiments"
+    desc: Design and simulate an experiment by fixing predictor values.
+    contents:
+      - design_x
+      - potential_outcomes
   - title: "Simulating and diagnosing fits"
     desc: Draw samples from a population and diagnose model fits.
     contents:
       - sample_x
-      - sample_y
       - parametric_boot_distribution
       - model_lineup
       - decrypt

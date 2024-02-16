@@ -29,3 +29,13 @@ test_that("ols_with_error reports errors", {
 test_that("response errors on missing error_scale", {
   expect_error(response(4 + 2 * x), class = "regressinator_error_scale")
 })
+
+test_that("population_predictors gets all predictor names", {
+  foo <- population(
+    x1 = predictor("rnorm"),
+    x2 = predictor("rnorm"),
+    y = response(x1 + x2, error_scale = 1)
+  )
+
+  expect_named(population_predictors(foo), c("x1", "x2"), ignore.order = TRUE)
+})
