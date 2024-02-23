@@ -44,7 +44,7 @@ library(ggplot2)
 
 # define the population relationship
 pop <- population(
-  x = predictor("runif", min = -5, max = 5),
+  x = predictor(runif, min = -5, max = 5),
   y = response(10 + 0.7 * x**2, family = gaussian(), error_scale = 2)
 )
 

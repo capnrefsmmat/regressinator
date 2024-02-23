@@ -27,8 +27,8 @@ bivariate setting where the model is misspecified:
 
 ```{r}
 logistic_pop <- population(
-  x1 = predictor("rnorm", mean = 0, sd = 10),
-  x2 = predictor("runif", min = 0, max = 10),
+  x1 = predictor(rnorm, mean = 0, sd = 10),
+  x2 = predictor(runif, min = 0, max = 10),
   y = response(0.7 + 0.2 * x1 + x1^2 / 100 - 0.2 * x2,
                family = binomial(link = "logit"))
 )

@@ -54,8 +54,8 @@ variables, `x1` and `x2`, and the response variable `y`:
 library(regressinator)
 
 linear_pop <- population(
-  x1 = predictor("rnorm", mean = 4, sd = 10),
-  x2 = predictor("runif", min = 0, max = 10),
+  x1 = predictor(rnorm, mean = 4, sd = 10),
+  x2 = predictor(runif, min = 0, max = 10),
   y = response(
     0.7 + 2.2 * x1 - 0.2 * x2, # relationship between X and Y
     family = gaussian(),       # link function and response distribution
@@ -97,8 +97,8 @@ function:
 
 ```{r}
 logistic_pop <- population(
-  x1 = predictor("rnorm", mean = 0, sd = 10),
-  x2 = predictor("runif", min = 0, max = 10),
+  x1 = predictor(rnorm, mean = 0, sd = 10),
+  x2 = predictor(runif, min = 0, max = 10),
   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
                family = binomial(link = "logit"))
 )
@@ -130,8 +130,8 @@ terms of the predictors. For example:
 
 ```{r}
 heteroskedastic_pop <- population(
-  x1 = predictor("rnorm", mean = 5, sd = 4),
-  x2 = predictor("runif", min = 0, max = 10),
+  x1 = predictor(rnorm, mean = 5, sd = 4),
+  x2 = predictor(runif, min = 0, max = 10),
   y = response(
     4 + 2 * x1 - 3 * x2, # relationship between X and Y
     family = ols_with_error(rnorm), # distribution of the errors
@@ -146,8 +146,8 @@ $t$-distributed with 3 degrees of freedom:
 
 ```{r}
 heavy_tail_pop <- population(
-  x1 = predictor("rnorm", mean = 5, sd = 4),
-  x2 = predictor("runif", min = 0, max = 10),
+  x1 = predictor(rnorm, mean = 5, sd = 4),
+  x2 = predictor(runif, min = 0, max = 10),
   y = response(
     4 + 2 * x1 - 3 * x2, # relationship between X and Y
     family = ols_with_error(rt, df = 3), # distribution of the errors
@@ -171,7 +171,7 @@ zeroinfpois <- function(ys) {
 }
 
 pop <- population(
-  x1 = predictor("rnorm", mean = 2, sd = 2),
+  x1 = predictor(rnorm, mean = 2, sd = 2),
   y = response(
     0.7 + 0.8 * x1,
     family = custom_family(zeroinfpois, exp)
@@ -206,10 +206,10 @@ model. For instance, here is a model with a different intercept per group:
 intercepts <- c("foo" = 2, "bar" = 30, "baz" = 7)
 
 factor_intercept_pop <- population(
-  group = predictor("rfactor",
+  group = predictor(rfactor,
                     levels = c("foo", "bar", "baz"),
                     prob = c(0.1, 0.6, 0.3)),
-  x = predictor("runif", min = 0, max = 10),
+  x = predictor(runif, min = 0, max = 10),
   y = response(by_level(group, intercepts) + 0.3 * x,
                error_scale = 1.5)
 )
@@ -221,10 +221,10 @@ Or, similarly, a model with a different slope per group:
 slopes <- c("foo" = 2, "bar" = 30, "baz" = 7)
 
 factor_slope_pop <- population(
-  group = predictor("rfactor",
+  group = predictor(rfactor,
                     levels = c("foo", "bar", "baz"),
                     prob = c(0.1, 0.6, 0.3)),
-  x = predictor("runif", min = 0, max = 10),
+  x = predictor(runif, min = 0, max = 10),
   y = response(7 + by_level(group, slopes) * x,
                error_scale = 1.5)
 )
@@ -314,8 +314,8 @@ and `y` is not linear. We can quickly plot residuals versus fitted values:
 library(broom)
 
 nonlinear_pop <- population(
-  x1 = predictor("runif", min = 1, max = 8),
-  x2 = predictor("runif", min = 0, max = 10),
+  x1 = predictor(runif, min = 1, max = 8),
+  x2 = predictor(runif, min = 0, max = 10),
   y = response(0.7 + x1**2 - x2, family = gaussian(),
                error_scale = 4.0)
 )
@@ -440,8 +440,8 @@ residual distributions in residual Q-Q plots:
 
 ```{r, fig.width=6, fig.height=6}
 heavy_tail_pop <- population(
-  x1 = predictor("rnorm", mean = 5, sd = 4),
-  x2 = predictor("runif", min = 0, max = 10),
+  x1 = predictor(rnorm, mean = 5, sd = 4),
+  x2 = predictor(runif, min = 0, max = 10),
   y = response(
     4 + 2 * x1 - 3 * x2,
     family = ols_with_error(rt, df = 3),

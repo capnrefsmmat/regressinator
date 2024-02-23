@@ -134,8 +134,8 @@ slope2 <- -3
 intercept <- -4.6
 size <- 10
 population(
-  x1 = predictor("rnorm"),
-  x2 = predictor("rnorm"),
+  x1 = predictor(rnorm),
+  x2 = predictor(rnorm),
   y = response(intercept + slope1 * x1 + slope2 * x2,
                family = binomial(), size = size)
 )

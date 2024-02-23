@@ -267,8 +267,8 @@ parametric_boot_distribution <- function(fit, alternative_fit = fit,
 #' @importFrom broom tidy
 #' @examples
 #' pop <- population(
-#'   x1 = predictor("rnorm", mean = 4, sd = 10),
-#'   x2 = predictor("runif", min = 0, max = 10),
+#'   x1 = predictor(rnorm, mean = 4, sd = 10),
+#'   x2 = predictor(runif, min = 0, max = 10),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 4.0)
 #' )
 #'

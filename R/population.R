@@ -7,7 +7,9 @@
 #' Predictor variables can have any marginal distribution as long as a function
 #' is provided to sample from the distribution. Multivariate distributions are
 #' also supported: if the random generation function returns multiple columns,
-#' multiple random variables will be created, successively numbered.
+#' multiple random variables will be created. If the columns are named, the
+#' random variables will be named accordingly; otherwise, they will be
+#' successively numbered.
 #'
 #' The random generation function must take an argument named `n` specifying the
 #' number of draws. For univariate distributions, it should return a vector of
@@ -19,40 +21,53 @@
 #'
 #' ```
 #' library(mvtnorm)
-#' predictor(dist = "rmvnorm", mean = c(0, 1),
+#' predictor(dist = rmvnorm, mean = c(0, 1),
 #'           sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2))
 #' ```
 #'
 #' then the population predictors will be named `X1` and `X2`, and will have
 #' covariance 0.5.
 #'
-#' @param dist Name (as character vector) of the function to generate draws from
-#'   this predictor's distribution.
+#' If the multivariate predictor has named columns, the names will be used
+#' instead. For instance, if predictor `X` generates a matrix with columns `A`
+#' and `B`, the population predictors will be named `XA` and `XB`.
+#'
+#' @param dist Function to generate draws from this predictor's distribution,
+#'   provided as a function or as a string naming the function.
 #' @param ... Additional arguments to pass to `dist` when generating draws.
 #' @return A `predictor_dist` object, to be used in `population()` to specify a
 #'   population distribution
 #' @examples
 #' # Univariate normal distribution
-#' predictor(dist = "rnorm", mean = 10, sd = 2.5)
+#' predictor(dist = rnorm, mean = 10, sd = 2.5)
 #'
 #' # Multivariate normal distribution
 #' library(mvtnorm)
-#' predictor(dist = "rmvnorm", mean = c(0, 1, 7))
+#' predictor(dist = rmvnorm, mean = c(0, 1, 7))
+#'
+#' # Multivariate with named columns
+#' rmulti <- function(n) {
+#'   cbind(treatment = rbinom(n, size = 1, prob = 0.5),
+#'         confounder = rnorm(n)
+#'   )
+#' }
+#' predictor(dist = rmulti)
 #' @export
 predictor <- function(dist, ...) {
+  dist_name <- deparse(substitute(dist))
   dist_args <- list(...)
 
   return(structure(
-    list(dist = dist, args = dist_args),
+    list(dist = dist, dist_name = dist_name, args = dist_args),
     class = "predictor_dist"))
 }
 
 #' @export
 print.predictor_dist <- function(x, ...) {
   if (length(x$args) > 0) {
-    cat(x$dist, "(", deparse(x$args), ")\n", sep = "")
+    cat(x$dist_name, "(", deparse(x$args), ")\n", sep = "")
   } else {
-    cat(x$dist, "()\n", sep = "")
+    cat(x$dist_name, "()\n", sep = "")
   }
 
   invisible(x)
@@ -182,8 +197,8 @@ print.predictor_dist <- function(x, ...) {
 #' intercept <- -4.6
 #' size <- 10
 #' population(
-#'   x1 = predictor("rnorm"),
-#'   x2 = predictor("rnorm"),
+#'   x1 = predictor(rnorm),
+#'   x2 = predictor(rnorm),
 #'   y = response(intercept + slope1 * x1 + slope2 * x2,
 #'                family = binomial(), size = size)
 #' )
@@ -250,8 +265,8 @@ print.response_dist <- function(x, ...) {
 #' @examples
 #' # A population with a simple linear relationship
 #' linear_pop <- population(
-#'   x1 = predictor("rnorm", mean = 4, sd = 10),
-#'   x2 = predictor("runif", min = 0, max = 10),
+#'   x1 = predictor(rnorm, mean = 4, sd = 10),
+#'   x2 = predictor(runif, min = 0, max = 10),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
 #' )
 #'
@@ -260,22 +275,22 @@ print.response_dist <- function(x, ...) {
 #' intercept <- 0.7
 #' sigma <- 2.5
 #' variable_pop <- population(
-#'   x = predictor("rnorm"),
+#'   x = predictor(rnorm),
 #'   y = response(intercept + slope * x, error_scale = sigma)
 #' )
 #'
 #' # Response error scale is heteroskedastic and depends on predictors
 #' heteroskedastic_pop <- population(
-#'   x1 = predictor("rnorm", mean = 4, sd = 10),
-#'   x2 = predictor("runif", min = 0, max = 10),
+#'   x1 = predictor(rnorm, mean = 4, sd = 10),
+#'   x2 = predictor(runif, min = 0, max = 10),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
 #'                error_scale = 1 + x2 / 10)
 #' )
 #'
 #' # A binary outcome Y, using a binomial family with logistic link
 #' binary_pop <- population(
-#'   x1 = predictor("rnorm", mean = 4, sd = 10),
-#'   x2 = predictor("runif", min = 0, max = 10),
+#'   x1 = predictor(rnorm, mean = 4, sd = 10),
+#'   x2 = predictor(runif, min = 0, max = 10),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
 #'                family = binomial(link = "logit"))
 #' )
@@ -283,8 +298,8 @@ print.response_dist <- function(x, ...) {
 #' # A binomial outcome Y, with 10 trials per observation, using a logistic link
 #' # to determine the probability of success for each trial
 #' binomial_pop <- population(
-#'   x1 = predictor("rnorm", mean = 4, sd = 10),
-#'   x2 = predictor("runif", min = 0, max = 10),
+#'   x1 = predictor(rnorm, mean = 4, sd = 10),
+#'   x2 = predictor(runif, min = 0, max = 10),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
 #'                family = binomial(link = "logit"),
 #'                size = 10)
@@ -293,9 +308,9 @@ print.response_dist <- function(x, ...) {
 #' # Another binomial outcome, but the number of trials depends on another
 #' # predictor
 #' binom_size_pop <- population(
-#'   x1 = predictor("rnorm", mean = 4, sd = 10),
-#'   x2 = predictor("runif", min = 0, max = 10),
-#'   trials = predictor("rpois", lambda = 20),
+#'   x1 = predictor(rnorm, mean = 4, sd = 10),
+#'   x2 = predictor(runif, min = 0, max = 10),
+#'   trials = predictor(rpois, lambda = 20),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
 #'                family = binomial(link = "logit"),
 #'                size = trials)
@@ -305,7 +320,7 @@ print.response_dist <- function(x, ...) {
 #' # is bivariate, there will be two predictors, named x1 and x2.
 #' library(mvtnorm)
 #' collinear_pop <- population(
-#'   x = predictor("rmvnorm", mean = c(0, 1),
+#'   x = predictor(rmvnorm, mean = c(0, 1),
 #'                 sigma = matrix(c(1, 0.8, 0.8, 1), nrow = 2)),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2, error_scale = 1.0)
 #' )
@@ -378,8 +393,8 @@ population_response <- function(population) {
 #' # A linear regression with t-distributed error, using error_scale to make
 #' # errors large
 #' population(
-#'   x1 = predictor("rnorm", mean = 4, sd = 10),
-#'   x2 = predictor("runif", min = 0, max = 10),
+#'   x1 = predictor(rnorm, mean = 4, sd = 10),
+#'   x2 = predictor(runif, min = 0, max = 10),
 #'   y = response(0.7 + 2.2 * x1 - 0.2 * x2,
 #'                family = ols_with_error(rt, df = 4),
 #'                error_scale = 2.5)

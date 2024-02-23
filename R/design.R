@@ -60,7 +60,7 @@ design_x <- function(population, ...) {
 #' @examples
 #' # Super-population inference
 #' pop <- population(
-#'   treatment = predictor("rfactor", levels = c("treatment", "control")),
+#'   treatment = predictor(rfactor, levels = c("treatment", "control")),
 #'   response = response(by_level(treatment, treatment = 10, control = 0),
 #'                       error_scale = 1)
 #' )

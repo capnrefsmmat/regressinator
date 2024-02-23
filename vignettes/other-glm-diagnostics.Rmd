@@ -32,8 +32,8 @@ To illustrate this, we'll consider a bivariate Poisson generalized linear model:
 
 ```{r}
 pois_pop <- population(
-  x1 = predictor("runif", min = -5, max = 15),
-  x2 = predictor("runif", min = 0, max = 10),
+  x1 = predictor(runif, min = -5, max = 15),
+  x2 = predictor(runif, min = 0, max = 10),
   y = response(0.7 + 0.2 * x1 + x1^2 / 100 - 0.2 * x2,
                family = poisson(link = "log"))
 )
