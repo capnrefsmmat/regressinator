@@ -56,7 +56,11 @@ sample_x <- function(population, n) {
       sampled_data[[predictor]] <- NULL
 
       for (col in seq_len(ncol(pred_data))) {
-        col_name <- paste0(predictor, col)
+        col_name <- if (is.null(colnames(pred_data))) {
+          paste0(predictor, col)
+        } else {
+          paste0(predictor, colnames(pred_data)[col])
+        }
 
         sampled_data[[col_name]] <- pred_data[, col]
       }

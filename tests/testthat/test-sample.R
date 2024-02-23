@@ -33,7 +33,24 @@ test_that("sample_x() throws classed error", {
 
   expect_error(sample_x(pop, 10),
                class = "regressinator_sample_dist")
+})
 
+test_that("sample_x() names multivariate predictors", {
+  # unnamed multivariate
+  runnamed <- function(n) {
+    cbind(1:n, 1:n)
+  }
+  pop <- population(x = predictor(runnamed))
+
+  expect_named(sample_x(pop, 10), c("x1", "x2"))
+
+  # named multivariate
+  rnamed <- function(n) {
+    cbind(a = 1:n, b = 1:n)
+  }
+  pop <- population(x = predictor(rnamed))
+
+  expect_named(sample_x(pop, 10), c("xa", "xb"))
 })
 
 test_that("sample_y() throws classed errors", {

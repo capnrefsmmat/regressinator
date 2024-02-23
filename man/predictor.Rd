@@ -7,8 +7,8 @@
 predictor(dist, ...)
 }
 \arguments{
-\item{dist}{Name (as character vector) of the function to generate draws from
-this predictor's distribution.}
+\item{dist}{Function to generate draws from this predictor's distribution,
+provided as a function or as a string naming the function.}
 
 \item{...}{Additional arguments to pass to \code{dist} when generating draws.}
 }
@@ -20,7 +20,9 @@ population distribution
 Predictor variables can have any marginal distribution as long as a function
 is provided to sample from the distribution. Multivariate distributions are
 also supported: if the random generation function returns multiple columns,
-multiple random variables will be created, successively numbered.
+multiple random variables will be created. If the columns are named, the
+random variables will be named accordingly; otherwise, they will be
+successively numbered.
 }
 \details{
 The random generation function must take an argument named \code{n} specifying the
@@ -32,18 +34,30 @@ Multivariate predictors are successively numbered. For instance, if predictor
 \code{X} is specified with
 
 \if{html}{\out{<div class="sourceCode">}}\preformatted{library(mvtnorm)
-predictor(dist = "rmvnorm", mean = c(0, 1),
+predictor(dist = rmvnorm, mean = c(0, 1),
           sigma = matrix(c(1, 0.5, 0.5, 1), nrow = 2))
 }\if{html}{\out{</div>}}
 
 then the population predictors will be named \code{X1} and \code{X2}, and will have
 covariance 0.5.
+
+If the multivariate predictor has named columns, the names will be used
+instead. For instance, if predictor \code{X} generates a matrix with columns \code{A}
+and \code{B}, the population predictors will be named \code{XA} and \code{XB}.
 }
 \examples{
 # Univariate normal distribution
-predictor(dist = "rnorm", mean = 10, sd = 2.5)
+predictor(dist = rnorm, mean = 10, sd = 2.5)
 
 # Multivariate normal distribution
 library(mvtnorm)
-predictor(dist = "rmvnorm", mean = c(0, 1, 7))
+predictor(dist = rmvnorm, mean = c(0, 1, 7))
+
+# Multivariate with named columns
+rmulti <- function(n) {
+  cbind(treatment = rbinom(n, size = 1, prob = 0.5),
+        confounder = rnorm(n)
+  )
+}
+predictor(dist = rmulti)
 }
