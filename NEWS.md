@@ -1,3 +1,10 @@
+# regressinator 0.1.4
+
+- `partial_residuals()` and `binned_residuals()` now reject tidyselect syntax
+  that tries to rename predictors, or that results in no predictors being
+  selected. This syntax already caused the functions to fail with strange error
+  messages, so it is now more explicitly rejected.
+
 # regressinator 0.1.3
 
 This version fixes several bugs that arose during classroom use.

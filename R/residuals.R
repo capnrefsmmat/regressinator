@@ -170,7 +170,8 @@ partial_residuals <- function(fit, predictors = everything()) {
   predictors <- enquo(predictors)
 
   pred_data <- get_predictors(fit)
-  selection <- eval_select(predictors, pred_data)
+  selection <- eval_select(predictors, pred_data,
+                           allow_empty = FALSE, allow_rename = FALSE)
 
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
@@ -295,7 +296,8 @@ binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
   pred_data <- get_predictors(fit)
   pred_data$.fitted <- fitted(fit)
 
-  selection <- eval_select(predictors, pred_data)
+  selection <- eval_select(predictors, pred_data,
+                           allow_empty = FALSE, allow_rename = FALSE)
 
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
