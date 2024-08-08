@@ -41,6 +41,7 @@ reference:
     contents:
       - augment_longer
       - partial_residuals
+      - augment_quantile
       - binned_residuals
       - bin_by_interval
       - empirical_link

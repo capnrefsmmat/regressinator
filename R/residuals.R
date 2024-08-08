@@ -516,3 +516,37 @@ empirical_link <- function(response, family, na.rm = FALSE) {
 
   return(family$linkfun(ybar))
 }
+
+#' Augment data with randomized quantile residuals
+#'
+#' Generates a data frame with one row per observation used to train a model,
+#' including the predictors, residuals, and randomized quantile residuals as
+#' additional columns.
+#'
+#' Randomized quantile residuals provide more interpretable residuals for
+#' generalized linear models, such as logistic regression. See Dunn and Smyth
+#' (1996) for details, or review the examples provided in `vignette("DHARMa",
+#' package="DHARMa")`.
+#'
+#' Uses `broom::augment()` to generate the data frame, then uses the [DHARMa
+#' package](https://cran.r-project.org/package=DHARMa) to generate randomized
+#' quantile residuals for the model.
+#'
+#' @param x Fitted model to obtain randomized quantile residuals from
+#' @param ... Additional arguments to pass to `broom::augment()`
+#' @return Data frame with one row per observation used to fit `x`, including a
+#'   `.quantile.resid` column containing the quantile residuals. See
+#'   `broom::augment()` and its methods for details of other columns.
+#' @importFrom DHARMa simulateResiduals
+#' @references Dunn, Peter K., and Gordon K. Smyth (1996).
+#'   "Randomized Quantile Residuals." *Journal of Computational and Graphical
+#'   Statistics* 5 (3): 236–44. \doi{10.2307/1390802}
+augment_quantile <- function(x, ...) {
+  out <- augment(x, ...)
+
+  dh <- simulateResiduals(x)
+
+  out$.quantile.resid <- residuals(dh)
+
+  return(out)
+}
