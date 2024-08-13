@@ -238,12 +238,58 @@ binned_residuals(fit, predictor = .fitted) |>
   labs(x = "Fitted values", y = "Residual mean")
 ```
 
+## Randomized quantile residuals
+
+Randomized quantile residuals use randomization to eliminate the banding
+patterns present in standardized and partial residuals; see `augment_quantile()`
+for the technical details. Randomized quantile residuals are uniformly
+distributed when the model is correct, and can be plotted against fitted values
+and the predictors just as standardized residuals can be:
+
+```{r, rqr-glm-fitted, fig.width=5, fig.height=4}
+augment_quantile(fit) |>
+  ggplot(aes(x = .fitted, y = .quantile.resid)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(x = "Fitted value", y = "Randomized quantile residual")
+```
+
+```{r, rqr-glm-predictors, fig.width=6, fig.height=4}
+augment_quantile_longer(fit) |>
+  ggplot(aes(x = .predictor_value, y = .quantile.resid)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_wrap(vars(.predictor_name), scales = "free_x") +
+  labs(x = "Predictor", y = "Randomized quantile residual")
+```
+
+Here the unusual relationship with `x1` is much easier to spot than in the other
+residual plots above, and the smoothed trend line shows a clear curved shape.
+While it would be difficult to guess the correct model using only this plot, we
+can at least tell that additional flexibility is required and begin making
+changes.
+
+It is also useful to use a Q-Q plot to check whether the randomized quantile
+residuals are uniformly distributed:
+
+```{r rqr-qq, fig.width=5, fig.height=4}
+augment_quantile(fit) |>
+  ggplot(aes(sample = .quantile.resid)) +
+  geom_qq(distribution = qunif) +
+  geom_qq_line(distribution = qunif) +
+  labs(x = "Theoretical quantiles", y = "Observed quantiles")
+```
+
+Here they appear roughly uniform, but heavy-tailed randomized quantile residuals
+would indicate there are more large residual values (positive or negative) than
+expected, which would suggest there is overdispersion.
+
 ## Limitations
 
-As we can see, these graphical methods for detecting misspecification are each
-limited. The nature of GLMs, with their nonlinear link function and non-Normal
-conditional response distribution, makes useful diagnostics much harder to
-construct.
+As we can see, the graphical methods for detecting misspecification in GLMs are
+each limited. The nature of GLMs, with their nonlinear link function and
+non-Normal conditional response distribution, makes useful diagnostics much
+harder to construct.
 
 There are several factors limiting the diagnostics here. First, in the
 population we specified (`pois_pop`), most $Y$ values are less than 10, and
@@ -260,13 +306,13 @@ function is nearly linear. As noted by Cook and Croos-Dabrera (1998):
 > x_2]$ is linear, then fitting a reasonable regression curve to the partial
 > residual plot should yield a useful estimate of $g$ within the class of GLMs.
 
-That is, the range of $x$ needs to be limited so that the link function is
-approximately linear. But here the range of $X_1$ and $X_2$ is large enough that
-the link is decidedly nonlinear. For instance, if we fix $X_2 = 5$ (the middle
-of its marginal distribution) and vary $X_1$ across its range in the population,
-the mean function is exponential:
+That is, for partial residual plots to work well, the range of $x$ needs to be
+limited so that the link function is approximately linear. But here the range of
+$X_1$ and $X_2$ is large enough that the link is decidedly nonlinear. For
+instance, if we fix $X_2 = 5$ (the middle of its marginal distribution) and vary
+$X_1$ across its range in the population, the mean function is exponential:
 
-```{r}
+```{r, fig.width=5, fig.height=4}
 ggplot() +
   geom_function(fun = function(x1) {
     exp(0.7 + 0.2 * x1 + x1^2 / 100 - 0.2 * 5)
@@ -279,8 +325,14 @@ If $X_1$ were restricted to a smaller range, this curve would be more
 approximately linear, and the partial residual plots would give a better
 approximation of the true relationship.
 
+The randomized quantile residuals avoid these problems, and work much better as
+a general-purpose means to detect misspecification in GLMs. But they do not
+share the useful property of partial residuals---which, under ideal
+circumstances, reveal the true shape of the relationship, making it easier to
+update the model.
+
 In short, graphical diagnostics for GLMs are possible, and model lineups make it
 easier to distinguish when a strange pattern is a genuine problem and when it is
 an artifact of the model. But determining the nature of the misspecification and
-the appropriate changes to the model is much more difficult than in linear
+the appropriate changes to the model is more difficult than in linear
 regression. No one diagnostic plot is a panacea.

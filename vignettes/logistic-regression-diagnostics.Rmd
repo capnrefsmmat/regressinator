@@ -194,3 +194,40 @@ binned_residuals(fit, predictor = .fitted) |>
   geom_point() +
   labs(x = "Fitted values", y = "Residual mean")
 ```
+
+## Randomized quantile residuals
+
+Randomized quantile residuals are intended to solve the obvious problem of
+ordinary residual plots: because $Y$ is binary, the residuals have a very
+strange distribution and obvious patterns, even when the model is perfectly
+specified. Randomized quantile residuals use randomization to essentially jitter
+the pattern away; see the `augment_quantile()` documentation for technical
+details. The result is residuals that should be uniformly distributed when the
+model is correctly specified.
+
+As with other residuals, we can plot the randomized quantile residuals against
+the fitted values or against the predictors:
+
+```{r rqr-fitted, fig.width=5, fig.height=4}
+augment_quantile(fit) |>
+  ggplot(aes(x = .fitted, y = .quantile.resid)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  labs(x = "Fitted value", y = "Randomized quantile residual")
+```
+
+```{r rqr-predictors, fig.width=6, fig.height=4}
+augment_quantile_longer(fit) |>
+  ggplot(aes(x = .predictor_value, y = .quantile.resid)) +
+  geom_point() +
+  geom_smooth(se = FALSE) +
+  facet_wrap(vars(.predictor_name), scales = "free_x") +
+  labs(x = "Predictor", y = "Randomized quantile residual")
+```
+
+The plot against `x1` makes the quadratic shape clear. If the model were
+correctly specified, the residuals would be uniformly distributed regardless of
+the value of $X$, but instead we see a curved trend indicating the problem. The
+randomization has made the plots much easier to read than ordinary standardized
+residuals, with their strange banded patterns that occur even when the model is
+correct.
