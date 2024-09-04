@@ -570,7 +570,8 @@ empirical_link <- function(response, family, na.rm = FALSE) {
 #' per predictor per observation. Columns `.predictor_name` and
 #' `.predictor_value` identify the predictor and its value. An additional column
 #' `.obs` records the original observation numbers so results can be matched to
-#' observations in the original model data.
+#' observations in the original model data. See Limitations in
+#' `augment_longer()` for limitations on factor predictors.
 #' @importFrom DHARMa simulateResiduals
 #' @importFrom broom augment
 #' @references Dunn, Peter K., and Gordon K. Smyth (1996).
@@ -578,7 +579,8 @@ empirical_link <- function(response, family, na.rm = FALSE) {
 #'   Statistics* 5 (3): 236–44. \doi{10.2307/1390802}
 #' @seealso `vignette("logistic-regression-diagnostics")` and
 #'   `vignette("other-glm-diagnostics")` for examples of plotting and
-#'   interpreting randomized quantile residuals
+#'   interpreting randomized quantile residuals; [augment_longer()];
+#'   [broom::augment()]
 #' @export
 augment_quantile <- function(x, ...) {
   out <- augment(x, ...)

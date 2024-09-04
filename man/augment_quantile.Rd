@@ -23,7 +23,8 @@ For \code{augment_quantile_longer()}, the output is in "long" format with one ro
 per predictor per observation. Columns \code{.predictor_name} and
 \code{.predictor_value} identify the predictor and its value. An additional column
 \code{.obs} records the original observation numbers so results can be matched to
-observations in the original model data.
+observations in the original model data. See Limitations in
+\code{augment_longer()} for limitations on factor predictors.
 }
 \description{
 Generates a data frame containing a model's predictors, the residuals, and
@@ -75,5 +76,6 @@ Statistics} 5 (3): 236–44. \doi{10.2307/1390802}
 \seealso{
 \code{vignette("logistic-regression-diagnostics")} and
 \code{vignette("other-glm-diagnostics")} for examples of plotting and
-interpreting randomized quantile residuals
+interpreting randomized quantile residuals; \code{\link[=augment_longer]{augment_longer()}};
+\code{\link[broom:reexports]{broom::augment()}}
 }
