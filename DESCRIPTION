@@ -1,8 +1,8 @@
 Package: regressinator
 Type: Package
 Title: Simulate and Diagnose (Generalized) Linear Models
-Version: 0.2.0
-Date: 2024-08-16
+Version: 0.2.1
+Date: 2024-10-03
 Authors@R: person("Alex", "Reinhart",
                   email = "areinhar@stat.cmu.edu",
                   role = c("aut", "cre"),
@@ -17,7 +17,7 @@ BugReports: https://github.com/capnrefsmmat/regressinator/issues
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
-RoxygenNote: 7.3.1
+RoxygenNote: 7.3.2
 Depends: R (>= 4.1)
 Imports:
         broom,

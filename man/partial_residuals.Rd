@@ -84,24 +84,26 @@ predictors are set to their first (baseline) level.
 
 \section{Generalized linear models}{
 Consider a generalized linear model where \eqn{g(\mathbb{E}[Y \mid X = x]) =
-\mu(x)}{g(E[Y | X = x]) = \mu(x)}, where \eqn{g} is a link function. Let
-\eqn{\hat \mu}{muhat} be the fitted model and \eqn{\hat \beta_0}{beta0hat} be
-its intercept.
+\eta(x)}{g(E[Y | X = x]) = \eta(x)}, where \eqn{g} is a link function and
+\eqn{\eta(x)} is the linear predictor. Let \eqn{\hat \eta}{etahat} be the
+fitted linear predictor and \eqn{\hat \beta_0}{beta0hat} be its intercept.
+Let \eqn{\hat \mu(x) = g^{-1}(\hat \eta(x))}{muhat(x) = g^{-1}(etahat(x))} be
+the fitted mean function.
 
-Let \eqn{e_i} be the \emph{working residual} for observation \eqn{i}, defined to
-be
+The \emph{working residual} \eqn{e_i} for observation \eqn{i} is
 
-\deqn{e_i = (y_i - g^{-1}(x_i)) g'(x_i).}
+\deqn{e_i = (y_i - \hat \mu(x_i)) g'(\hat \mu(x_i)).}{e_i = (y_i -
+muhat(x_i)) g'(muhat(x_i)).}
 
 Choose a predictor \eqn{X_f}, the \emph{focal} predictor, to calculate partial
-residuals for. Write \eqn{\mu} as \eqn{\mu(X_f, X_o)}, where \eqn{X_f} is the
+residuals for. Write \eqn{\eta} as \eqn{\eta(X_f, X_o)}, where \eqn{X_f} is the
 value of the focal predictor, and \eqn{X_o} represents all other predictors.
-Hence \eqn{\mu(X_f, X_o)} gives the model's prediction on the link scale.
+Hence \eqn{\eta(X_f, X_o)} gives the model's prediction on the link scale.
 
 The partial residual is again
 
-\deqn{r_{if} = e_i + (\hat \mu(x_{if}, 0) - \hat \beta_0).}{
-r_if = e_i + (muhat(x_{if}, 0) - beta0hat).}
+\deqn{r_{if} = e_i + (\hat \eta(x_{if}, 0) - \hat \beta_0).}{
+r_if = e_i + (etahat(x_{if}, 0) - beta0hat).}
 }
 
 \section{Interpretation}{
@@ -116,12 +118,12 @@ relationship between \eqn{x_f} and the response.
 In generalized linear models, this is approximately true if the link function
 \eqn{g} is approximately linear over the range of observed \eqn{x} values.
 
-Additionally, the function \eqn{\mu(X_f, 0)} can be used to show the
+Additionally, the function \eqn{\mu(X_f, 0)} (in linear models) or
+\eqn{\eta(X_f, 0)} (in generalized linear models) can be used to show the
 relationship between the focal predictor and the response. In a linear model,
 the function is linear; with polynomial or spline regressors, it is
 nonlinear. This function is the \emph{predictor effect function}, and the
-estimated predictor effects \eqn{\hat \mu(X_{if}, 0)}{muhat(X_if, 0)} are
-included in this function's output.
+estimated predictor effects are included in this function's output.
 }
 
 \section{Limitations}{

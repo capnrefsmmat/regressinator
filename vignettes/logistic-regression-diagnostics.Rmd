@@ -163,8 +163,10 @@ partial_residuals(fit) |>
   labs(x = "Predictor", y = "Partial residual")
 ```
 
-See the `partial_residuals()` documentation for more information how these are
-computed and interpreted.
+The partial residuals show the shape of the relationship on the *link* scale,
+before the nonlinear transformation, making it easier to determine how to change
+the linear predictor. See the `partial_residuals()` documentation for more
+information how these are computed and interpreted.
 
 ## Binned residuals
 

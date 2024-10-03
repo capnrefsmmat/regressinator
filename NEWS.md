@@ -1,3 +1,9 @@
+# regressinator 0.2.1
+
+- The documentation for `partial_residuals()` now gives the correct definition
+  of partial residuals for GLMs. (The code gave the correct output already, but
+  the stated definition was incorrect.)
+
 # regressinator 0.2.0
 
 - New `augment_quantile()` and `augment_quantile_longer()` functions augment
