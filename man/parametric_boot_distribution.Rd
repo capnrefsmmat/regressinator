@@ -7,7 +7,7 @@
 parametric_boot_distribution(
   fit,
   alternative_fit = fit,
-  data = model.frame(fit),
+  data = get_data(fit),
   fn = tidy,
   nsim = 100,
   ...
@@ -60,9 +60,9 @@ redrawn; other response variables in the population are left unchanged from
 their values in \code{data}.
 }
 \section{Model limitations}{
-Because this function uses S3 generic methods such as \code{model.frame()},
-\code{simulate()}, and \code{update()}, it can be used with any model fit for which
-methods are provided. In base R, this includes \code{lm()} and \code{glm()}.
+Because this function uses S3 generic methods such as \code{simulate()} and
+\code{update()}, it can be used with any model fit for which methods are provided.
+In base R, this includes \code{lm()} and \code{glm()}.
 
 The model provided as \code{fit} must be fit using the \code{data} argument to provide
 a data frame. For example:

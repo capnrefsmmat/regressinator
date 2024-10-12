@@ -60,9 +60,9 @@ true diagnostics among the null diagnostics: evaluating this in the R console
 will produce a string such as \code{"True data in position 5"}.
 }
 \section{Model limitations}{
-Because this function uses S3 generic methods such as \code{model.frame()},
-\code{simulate()}, and \code{update()}, it can be used with any model fit for which
-methods are provided. In base R, this includes \code{lm()} and \code{glm()}.
+Because this function uses S3 generic methods such as \code{simulate()} and
+\code{update()}, it can be used with any model fit for which methods are provided.
+In base R, this includes \code{lm()} and \code{glm()}.
 
 The model provided as \code{fit} must be fit using the \code{data} argument to provide
 a data frame. For example:

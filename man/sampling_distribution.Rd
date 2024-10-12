@@ -43,9 +43,9 @@ estimated coefficient and include the coefficient and its standard error; or
 it might contain only one row of model summary statistics.
 }
 \section{Model limitations}{
-Because this function uses S3 generic methods such as \code{model.frame()},
-\code{simulate()}, and \code{update()}, it can be used with any model fit for which
-methods are provided. In base R, this includes \code{lm()} and \code{glm()}.
+Because this function uses S3 generic methods such as \code{simulate()} and
+\code{update()}, it can be used with any model fit for which methods are provided.
+In base R, this includes \code{lm()} and \code{glm()}.
 
 The model provided as \code{fit} must be fit using the \code{data} argument to provide
 a data frame. For example:

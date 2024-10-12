@@ -30,9 +30,9 @@
 #'
 #' # Model limitations
 #'
-#' Because this function uses S3 generic methods such as `model.frame()`,
-#' `simulate()`, and `update()`, it can be used with any model fit for which
-#' methods are provided. In base R, this includes `lm()` and `glm()`.
+#' Because this function uses S3 generic methods such as `simulate()` and
+#' `update()`, it can be used with any model fit for which methods are provided.
+#' In base R, this includes `lm()` and `glm()`.
 #'
 #' The model provided as `fit` must be fit using the `data` argument to provide
 #' a data frame. For example:
