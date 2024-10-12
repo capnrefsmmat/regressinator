@@ -177,6 +177,7 @@ NULL
 #'   [sampling_distribution()] to simulate draws from the population
 #'   distribution, rather than the null
 #' @importFrom broom tidy
+#' @importFrom insight get_data
 #' @importFrom purrr map_dfr
 #' @importFrom tibble as_tibble
 #' @examples
@@ -196,7 +197,7 @@ NULL
 #' parametric_boot_distribution(fit, alt_fit, data = mtcars, nsim = 5)
 #' @export
 parametric_boot_distribution <- function(fit, alternative_fit = fit,
-                                         data = model.frame(fit),
+                                         data = get_data(fit),
                                          fn = tidy, nsim = 100, ...) {
   if (length(nsim) > 1 || nsim <= 0 || nsim %% 1 != 0) {
     cli_abort(c("Number of simulations must be a positive integer",
@@ -207,7 +208,23 @@ parametric_boot_distribution <- function(fit, alternative_fit = fit,
 
   # ensure fit uses the same predictors that alternative_fit will get
   orig_data <- data
-  fit <- update(fit, data = data)
+
+  env <- current_env()
+
+  # Check that update() works at all. If it works this time, it'll likely work
+  # in future iterations, so we only prettify this error.
+  tryCatch(
+    fit <- update(fit, data = data),
+    error = function(e) {
+      cli_abort(
+        c("Failed to re-fit the provided model {.arg fit}",
+          x = conditionMessage(e)),
+        class = "regressinator_update",
+        call = env
+      )
+    }
+  )
+
 
   simulated_ys <- simulate(fit, nsim = nsim)
 

@@ -32,6 +32,25 @@ test_that("parametric_boot_distribution produces new response data", {
   expect_true(all(coefs$sd > 0))
 })
 
+test_that("parametric_boot_distribution handles transformed predictors", {
+  # Using I(x^2) in a model formula means model.matrix() returns an `I(x^2)`
+  # column instead of an `x` column; need to fetch the original predictors to
+  # successfully use `update()`.
+
+  fit <- lm(mpg ~ I(hp^2), data = mtcars)
+
+  out <- model_lineup(fit)
+
+  expect_equal(nrow(out), 20 * nrow(mtcars))
+
+  # Ensure matrix columns, such as those provided from splines, also work
+  fit <- lm(mpg ~ splines::ns(hp, df = 3), data = mtcars)
+
+  out <- model_lineup(fit)
+
+  expect_equal(nrow(out), 20 * nrow(mtcars))
+})
+
 test_that("parametric_boot_distribution includes all columns from the data", {
   linear_pop <- population(
     x1 = predictor("rnorm", mean = 4, sd = 10),

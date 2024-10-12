@@ -4,6 +4,12 @@
   of partial residuals for GLMs. (The code gave the correct output already, but
   the stated definition was incorrect.)
 
+- `parametric_boot_distribution()`, and by extension `model_lineup()`, now
+  supports models fit with transformations. Previously, using transformations
+  like `I(x^2)` in model formulas (or using `ns()` or other functions that
+  transform predictors into matrix columns) would cause the model refitting to
+  fail.
+
 # regressinator 0.2.0
 
 - New `augment_quantile()` and `augment_quantile_longer()` functions augment
