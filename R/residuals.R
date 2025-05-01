@@ -30,6 +30,10 @@
 #' chosen to model it with regressors. Partial residuals are not useful for
 #' categorical (factor) predictors, and so these are omitted.
 #'
+#' Besides regressors, a model may have offset terms, which enter the model with
+#' a fixed coefficient of 1. These are fixed to their mean value for partial
+#' residual calculations.
+#'
 #' # Linear models
 #'
 #' Consider a linear model where \eqn{\mathbb{E}[Y \mid X = x] = \mu(x)}{E[Y | X
@@ -142,7 +146,7 @@
 #' Effect Plots and Partial Residuals." *Journal of Statistical Software*,
 #' 87(9). \doi{10.18637/jss.v087.i09}
 #' @importFrom stats predict formula
-#' @importFrom insight get_predictors get_intercept
+#' @importFrom insight find_offset get_predictors get_intercept
 #' @importFrom tidyselect everything eval_select
 #' @importFrom rlang enquo
 #' @importFrom purrr map_dfr
@@ -178,6 +182,13 @@ partial_residuals <- function(fit, predictors = everything()) {
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
 
+  # If there is an offset, we must provide this in the prototype. Fix it at its
+  # mean value
+  offset <- find_offset(fit)
+  if (!is.null(offset)) {
+    offset_value <- mean(get_data(fit)[[offset]])
+  }
+
   intercept <- get_intercept(fit)
   if (is.na(intercept)) {
     intercept <- 0
@@ -189,6 +200,10 @@ partial_residuals <- function(fit, predictors = everything()) {
     predictor_names,
     function(predictor) {
       df <- prototype_for(pred_data, predictor)
+
+      if (!is.null(offset)) {
+        df[[offset]] <- offset_value
+      }
 
       effect <- predict(fit, newdata = df) - intercept
 

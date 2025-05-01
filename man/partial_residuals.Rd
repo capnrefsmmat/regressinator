@@ -60,6 +60,10 @@ and are intended to allow us to see the shape of the relationship between a
 particular predictor and the response, and to compare it to how we have
 chosen to model it with regressors. Partial residuals are not useful for
 categorical (factor) predictors, and so these are omitted.
+
+Besides regressors, a model may have offset terms, which enter the model with
+a fixed coefficient of 1. These are fixed to their mean value for partial
+residual calculations.
 }
 
 \section{Linear models}{
