@@ -10,6 +10,13 @@
   transform predictors into matrix columns) would cause the model refitting to
   fail.
 
+- `partial_residuals()` now works correctly for models fit with offsets, by
+  fixing the offset to its mean value.
+
+- `bin_by_interval()` and `bin_by_quantile()` now base their default number of
+  bins on the number of non-`NA` observations of the variable to be binned,
+  rather than the total number of rows.
+
 # regressinator 0.2.0
 
 - New `augment_quantile()` and `augment_quantile_longer()` functions augment
