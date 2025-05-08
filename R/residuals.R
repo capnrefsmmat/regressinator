@@ -433,9 +433,9 @@ augment_longer <- function(x, ...) {
 #' @param col Column to bin by
 #' @param breaks Number of bins to create. `bin_by_interval()` also accepts a
 #'   numeric vector of two or more unique cut points to use. If `NULL`, a
-#'   default number of breaks is chosen based on the number of rows in the data.
-#'   In `bin_by_quantile()`, if the number of unique values of the column is
-#'   smaller than `breaks`, fewer bins will be produced.
+#'   default number of breaks is chosen based on the number of non-`NA` rows in
+#'   the data. In `bin_by_quantile()`, if the number of unique values of the
+#'   column is smaller than `breaks`, fewer bins will be produced.
 #' @return Grouped data frame, similar to those returned by `dplyr::group_by()`.
 #'   An additional column `.bin` indicates the bin number for each group. Use
 #'   `dplyr::summarize()` to calculate values within each group, or other dplyr
@@ -455,14 +455,15 @@ augment_longer <- function(x, ...) {
 #' @importFrom dplyr mutate group_by
 #' @importFrom rlang .data enquo as_name
 bin_by_interval <- function(.data, col, breaks = NULL) {
-  n <- nrow(.data)
+  col <- enquo(col)
 
   if (is.null(breaks)) {
+    n <- sum(!is.na(.data[, as_name(col), drop = TRUE]))
     breaks <- size_heuristic(n)
   }
 
   mutate(.data,
-         .bin = cut({{ col }}, breaks = breaks, labels = FALSE)) |>
+         .bin = cut(!!col, breaks = breaks, labels = FALSE)) |>
     group_by(.data$.bin)
 }
 
@@ -470,7 +471,6 @@ bin_by_interval <- function(.data, col, breaks = NULL) {
 #' @importFrom ggplot2 cut_number
 #' @export
 bin_by_quantile <- function(.data, col, breaks = NULL) {
-  n <- nrow(.data)
   col <- enquo(col)
 
   # drop = TRUE is necessary because in data frames, this indexing produces a
@@ -480,6 +480,7 @@ bin_by_quantile <- function(.data, col, breaks = NULL) {
   n_unique <- length(unique(.data[, as_name(col), drop = TRUE]))
 
   if (is.null(breaks)) {
+    n <- sum(!is.na(.data[, as_name(col), drop = TRUE]))
     breaks <- size_heuristic(n)
   }
 
