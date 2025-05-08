@@ -69,7 +69,10 @@ The `bin_by_quantile()` function groups the data into bins, while
 `empirical_link()` can calculate the empirical value of a variable on the link
 scale, for any GLM family:
 
-```{r, fig.width=4, fig.height=3}
+```{r x1-empirical-logit}
+#| fig.width: 4
+#| fig.height: 3
+#| fig.alt: Empirical logit plot for x1, showing a curved trend
 logistic_data |>
   bin_by_quantile(x1, breaks = 6) |>
   summarize(x = mean(x1),
@@ -83,7 +86,10 @@ This looks suspiciously nonlinear.
 
 Similarly for `x2`:
 
-```{r, fig.width=4, fig.height=3}
+```{r x2-empirical-logit}
+#| fig.width: 4
+#| fig.height: 3
+#| fig.alt: Empirical logit plot for x2, showing a curved trend
 logistic_data |>
   bin_by_quantile(x2, breaks = 6) |>
   summarize(x = mean(x2),
@@ -102,7 +108,10 @@ to tell if these plots indicate a serious problem.
 Once we have fit the model, ordinary standardized residuals are not very helpful
 for noticing the misspecification:
 
-```{r, fig.width=5, fig.height=4}
+```{r logit-resids}
+#| fig.width: 5
+#| fig.height: 4
+#| fig.alt: Scatterplot of standardized residuals against fitted values, showing two parallel curves of points
 augment(fit) |>
   ggplot(aes(x = .fitted, y = .std.resid)) +
   geom_point() +
@@ -112,7 +121,10 @@ augment(fit) |>
 
 Nor are plots of standardized residuals against the predictors:
 
-```{r, fig.width=6, fig.height=4}
+```{r logit-resids-predictors}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Two scatterplots of standardized residuals against x1 and x2, again showing to parallel bands of points
 augment_longer(fit) |>
   ggplot(aes(x = .predictor_value, y = .std.resid)) +
   geom_point() +
@@ -131,7 +143,10 @@ interpret and trends hard to spot.
 For each predictor, we plot the predictor versus $Y$. We plot the smoothed curve
 of fitted values (red) as well as a smoothed curve of response values (blue):
 
-```{r, fig.width=6, fig.height=4}
+```{r marginal-model}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Marginal model plots with Y plotted against each predictor, with smoothed curves overlaid
 augment_longer(fit, type.predict = "response") |>
   ggplot(aes(x = .predictor_value)) +
   geom_point(aes(y = y)) +
@@ -153,7 +168,10 @@ what specifically might be wrong.
 
 The partial residuals make the quadratic shape of the relationship much clearer:
 
-```{r, fig.width=6, fig.height=4}
+```{r logit-partial-resids}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Two scatterplots of partial residuals, with smoothing curves overlaid
 partial_residuals(fit) |>
   ggplot(aes(x = .predictor_value, y = .partial_resid)) +
   geom_point() +
@@ -174,7 +192,10 @@ Binned residuals bin the observations based on their predictor values, and
 average the residual value in each bin. This avoids the problem that individual
 residuals are hard to interpret because $Y$ is only 0 or 1:
 
-```{r, fig.width=5, fig.height=3}
+```{r binned-resids}
+#| fig.width: 5
+#| fig.height: 3
+#| fig.alt: Scatterplots of binned residuals versus x1 and x2
 binned_residuals(fit) |>
   ggplot(aes(x = predictor_mean, y = resid_mean)) +
   facet_wrap(vars(predictor_name), scales = "free") +
@@ -190,7 +211,10 @@ difference between the lines in the marginal model plot.
 
 We can also bin by the fitted values of the model:
 
-```{r, fig.width=5, fig.height=3}
+```{r binned-resids-fitted}
+#| fig.width: 5
+#| fig.height: 3
+#| fig.alt: Scatterplot of binned residuals versus the fitted values
 binned_residuals(fit, predictor = .fitted) |>
   ggplot(aes(x = predictor_mean, y = resid_mean)) +
   geom_point() +
@@ -210,7 +234,10 @@ model is correctly specified.
 As with other residuals, we can plot the randomized quantile residuals against
 the fitted values or against the predictors:
 
-```{r rqr-fitted, fig.width=5, fig.height=4}
+```{r rqr-fitted}
+#| fig.width: 5
+#| fig.height: 4
+#| fig.alt: Scatterplot of randomized quantile residuals versus fitted values, with smoothed line showing a curved trend
 augment_quantile(fit) |>
   ggplot(aes(x = .fitted, y = .quantile.resid)) +
   geom_point() +
@@ -218,7 +245,10 @@ augment_quantile(fit) |>
   labs(x = "Fitted value", y = "Randomized quantile residual")
 ```
 
-```{r rqr-predictors, fig.width=6, fig.height=4}
+```{r rqr-predictors}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Scatterplots of randomized quantile residuals versus both predictors, with smoothed lines showing a curved trend in x1
 augment_quantile_longer(fit) |>
   ggplot(aes(x = .predictor_value, y = .quantile.resid)) +
   geom_point() +

@@ -38,7 +38,7 @@ linear regression is fit to nonlinear data. We can quickly specify a nonlinear
 relationship and generate a lineup plot that hides the residual plot among 19
 others where the model assumptions are met:
 
-```{r example-regression-lineup, fig.width=7, fig.height=6, fig.retina=2}
+```{r example-regression-lineup, fig.width=7, fig.height=6, fig.retina=2, fig.alt="Lineup of scatterplots of residuals versus X"}
 library(regressinator)
 library(ggplot2)
 

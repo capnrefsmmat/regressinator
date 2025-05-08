@@ -65,7 +65,10 @@ related to $Y$ *when transformed by the link function*, and so it should be
 linear when plotted against $\log Y$. We can *sort of* do this for this data,
 producing the plots below:
 
-```{r, fig.width=6, fig.height=4}
+```{r empirical-link}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Scatterplots of log(Y) against each predictor, plus smoothed line showing trends
 p1 <- ggplot(pois_data, aes(x = x1, y = y)) +
   geom_point() +
   geom_smooth() +
@@ -99,7 +102,8 @@ The `bin_by_quantile()` function helps us here by grouping the data into bins,
 while `empirical_link()` automatically uses the Poisson link function to
 transform the mean of the corresponding `y` values:
 
-```{r}
+```{r binned-empirical-link}
+#| fig.alt: Binned empirical link scatterplots of log(Y) against each predictor
 p1 <- pois_data |>
   bin_by_quantile(x1, breaks = 8) |>
   summarize(x = mean(x1),
@@ -128,7 +132,10 @@ against the fitted values (the linear predictor), they do indicate some kind of
 trend, but the plot is difficult to interpret, and it does not tell us which
 predictor is the problem.
 
-```{r, fig.width=5, fig.height=4}
+```{r resids-v-fitted}
+#| fig.width: 5
+#| fig.height: 4
+#| fig.alt: Scatterplot of residuals versus fitted values, showing banded pattern
 # .fitted is the linear predictor, unless we set `type.predict = "response"` as
 # an argument to augment()
 augment(fit) |>
@@ -141,7 +148,10 @@ augment(fit) |>
 Plots against the predictors suggest something is wrong with `x1`, but again,
 they are somewhat difficult to interpret:
 
-```{r, fig.width=6, fig.height=4}
+```{r resids-v-predictors}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Scatterplots of residuals versus each predictor, with smoothed line possibly showing nonlinearity
 augment_longer(fit) |>
   ggplot(aes(x = .predictor_value, y = .std.resid)) +
   geom_point() +
@@ -154,7 +164,9 @@ In a lineup, we can compare the residual plots against simulated ones where the
 model is correct, making it at least clearer that the problem we observe is
 real:
 
-```{r, fig.height=8}
+```{r resid-lineup}
+#| fig.height: 8
+#| fig.alt: Lineup of scatterplots of residuals versus each predictor
 model_lineup(fit, fn = augment_longer, nsim = 5) |>
   ggplot(aes(x = .predictor_value, y = .std.resid)) +
   geom_point() +
@@ -174,7 +186,10 @@ For each predictor, we plot the predictor versus $Y$. We plot the smoothed curve
 of fitted values (red) as well as a smoothed curve of response values (blue), on
 a log scale so the large $Y$ values are not distracting:
 
-```{r, fig.width=6, fig.height=4}
+```{r marginal-model}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Marginal model plots against each predictor
 augment_longer(fit, type.predict = "response") |>
   ggplot(aes(x = .predictor_value)) +
   geom_point(aes(y = y)) +
@@ -196,7 +211,10 @@ $-\infty$. Nonetheless, the plots again point to a problem with `x1`.
 The partial residuals make the quadratic shape of the relationship somewhat
 clearer:
 
-```{r, fig.width=6, fig.height=4}
+```{r partial-resids}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Scatterplots of partial residuals for both predictors
 partial_residuals(fit) |>
   ggplot(aes(x = .predictor_value, y = .partial_resid)) +
   geom_point() +
@@ -215,7 +233,10 @@ Binned residuals bin the observations based on their predictor values, and
 average the residual value in each bin. This avoids the problem that individual
 residuals are hard to interpret because $Y$ is only 0 or 1:
 
-```{r, fig.width=5, fig.height=3}
+```{r binned-resids}
+#| fig.width: 5
+#| fig.height: 3
+#| fig.alt: Scatterplots of binned residuals against each predictor
 binned_residuals(fit) |>
   ggplot(aes(x = predictor_mean, y = resid_mean)) +
   facet_wrap(vars(predictor_name), scales = "free") +
@@ -231,7 +252,10 @@ difference between the lines in the marginal model plot.
 
 We can also bin by the fitted values of the model:
 
-```{r, fig.width=5, fig.height=3}
+```{r binned-resids-fitted}
+#| fig.width: 5
+#| fig.height: 3
+#| fig.alt: Scatterplot of binned residuals against the fitted values
 binned_residuals(fit, predictor = .fitted) |>
   ggplot(aes(x = predictor_mean, y = resid_mean)) +
   geom_point() +
@@ -246,7 +270,10 @@ for the technical details. Randomized quantile residuals are uniformly
 distributed when the model is correct, and can be plotted against fitted values
 and the predictors just as standardized residuals can be:
 
-```{r, rqr-glm-fitted, fig.width=5, fig.height=4}
+```{r rqr-glm-fitted}
+#| fig.width: 5
+#| fig.height: 4
+#| fig.alt: Scatterplot of randomized quantile residuals against fitted values, with overlaid trend
 augment_quantile(fit) |>
   ggplot(aes(x = .fitted, y = .quantile.resid)) +
   geom_point() +
@@ -254,7 +281,10 @@ augment_quantile(fit) |>
   labs(x = "Fitted value", y = "Randomized quantile residual")
 ```
 
-```{r, rqr-glm-predictors, fig.width=6, fig.height=4}
+```{r, rqr-glm-predictors}
+#| fig.width: 6
+#| fig.height: 4
+#| fig.alt: Scatterplots of randomized quantile residuals against both predictors
 augment_quantile_longer(fit) |>
   ggplot(aes(x = .predictor_value, y = .quantile.resid)) +
   geom_point() +
@@ -272,7 +302,10 @@ changes.
 It is also useful to use a Q-Q plot to check whether the randomized quantile
 residuals are uniformly distributed:
 
-```{r rqr-qq, fig.width=5, fig.height=4}
+```{r rqr-qq}
+#| fig.width: 5
+#| fig.height: 4
+#| fig.alt: Q-Q plot of randomized quantile residuals against the uniform distribution
 augment_quantile(fit) |>
   ggplot(aes(sample = .quantile.resid)) +
   geom_qq(distribution = qunif) +
@@ -312,7 +345,10 @@ $X_1$ and $X_2$ is large enough that the link is decidedly nonlinear. For
 instance, if we fix $X_2 = 5$ (the middle of its marginal distribution) and vary
 $X_1$ across its range in the population, the mean function is exponential:
 
-```{r, fig.width=5, fig.height=4}
+```{r mean-fn}
+#| fig.width: 5
+#| fig.height: 4
+#| fig.alt: Curve showing the exponential growth of th emean in X1
 ggplot() +
   geom_function(fun = function(x1) {
     exp(0.7 + 0.2 * x1 + x1^2 / 100 - 0.2 * 5)

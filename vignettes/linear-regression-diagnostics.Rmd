@@ -62,7 +62,8 @@ mean zero and constant variance. If they do not, the model may be incorrect.
 One such linear combination is the fitted values $\hat Y$. We can obtain the
 residuals and fitted values from `broom::augment()`:
 
-```{r}
+```{r resids-v-fitted}
+#| fig.alt: Residuals plotted against fitted values, with a smoother curve overlaid on top
 augment(fit) |>
   ggplot(aes(x = .fitted, y = .resid)) +
   geom_point() +
@@ -79,7 +80,8 @@ To plot residuals versus the regressors, the regressinator provides
 with one row per predictor per observation, making it easy to facet the
 residuals:
 
-```{r}
+```{r resids-augmented}
+#| fig.alt: Residuals plotted against each predictor, in two side-by-side scatterplots
 augment_longer(fit) |>
   ggplot(aes(x = .predictor_value, y = .resid)) +
   geom_point() +
@@ -98,7 +100,9 @@ and trends can appear even when the model is well-specified. Using
 model is correctly specified. Each row gives the plots for one simulation, and
 one of the fives rows (at random) is the true residual plots:
 
-```{r, fig.height=8}
+```{r resid-lineup}
+#| fig.height: 8
+#| fig.alt: Lineup of five pairs of scatterplots, each showing the predictors versus the residuals
 model_lineup(fit, fn = augment_longer, n = 5) |>
   ggplot(aes(x = .predictor_value, y = .resid)) +
   geom_point() +
@@ -128,7 +132,8 @@ Here the black line gives the fitted predictor effects (i.e. the model estimate
 of the relationship), while the blue line smooths the partial residuals. We can
 see that for `x1`, the blue line deviates systematically from the black line:
 
-```{r}
+```{r partial-resids}
+#| fig.alt: Two scatterplots showing the partial residuals of x1 and x2
 partial_residuals(fit) |>
   ggplot(aes(x = .predictor_value, y = .partial_resid)) +
   geom_point() + # partial residuals
@@ -145,7 +150,9 @@ well-specified!), so we can use its shape to determine how to change our model.
 We can again use `model_lineup()` to see how these compare to the partial
 residuals when the model is correctly specified:
 
-```{r, fig.height=8}
+```{r partial-resid-lineup}
+#| fig.height: 8
+#| fig.alt: Lineup of pairs of partial residual plots
 model_lineup(fit, partial_residuals, n = 5) |>
   ggplot(aes(x = .predictor_value, y = .partial_resid)) +
   geom_point() +
@@ -196,7 +203,8 @@ same. If we are concerned the interaction may be present, we can make the
 conventional partial residual plot, but with the points colored by the value of
 $X_2$:
 
-```{r}
+```{r partial-resid-no-interact}
+#| fig.alt: Partial residual scatterplot with points color-coded by value of x2, and two separate smooth curves overlaid
 partial_residuals(no_interact_fit) |>
   ggplot(aes(x = .predictor_value, y = .partial_resid, color = x2)) +
   geom_point() + # partial residuals
@@ -216,7 +224,8 @@ it appears fairly large here.
 We can now fit a model with the interaction term and generate partial residuals
 again:
 
-```{r}
+```{r partial-resid-interact}
+#| fig.alt: Partial residual scatterplot with points color-coded by value of x2, and two separate smooth curves overlaid
 interact_fit <- lm(y ~ x1 * x2, data = interact_data)
 
 partial_residuals(interact_fit) |>
@@ -244,7 +253,8 @@ squared error. A Cook's distance of 1 is often considered a cutoff for a highly
 influential observation. Returning to our original model fit to nonlinear data,
 we can produce the Cook's distances:
 
-```{r}
+```{r cooks-dist}
+#| fig.alt: Bar plot of Cook's distances for each observation
 augment(fit) |>
   ggplot(aes(x = seq_along(.cooksd), y = .cooksd)) +
   geom_col() +
@@ -266,7 +276,8 @@ distance.)
 Q-Q plots are used to see the distribution of the standardized residuals, and
 compare it to a normal distribution:
 
-```{r}
+```{r qq}
+#| fig.alt: Q-Q plot of standardized residuals, perhaps showing a skew in the distribution
 augment(fit) |>
   ggplot(aes(sample = .std.resid)) +
   geom_qq() +
@@ -278,7 +289,9 @@ augment(fit) |>
 It is difficult for novices to judge normality from a Q-Q plot, so a lineup can
 be helpful:
 
-```{r, fig.height=8}
+```{r qq-lineup}
+#| fig.height: 8
+#| fig.alt: A lineup of Q-Q plots
 model_lineup(fit) |>
   ggplot(aes(sample = .std.resid)) +
   geom_qq() +
@@ -312,7 +325,8 @@ penguin_1 <- lm(bill_length_mm ~ flipper_length_mm + species,
 This model allows a different intercept per species, but not a different slope.
 Let's plot the partial residuals for flipper length:
 
-```{r}
+```{r penguin-partial-resids}
+#| fig.alt: Partial residuals for the penguins, color-coded by species
 partial_residuals(penguin_1, flipper_length_mm) |>
   ggplot(aes(x = .predictor_value, y = .partial_resid)) +
   geom_point(aes(color = species)) +
@@ -338,7 +352,8 @@ penguin_2 <- lm(bill_depth_mm ~ flipper_length_mm * species,
 
 Now the residuals do not seem to have separate trends in each group:
 
-```{r}
+```{r penguin-interact-resids}
+#| fig.alt: Partial residuals for the penguins, color-coded by species
 partial_residuals(penguin_2, flipper_length_mm) |>
   ggplot(aes(x = .predictor_value, y = .partial_resid)) +
   geom_point(aes(color = species)) +
@@ -352,7 +367,8 @@ We can now proceed to other diagnostics, such as checking for equal variance and
 normality of the residuals. Let's make a Q-Q plot of the standardized residuals
 for each species from this fit:
 
-```{r}
+```{r penguin-qq}
+#| fig.alt: Q-Q plots of standardized residuals, separately for the three penguin species
 augment(penguin_2) |>
   ggplot(aes(sample = .std.resid)) +
   geom_qq() +
@@ -373,7 +389,8 @@ There are no obvious major outliers either in the partial residual plots or
 residual Q-Q plots, so we have no reason to suspect there are highly influential
 observations. Nonetheless, we can check the Cook's distances:
 
-```{r}
+```{r penguin-cooks}
+#| fig.alt: Bar plot of Cook's distances
 augment(penguin_2) |>
   ggplot(aes(x = seq_along(.cooksd), y = .cooksd)) +
   geom_col() +

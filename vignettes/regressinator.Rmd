@@ -310,7 +310,10 @@ documentation](https://broom.tidymodels.org/) for details.
 For example, consider a simple dataset where the true relationship between `x1`
 and `y` is not linear. We can quickly plot residuals versus fitted values:
 
-```{r, fig.width=4, fig.height=4}
+```{r simple-residuals}
+#| fig.width: 4
+#| fig.height: 4
+#| fig.alt: Scatterplot of residuals versus fitted values
 library(broom)
 
 nonlinear_pop <- population(
@@ -342,7 +345,9 @@ example, `augment_longer()` is like `broom::augment()`, but produces one row per
 regressor per observation, essentially putting the data in "long" format. This
 makes it easy to facet the data to plot residuals against each regressor:
 
-```{r, fig.height=4}
+```{r simple-separate-resids}
+#| fig.height: 4
+#| fig.alt: Separate scatterplots of residuals versus x1 and x2
 ggplot(augment_longer(nonlinear_fit),
        aes(x = .predictor_value, y = .resid)) +
   geom_point() +
@@ -363,7 +368,9 @@ of the relationship), while the blue line smooths the partial residuals. We can
 see that for `x1`, the blue line deviates systematically from the black line in
 a quadratic shape:
 
-```{r, fig.height=4}
+```{r simple-partial-resids}
+#| fig.height: 4
+#| fig.alt: Scatterplots of partial residuals of x1 and x2
 ggplot(partial_residuals(nonlinear_fit),
        aes(x = .predictor_value, y = .partial_resid)) +
   geom_point() + # partial residuals
@@ -377,7 +384,9 @@ If we fit a quadratic model for `x1`, the partial residuals reflect this. The
 black line for the effect of `x1` is now quadratic, and the partial residuals
 closely follow it:
 
-```{r fig.height=4}
+```{r simple-partial-quadratic}
+#| fig.height: 4
+#| fig.alt: Partial residuals of x1 and x2, showing a quadratic model fit
 quadratic_fit <- lm(y ~ poly(x1, 2) + x2, data = nonlinear_data)
 
 ggplot(partial_residuals(quadratic_fit),
@@ -420,7 +429,10 @@ For example, consider the same dataset where the true relationship is not
 linear, but we use a linear fit. We can quickly plot residuals versus fitted
 values:
 
-```{r, fig.width=6, fig.height=6}
+```{r simple-lineup}
+#| fig.width: 6
+#| fig.height: 6
+#| fig.alt: Lineup of 20 scatterplots of residuals versus fitted values
 model_lineup(nonlinear_fit) |>
   ggplot(aes(x = .fitted, y = .resid)) +
   geom_point() +
@@ -438,7 +450,10 @@ This approach can be used to explore different kind of misspecification. For
 example, using `ols_with_error()` we can test whether we can spot non-normal
 residual distributions in residual Q-Q plots:
 
-```{r, fig.width=6, fig.height=6}
+```{r qq-lineup}
+#| fig.width: 6
+#| fig.height: 6
+#| fig.alt: Lineup of 20 residual Q-Q plots
 heavy_tail_pop <- population(
   x1 = predictor(rnorm, mean = 5, sd = 4),
   x2 = predictor(runif, min = 0, max = 10),
@@ -502,7 +517,9 @@ sampling_distribution(fit, d, nsim = 4)
 Because the output is a tidy data frame, it's easy to visualize the full
 sampling distributions:
 
-```{r, fig.height=4}
+```{r sampling-hists}
+#| fig.height: 4
+#| fig.alt: Histograms of the sampling distributions of the intercept and the coefficients for x1 and x2
 samples <- sampling_distribution(fit, d, nsim = 1000)
 
 samples |>
@@ -567,7 +584,9 @@ hypothesis, there is no quadratic relationship, so we simulate the null
 distribution of coefficient values under this null by simulating from
 `nonlinear_fit` and refitting `quadratic_fit`:
 
-```{r, fig.height=4}
+```{r null-hist}
+#| fig.height: 4
+#| fig.alt: Histogram of the null distribution of the quadratic coefficient, with the true value marked in red
 quadratic_coefs <- parametric_boot_distribution(nonlinear_fit, quadratic_fit,
                                                 data = nonlinear_data) |>
   filter(term == "I(x1^2)")
