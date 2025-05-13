@@ -146,7 +146,7 @@
 #' Effect Plots and Partial Residuals." *Journal of Statistical Software*,
 #' 87(9). \doi{10.18637/jss.v087.i09}
 #' @importFrom stats predict formula
-#' @importFrom insight find_offset get_predictors get_intercept
+#' @importFrom insight find_offset get_data get_predictors get_intercept
 #' @importFrom tidyselect everything eval_select
 #' @importFrom rlang enquo
 #' @importFrom purrr map_dfr
