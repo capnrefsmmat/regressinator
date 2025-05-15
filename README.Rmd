@@ -60,7 +60,7 @@ fit <- lm(y ~ x, data = nonlin_sample)
 model_lineup(fit) |>
   ggplot(aes(x = x, y = .resid)) +
   geom_point() +
-  facet_wrap(~ .sample) +
+  facet_wrap(vars(.sample)) +
   labs(x = "x", y = "Residual")
 ```
 
