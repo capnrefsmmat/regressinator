@@ -68,6 +68,35 @@ Uses \code{broom::augment()} to generate the data frame, then uses the \href{htt
 quantile residuals for the model.
 }
 
+\examples{
+# A simple bivariate setting where the model is misspecified:
+logistic_pop <- population(
+  x1 = predictor(rnorm, mean = 0, sd = 10),
+  x2 = predictor(runif, min = 0, max = 10),
+  y = response(0.7 + 0.2 * x1 + x1^2 / 100 - 0.2 * x2,
+               family = binomial(link = "logit"))
+)
+
+logistic_data <- sample_x(logistic_pop, n = 100) |>
+  sample_y()
+
+# Note the true relationship with x1 is quadratic, but only a linear
+# model (in the log-odds) is fit:
+fit <- glm(y ~ x1 + x2, data = logistic_data, family = binomial)
+
+# Randomized quantile residuals:
+augment_quantile(fit)
+
+# In long format, they can be plotted against both predictors,
+# revealing a quadratic trend in x1:
+library(ggplot2)
+augment_quantile_longer(fit) |>
+  ggplot(aes(x = .predictor_value, y = .quantile.resid)) +
+  geom_point() +
+  geom_smooth() +
+  facet_wrap(vars(.predictor_name), scales = "free_x") +
+  labs(x = "Predictor value", y = "Randomized quantile residual")
+}
 \references{
 Dunn, Peter K., and Gordon K. Smyth (1996).
 "Randomized Quantile Residuals." \emph{Journal of Computational and Graphical

@@ -599,6 +599,7 @@ empirical_link <- function(response, family, na.rm = FALSE) {
 #' `augment_longer()` for limitations on factor predictors.
 #' @importFrom DHARMa simulateResiduals
 #' @importFrom broom augment
+#' @importFrom insight get_data
 #' @references Dunn, Peter K., and Gordon K. Smyth (1996).
 #'   "Randomized Quantile Residuals." *Journal of Computational and Graphical
 #'   Statistics* 5 (3): 236–44. \doi{10.2307/1390802}
@@ -607,8 +608,36 @@ empirical_link <- function(response, family, na.rm = FALSE) {
 #'   interpreting randomized quantile residuals; [augment_longer()];
 #'   [broom::augment()]
 #' @export
+#' @examples
+#' # A simple bivariate setting where the model is misspecified:
+#' logistic_pop <- population(
+#'   x1 = predictor(rnorm, mean = 0, sd = 10),
+#'   x2 = predictor(runif, min = 0, max = 10),
+#'   y = response(0.7 + 0.2 * x1 + x1^2 / 100 - 0.2 * x2,
+#'                family = binomial(link = "logit"))
+#' )
+#'
+#' logistic_data <- sample_x(logistic_pop, n = 100) |>
+#'   sample_y()
+#'
+#' # Note the true relationship with x1 is quadratic, but only a linear
+#' # model (in the log-odds) is fit:
+#' fit <- glm(y ~ x1 + x2, data = logistic_data, family = binomial)
+#'
+#' # Randomized quantile residuals:
+#' augment_quantile(fit)
+#'
+#' # In long format, they can be plotted against both predictors,
+#' # revealing a quadratic trend in x1:
+#' library(ggplot2)
+#' augment_quantile_longer(fit) |>
+#'   ggplot(aes(x = .predictor_value, y = .quantile.resid)) +
+#'   geom_point() +
+#'   geom_smooth() +
+#'   facet_wrap(vars(.predictor_name), scales = "free_x") +
+#'   labs(x = "Predictor value", y = "Randomized quantile residual")
 augment_quantile <- function(x, ...) {
-  out <- augment(x, ...)
+  out <- augment(x, data = get_data(x), ...)
 
   dh <- simulateResiduals(x)
 
