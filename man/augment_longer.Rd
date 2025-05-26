@@ -46,6 +46,12 @@ fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 
 # each observation appears 3 times, once per predictor:
 augment_longer(fit)
+
+fit <- lm(mpg ~ cyl + disp + I(disp^2) + hp, data = mtcars)
+
+# each observation still appears 3 times, as disp and disp^2 are one
+# predictor:
+augment_longer(fit)
 }
 \seealso{
 \code{\link[=partial_residuals]{partial_residuals()}}, \code{\link[=binned_residuals]{binned_residuals()}}

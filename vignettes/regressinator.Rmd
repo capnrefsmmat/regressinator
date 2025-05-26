@@ -342,8 +342,8 @@ ggplot(augment(nonlinear_fit),
 
 The regressinator builds on these tools to support additional diagnostics. For
 example, `augment_longer()` is like `broom::augment()`, but produces one row per
-regressor per observation, essentially putting the data in "long" format. This
-makes it easy to facet the data to plot residuals against each regressor:
+predictor per observation, essentially putting the data in "long" format. This
+makes it easy to facet the data to plot residuals against each predictor:
 
 ```{r simple-separate-resids}
 #| fig.height: 4
@@ -356,12 +356,12 @@ ggplot(augment_longer(nonlinear_fit),
 ```
 
 Partial residuals are an extension of ordinary residuals that are defined in
-terms of the original predictors, not the regressors; we can think of a partial
-residual plot for a particular predictor as showing the relationship between
-that predictor and the response, after "adjusting for" the other predictors
-according to our fitted model. The `partial_residuals()` function calculates
-partial residuals in tidy format, and its documentation provides detailed
-references on the use and interpretation of partial residuals.
+terms of each original predictor; we can think of a partial residual plot for a
+particular predictor as showing the relationship between that predictor and the
+response, after "adjusting for" the other predictors according to our fitted
+model. The `partial_residuals()` function calculates partial residuals in tidy
+format, and its documentation provides detailed references on the use and
+interpretation of partial residuals.
 
 Here the black line gives the fitted predictor effects (i.e. the model estimate
 of the relationship), while the blue line smooths the partial residuals. We can

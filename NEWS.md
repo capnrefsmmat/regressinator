@@ -1,5 +1,12 @@
 # regressinator 0.2.1
 
+- `augment_longer()` now gives one row per *predictor* per observation, rather
+  than one row per *regressor.* Its documentation is also corrected to be
+  consistent about which it produces. This facilitates plotting residuals
+  against each predictor, which is more interpretable than having plots of
+  residuals against multiple regressors derived from the same predictor (e.g.,
+  against a variable and its square).
+
 - The documentation for `partial_residuals()` now gives the correct definition
   of partial residuals for GLMs. (The code gave the correct output already, but
   the stated definition was incorrect.)

@@ -143,6 +143,15 @@ test_that("augment_longer() produces correct amount of data", {
   expect_equal(nrow(out), nrow(mtcars) * 3)
   expect_setequal(unique(out$.predictor_name),
                   c("cyl", "disp", "hp"))
+
+  # one row per predictor, not per regressor:
+  fit <- lm(mpg ~ cyl + poly(disp, 2) + hp, data = mtcars)
+
+  out <- augment_longer(fit)
+
+  expect_equal(nrow(out), nrow(mtcars) * 3)
+  expect_setequal(unique(out$.predictor_name),
+                  c("cyl", "disp", "hp"))
 })
 
 test_that("augment_longer() omits factors", {

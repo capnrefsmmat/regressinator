@@ -385,6 +385,7 @@ response_var <- function(formula) {
 #'   original model data.
 #' @importFrom broom augment
 #' @importFrom dplyr relocate select
+#' @importFrom insight get_data
 #' @importFrom tidyr pivot_longer starts_with any_of
 #' @seealso [partial_residuals()], [binned_residuals()]
 #' @examples
@@ -392,12 +393,18 @@ response_var <- function(formula) {
 #'
 #' # each observation appears 3 times, once per predictor:
 #' augment_longer(fit)
+#'
+#' fit <- lm(mpg ~ cyl + disp + I(disp^2) + hp, data = mtcars)
+#'
+#' # each observation still appears 3 times, as disp and disp^2 are one
+#' # predictor:
+#' augment_longer(fit)
 #' @export
 augment_longer <- function(x, ...) {
   # Detect and reject factor() in formulas
   detect_transmutation(formula(x))
 
-  out <- augment(x, ...)
+  out <- augment(x, data = get_data(x), ...)
   out$.obs <- rownames(out)
   response <- response_var(x)
 
