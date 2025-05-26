@@ -83,6 +83,7 @@ test_that("partial_residuals() gives correct results for GLMs", {
 })
 
 test_that("partial_residuals() handles offsets", {
+  # simple offset
   fit <- lm(mpg ~ hp, offset = qsec, data = mtcars)
 
   out <- partial_residuals(fit) |>
@@ -92,6 +93,17 @@ test_that("partial_residuals() handles offsets", {
   pr <- pr[, "hp"] - mean(pr[, "hp"])
 
   # as in previous test, centered values should match
+  expect_equal(out - mean(out), unname(pr))
+
+  # transformed offset
+  fit <- lm(mpg ~ hp, offset = log(qsec), data = mtcars)
+
+  out <- partial_residuals(fit) |>
+    pull(.partial_resid)
+
+  pr <- residuals(fit, type = "partial")
+  pr <- pr[, "hp"] - mean(pr[, "hp"])
+
   expect_equal(out - mean(out), unname(pr))
 })
 
