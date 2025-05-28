@@ -89,7 +89,7 @@ $$
 The function $\mu(x)$ is the first argument to `response()`, and can be any
 arbitrary R expression. The distribution is given by the `family` argument, just
 like families of GLMs in `glm()`. If no family is provided, the default family
-is Gaussian, i.e. normally distributed errors, and the link function $g$ is the
+is Gaussian, i.e., normally distributed errors, and the link function $g$ is the
 identity.
 
 We can hence specify a population with binary outcomes and logistic link
@@ -363,7 +363,7 @@ model. The `partial_residuals()` function calculates partial residuals in tidy
 format, and its documentation provides detailed references on the use and
 interpretation of partial residuals.
 
-Here the black line gives the fitted predictor effects (i.e. the model estimate
+Here the black line gives the fitted predictor effects (i.e., the model estimate
 of the relationship), while the blue line smooths the partial residuals. We can
 see that for `x1`, the blue line deviates systematically from the black line in
 a quadratic shape:

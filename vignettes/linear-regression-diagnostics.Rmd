@@ -128,7 +128,7 @@ interpretation of partial residuals.
 
 ### Detecting basic misspecification
 
-Here the black line gives the fitted predictor effects (i.e. the model estimate
+Here the black line gives the fitted predictor effects (i.e., the model estimate
 of the relationship), while the blue line smooths the partial residuals. We can
 see that for `x1`, the blue line deviates systematically from the black line:
 
