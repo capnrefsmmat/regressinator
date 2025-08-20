@@ -75,7 +75,7 @@ There is a suspicious trend here, but it is hard to tell what specifically is
 wrong from the model from this. It would be more helpful to know which predictor
 is modeled incorrectly.
 
-To plot residuals versus the regressors, the regressinator provides
+To plot residuals versus the predictors, the regressinator provides
 `augment_longer()`, which is like `augment()` but converts the data to long form
 with one row per predictor per observation, making it easy to facet the
 residuals:
