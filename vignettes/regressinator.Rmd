@@ -46,9 +46,17 @@ Each simulation begins by specifying a population: the true population
 distribution the regression data comes from. Typically this is an infinite
 population of individuals whose covariates follow specified distributions. The
 outcome variable is defined to be a function of those covariates with some
-error. We use the `population()` function to define a population. For instance,
-this population has a simple linear relationship between two predictor
-variables, `x1` and `x2`, and the response variable `y`:
+error. For example, consider a population in which
+
+$$
+\begin{align*}
+  X_1 &\sim \operatorname{Normal}(4, 10^2) \\
+  X_2 &\sim \operatorname{Uniform}(0, 10) \\
+  Y &= 0.7 + 2.2 X_1 - 0.2 X_2 + \epsilon \\
+  \epsilon &\sim \operatorname{Normal}(0, 1.5^2),
+\end{align*}
+$$
+We use the `population()` function to define this population:
 
 ```{r}
 library(regressinator)
