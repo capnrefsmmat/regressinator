@@ -1,4 +1,4 @@
-# regressinator 0.2.1
+# regressinator 0.3.0
 
 - `augment_longer()` and `augment_quantile_longer()` now give one row per
   *predictor* per observation, rather than one row per *regressor.* Their
