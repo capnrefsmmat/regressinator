@@ -269,6 +269,9 @@ partial_residuals <- function(fit, predictors = everything(), label = NULL) {
 #'   versus fitted values.
 #' @param breaks Number of bins to create. If `NULL`, a default number of breaks
 #'   is chosen based on the number of rows in the data.
+#' @param label Optional named list of labels for predictors, to replace
+#'   variable names with descriptive labels, in the form `list(predictor_name =
+#'   "Nicer label")`
 #' @param ... Additional arguments passed on to `residuals()`. The most useful
 #'   additional argument is typically `type`, to select the type of residuals to
 #'   produce (such as standardized residuals or deviance residuals).
@@ -309,13 +312,17 @@ partial_residuals <- function(fit, predictors = everything(), label = NULL) {
 #' # Bin the fitted values:
 #' binned_residuals(fit, predictors = .fitted)
 #'
+#' # Label with a nicer name:
+#' binned_residuals(fit, predictors = .fitted,
+#'                  label = list(.fitted = "Fitted values"))
+#'
 #' # Bins are made using the predictor, not regressors derived from it, so here
 #' # disp is binned, not its polynomial
 #' fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
 #' binned_residuals(fit2)
 #' @export
 binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
-                             ...) {
+                             label = NULL, ...) {
   # Detect and reject factor() in formulas
   detect_transmutation(formula(fit))
 
@@ -340,7 +347,11 @@ binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
         bin_by_quantile(!!pred, breaks = breaks) |>
         summarize(
           n = n(),
-          predictor_name = predictor,
+          predictor_name = if (predictor %in% names(label)) {
+            label[[predictor]]
+          } else {
+            predictor
+          },
           predictor_min = min(!!pred),
           predictor_max = max(!!pred),
           predictor_mean = mean(!!pred),

@@ -1,7 +1,8 @@
 # regressinator 0.3.1
 
-- `partial_residuals()` now supports a `label` argument to give human-readable
-  labels to predictors, rather than using the original variable names.
+- `partial_residuals()` and `binned_residuals()` now support a `label` argument
+  to give human-readable labels to predictors, rather than using the original
+  variable names.
 
 # regressinator 0.3.0
 

@@ -4,7 +4,13 @@
 \alias{binned_residuals}
 \title{Obtain binned residuals for a model}
 \usage{
-binned_residuals(fit, predictors = !".fitted", breaks = NULL, ...)
+binned_residuals(
+  fit,
+  predictors = !".fitted",
+  breaks = NULL,
+  label = NULL,
+  ...
+)
 }
 \arguments{
 \item{fit}{The model to obtain residuals for. This can be a model fit with
@@ -19,6 +25,9 @@ versus fitted values.}
 
 \item{breaks}{Number of bins to create. If \code{NULL}, a default number of breaks
 is chosen based on the number of rows in the data.}
+
+\item{label}{Optional named list of labels for predictors, to replace
+variable names with descriptive labels, in the form \code{list(predictor_name = "Nicer label")}}
 
 \item{...}{Additional arguments passed on to \code{residuals()}. The most useful
 additional argument is typically \code{type}, to select the type of residuals to
@@ -77,6 +86,10 @@ binned_residuals(fit, disp, breaks = 5)
 
 # Bin the fitted values:
 binned_residuals(fit, predictors = .fitted)
+
+# Label with a nicer name:
+binned_residuals(fit, predictors = .fitted,
+                 label = list(.fitted = "Fitted values"))
 
 # Bins are made using the predictor, not regressors derived from it, so here
 # disp is binned, not its polynomial
