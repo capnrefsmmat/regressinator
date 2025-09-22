@@ -4,7 +4,7 @@
 \alias{partial_residuals}
 \title{Augment a model fit with partial residuals for all terms}
 \usage{
-partial_residuals(fit, predictors = everything())
+partial_residuals(fit, predictors = everything(), label = NULL)
 }
 \arguments{
 \item{fit}{The model to obtain residuals for. This can be a model fit with
@@ -15,6 +15,9 @@ partial_residuals(fit, predictors = everything())
 all predictors, skipping factors. Predictors can be specified using
 tidyselect syntax; see \code{help("language", package = "tidyselect")} and the
 examples below.}
+
+\item{label}{Optional named list of labels for predictors, to replace
+variable names with descriptive labels, in the form \code{list(predictor_name = "Nicer label")}}
 }
 \value{
 Data frame (tibble) containing the model data and residuals in tidy
@@ -145,6 +148,10 @@ partial_residuals(fit)
 
 # You can select predictors with tidyselect syntax:
 partial_residuals(fit, c(disp, hp))
+
+# Setting labels for the columns, e.g., so a plot has better labels:
+partial_residuals(fit, c(disp, hp),
+                  label = list(disp = "Displacement", hp = "Horsepower"))
 
 # Predictors with multiple regressors are supported:
 fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)

@@ -114,6 +114,9 @@
 #'   all predictors, skipping factors. Predictors can be specified using
 #'   tidyselect syntax; see `help("language", package = "tidyselect")` and the
 #'   examples below.
+#' @param label Optional named list of labels for predictors, to replace
+#'   variable names with descriptive labels, in the form `list(predictor_name =
+#'   "Nicer label")`
 #' @return Data frame (tibble) containing the model data and residuals in tidy
 #'   form. There is one row *per selected predictor* per observation. All
 #'   predictors are included as columns, plus the following additional columns:
@@ -158,6 +161,10 @@
 #' # You can select predictors with tidyselect syntax:
 #' partial_residuals(fit, c(disp, hp))
 #'
+#' # Setting labels for the columns, e.g., so a plot has better labels:
+#' partial_residuals(fit, c(disp, hp),
+#'                   label = list(disp = "Displacement", hp = "Horsepower"))
+#'
 #' # Predictors with multiple regressors are supported:
 #' fit2 <- lm(mpg ~ poly(disp, 2), data = mtcars)
 #' partial_residuals(fit2)
@@ -169,7 +176,7 @@
 #' fit3 <- lm(mpg ~ cylinders * disp + hp, data = mtcars)
 #' partial_residuals(fit3)
 #' @export
-partial_residuals <- function(fit, predictors = everything()) {
+partial_residuals <- function(fit, predictors = everything(), label = NULL) {
   # Detect and reject factor() in formulas
   detect_transmutation(formula(fit))
 
@@ -208,7 +215,11 @@ partial_residuals <- function(fit, predictors = everything()) {
       effect <- predict(fit, newdata = df) - intercept
 
       out <- pred_data
-      out$.predictor_name <- predictor
+      out$.predictor_name <- if (predictor %in% names(label)) {
+        label[[predictor]]
+      } else {
+        predictor
+      }
       out$.predictor_value <- predictors[[predictor]]
       out$.predictor_effect <- effect
       out$.partial_resid <- effect + resids
