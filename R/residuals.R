@@ -398,6 +398,9 @@ response_var <- function(formula) {
 #'
 #' @param x A model fit object, such as those returned by `lm()` or `glm()`. See
 #'   the broom documentation for the full list of model types supported.
+#' @param label Optional named list of labels for predictors, to replace
+#'   variable names with descriptive labels, in the form `list(predictor_name =
+#'   "Nicer label")`
 #' @param ... Additional arguments passed to `broom::augment()`.
 #' @return A data frame (tibble) in similar form to those produced by
 #'   `broom::augment()`, but expanded to have one row per predictor per
@@ -416,13 +419,18 @@ response_var <- function(formula) {
 #' # each observation appears 3 times, once per predictor:
 #' augment_longer(fit)
 #'
+#' # with nice labels:
+#' augment_longer(fit,
+#'                label = list(cyl = "Cylinders", disp = "Displacement",
+#'                hp = "Horsepower"))
+#'
 #' fit <- lm(mpg ~ cyl + disp + I(disp^2) + hp, data = mtcars)
 #'
 #' # each observation still appears 3 times, as disp and disp^2 are one
 #' # predictor:
 #' augment_longer(fit)
 #' @export
-augment_longer <- function(x, ...) {
+augment_longer <- function(x, label = NULL, ...) {
   # Detect and reject factor() in formulas
   detect_transmutation(formula(x))
 
@@ -440,12 +448,18 @@ augment_longer <- function(x, ...) {
     factor_names <- names(predictor_cols)[factor_cols]
   }
 
-  pivot_longer(out,
-               cols = !starts_with(".") & !any_of(response) &
-                 !any_of(factor_names),
-               names_to = ".predictor_name",
-               values_to = ".predictor_value") |>
+  out <- pivot_longer(out,
+                      cols = !starts_with(".") & !any_of(response) &
+                        !any_of(factor_names),
+                      names_to = ".predictor_name",
+                      values_to = ".predictor_value") |>
     relocate(".predictor_name", ".predictor_value")
+
+  for (var in names(label)) {
+    out$.predictor_name[out$.predictor_name == var] <- label[[var]]
+  }
+
+  return(out)
 }
 
 #' Group a data frame into bins

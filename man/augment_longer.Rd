@@ -4,11 +4,14 @@
 \alias{augment_longer}
 \title{Augment a model fit with residuals, in "long" format}
 \usage{
-augment_longer(x, ...)
+augment_longer(x, label = NULL, ...)
 }
 \arguments{
 \item{x}{A model fit object, such as those returned by \code{lm()} or \code{glm()}. See
 the broom documentation for the full list of model types supported.}
+
+\item{label}{Optional named list of labels for predictors, to replace
+variable names with descriptive labels, in the form \code{list(predictor_name = "Nicer label")}}
 
 \item{...}{Additional arguments passed to \code{broom::augment()}.}
 }
@@ -46,6 +49,11 @@ fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
 
 # each observation appears 3 times, once per predictor:
 augment_longer(fit)
+
+# with nice labels:
+augment_longer(fit,
+               label = list(cyl = "Cylinders", disp = "Displacement",
+               hp = "Horsepower"))
 
 fit <- lm(mpg ~ cyl + disp + I(disp^2) + hp, data = mtcars)
 
