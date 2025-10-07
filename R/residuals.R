@@ -537,17 +537,35 @@ size_heuristic <- function(n) {
 #' link scale. Plotting these against a predictor (by dividing the dataset into
 #' bins) can help assess the choice of link function.
 #'
+#' A generalized linear model is one where \eqn{Y} is modeled with some
+#' parametric distribution (such as binomial or Poisson) conditional on \eqn{X},
+#' and
+#'
+#' \deqn{g(\mathbb{E}[Y \mid X = x]) = \mu(x)}{g(E[Y | X = x]) = \mu(x)}
+#'
+#' where \eqn{g} is a link function.
+#'
+#' In exploratory data analysis, we can plot \eqn{X} against \eqn{g(Y)} to
+#' evaluate whether the model is adequate. Typically this is done by binning the
+#' data (for example, by values of \eqn{X}), taking the average of \eqn{Y} in
+#' each bin, and then using \eqn{g} to transform the average.
+#'
+#' This can be used to make empirical link plots; see
+#' `vignette("other-glm-diagnostics")`.
+#'
 #' @param response Vector of response variable values.
 #' @param family Family object representing the response distribution and link
 #'   function. Only the link function will be used.
 #' @param na.rm Should `NA` values of the response be stripped? Passed to
 #'   `mean()` when calculating the mean of the response.
-#' @return Mean response value, on the link scale.
+#' @return Mean response value, on the link scale: \eqn{g(\bar Y)}{g(Ybar)},
+#'   where \eqn{\bar Y}{Ybar} is the mean of `response`.
 #' @export
 #' @examples
 #' suppressMessages(library(dplyr))
 #' suppressMessages(library(ggplot2))
 #'
+#' # An empirical link plot for `am`, assuming a binomial with logit link:
 #' mtcars |>
 #'   bin_by_interval(disp, breaks = 5) |>
 #'   summarize(

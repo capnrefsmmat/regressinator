@@ -4,6 +4,8 @@
   to give human-readable labels to predictors, rather than using the original
   variable names.
 
+- The documentation for `empirical_link()` is improved.
+
 # regressinator 0.3.0
 
 - `augment_longer()` and `augment_quantile_longer()` now give one row per
