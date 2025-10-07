@@ -17,6 +17,16 @@ test_that("partial_residuals() produces correct amount of data", {
                   c("disp", "hp"))
 })
 
+test_that("partial_residuals() can relabel selected variables", {
+  fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+
+  out <- partial_residuals(fit,
+                           label = list(cyl = "Cylinders", hp = "Horsepower"))
+
+  expect_setequal(unique(out$.predictor_name),
+                  c("Cylinders", "disp", "Horsepower"))
+})
+
 test_that("partial_residuals() works on models fit to population samples", {
   # partial_residuals() had a bug that caused it to rely on drop=TRUE behavior
   # in data frames; if given a tibble or population sample, it would
@@ -116,6 +126,15 @@ test_that("binned_residuals() produces correct amount of data", {
   expect_setequal(unique(out$predictor_name), c("hp", "qsec"))
 })
 
+test_that("binned_residuals() can relabel selected variables", {
+  fit <- lm(mpg ~ hp + qsec, data = mtcars)
+
+  out <- binned_residuals(fit, breaks = 5,
+                          label = list(hp = "Horsepower"))
+
+  expect_setequal(unique(out$predictor_name), c("Horsepower", "qsec"))
+})
+
 test_that("binned_residuals() omits factors", {
   mtcars$cylinders <- factor(mtcars$cyl)
 
@@ -152,6 +171,16 @@ test_that("augment_longer() produces correct amount of data", {
   expect_equal(nrow(out), nrow(mtcars) * 3)
   expect_setequal(unique(out$.predictor_name),
                   c("cyl", "disp", "hp"))
+})
+
+test_that("augment_longer() can relabel selected variables", {
+  fit <- lm(mpg ~ cyl + disp + hp, data = mtcars)
+
+  out <- augment_longer(fit,
+                        label = list(cyl = "Cylinders", disp = "Displacement"))
+
+  expect_setequal(unique(out$.predictor_name),
+                  c("Cylinders", "Displacement", "hp"))
 })
 
 test_that("augment_longer() omits factors", {
