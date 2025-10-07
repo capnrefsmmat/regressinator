@@ -422,7 +422,7 @@ response_var <- function(formula) {
 #' # with nice labels:
 #' augment_longer(fit,
 #'                label = list(cyl = "Cylinders", disp = "Displacement",
-#'                hp = "Horsepower"))
+#'                             hp = "Horsepower"))
 #'
 #' fit <- lm(mpg ~ cyl + disp + I(disp^2) + hp, data = mtcars)
 #'
