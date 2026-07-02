@@ -413,7 +413,7 @@ population_response <- function(population) {
 #'                 rnorm(n, sd = 1)))
 #' }
 #' ols_with_error(rcontaminated)
-#' @importFrom rlang eval_tidy
+#' @importFrom rlang eval_tidy caller_env
 #' @importFrom stats model.frame fitted gaussian
 #' @export
 ols_with_error <- function(error, ...) {
@@ -445,7 +445,17 @@ ols_with_error <- function(error, ...) {
     # covariates
     args <- eval_tidy(error_args, data = env)
     args$n <- n
-    err <- do.call(error, args)
+
+    tryCatch(
+      err <- do.call(error, args),
+      error = function(e) {
+        cli_abort(c("Failed to sample errors for response variable with family {.fn ols_with_error}",
+                    "*" = "While calling {.arg error} function:",
+                    "x" = conditionMessage(e)),
+                  class = "regressinator_ols_with_err",
+                  call = caller_env(n = 4))
+      }
+    )
     err_len <- length(err)
 
     if (err_len != n) {
