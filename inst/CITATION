@@ -1,0 +1,10 @@
+bibentry(bibtype = "article",
+         key = "regressinator",
+         title = "The regressinator: {A} simulation tool for teaching regression assumptions and diagnostics in {R}",
+         author = person("Alex", "Reinhart", comment = c(ORCID = "0000-0002-6658-514X")),
+         journal = "Journal of Statistics and Data Science Education",
+         year = "2026",
+         volume = 34,
+         number = 2,
+         pages = "160--172",
+         doi = "10.1080/26939169.2025.2520202")
