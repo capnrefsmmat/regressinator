@@ -6,6 +6,10 @@
 
 - The documentation for `empirical_link()` is improved.
 
+- `ols_with_error()` gives a clearer error message when the provided error
+  function fails to generate errors, such as if the wrong arguments are
+  provided.
+
 # regressinator 0.3.0
 
 - `augment_longer()` and `augment_quantile_longer()` now give one row per
