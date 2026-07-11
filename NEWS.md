@@ -10,6 +10,12 @@
   function fails to generate errors, such as if the wrong arguments are
   provided.
 
+- `partial_residuals()` and `binned_residuals()` now correctly handle models
+  with an `offset()` term in their formula. Previously this would be treated as
+  another predictor and residuals computed for it, which doesn't make sense.
+  Instead, treat this the same as a value provided in the `offset =` argument to
+  the model fit.
+
 # regressinator 0.3.0
 
 - `augment_longer()` and `augment_quantile_longer()` now give one row per

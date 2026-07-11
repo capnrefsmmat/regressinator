@@ -92,11 +92,15 @@ test_that("partial_residuals() gives correct results for GLMs", {
                wt_out - mean(wt_out))
 })
 
-test_that("partial_residuals() handles offsets", {
-  # simple offset
+test_that("partial_residuals() handles offset argument", {
+  # simple offset specified with offset=
   fit <- lm(mpg ~ hp, offset = qsec, data = mtcars)
 
-  out <- partial_residuals(fit) |>
+  out <- partial_residuals(fit)
+
+  expect_setequal(unique(out$.predictor_name), "hp")
+
+  out <- out |>
     pull(.partial_resid)
 
   pr <- residuals(fit, type = "partial")
@@ -107,6 +111,35 @@ test_that("partial_residuals() handles offsets", {
 
   # transformed offset
   fit <- lm(mpg ~ hp, offset = log(qsec), data = mtcars)
+
+  out <- partial_residuals(fit) |>
+    pull(.partial_resid)
+
+  pr <- residuals(fit, type = "partial")
+  pr <- pr[, "hp"] - mean(pr[, "hp"])
+
+  expect_equal(out - mean(out), unname(pr))
+})
+
+test_that("partial_residuals() handles offset term", {
+  # simple offset specified with offset()
+  fit <- lm(mpg ~ hp + offset(qsec), data = mtcars)
+
+  out <- partial_residuals(fit)
+
+  expect_setequal(unique(out$.predictor_name), "hp")
+
+  out <- out |>
+    pull(.partial_resid)
+
+  pr <- residuals(fit, type = "partial")
+  pr <- pr[, "hp"] - mean(pr[, "hp"])
+
+  # as in previous test, centered values should match
+  expect_equal(out - mean(out), unname(pr))
+
+  # transformed offset
+  fit <- lm(mpg ~ hp + offset(log(qsec)), data = mtcars)
 
   out <- partial_residuals(fit) |>
     pull(.partial_resid)
@@ -152,6 +185,22 @@ test_that("binned_residuals() rejects factor() in formulas", {
 
   expect_error(binned_residuals(fit, breaks = 5),
                class = "regressinator_transmutation_factor")
+})
+
+test_that("binned_residuals() handles models with offset=", {
+  fit <- lm(mpg ~ hp, offset = qsec, data = mtcars)
+  out <- binned_residuals(fit, breaks = 5)
+
+  expect_equal(nrow(out), 5)
+  expect_setequal(unique(out$predictor_name), "hp")
+})
+
+test_that("binned_residuals() handles models with offset()", {
+  fit <- lm(mpg ~ hp + offset(qsec), data = mtcars)
+  out <- binned_residuals(fit, breaks = 5)
+
+  expect_equal(nrow(out), 5)
+  expect_setequal(unique(out$predictor_name), "hp")
 })
 
 test_that("augment_longer() produces correct amount of data", {

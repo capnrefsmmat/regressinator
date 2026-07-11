@@ -194,6 +194,13 @@ partial_residuals <- function(fit, predictors = everything(), label = NULL) {
   offset <- find_offset(fit)
   if (!is.null(offset)) {
     offset_value <- mean(get_data(fit)[[offset]])
+
+    if (offset %in% predictor_names) {
+      # offset specified with offset() term in formula is included in
+      # get_predictors(), but we don't want residuals for the offset
+      predictors <- predictors[, predictor_names != offset, drop = FALSE]
+      predictor_names <- predictor_names[predictor_names != offset]
+    }
   }
 
   intercept <- get_intercept(fit)
@@ -336,6 +343,14 @@ binned_residuals <- function(fit, predictors = !".fitted", breaks = NULL,
 
   predictors <- drop_factors(pred_data[, selection, drop = FALSE])
   predictor_names <- names(predictors)
+
+  offset <- find_offset(fit)
+  if (!is.null(offset) && offset %in% predictor_names) {
+    # offset specified with offset() term in formula is included in
+    # get_predictors(), but we don't want residuals for the offset
+    predictors <- predictors[, predictor_names != offset, drop = FALSE]
+    predictor_names <- predictor_names[predictor_names != offset]
+  }
 
   predictors$.resid <- residuals(fit, ...)
 
