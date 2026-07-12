@@ -106,5 +106,5 @@ Statistics} 5 (3): 236–44. \doi{10.2307/1390802}
 \code{vignette("logistic-regression-diagnostics")} and
 \code{vignette("other-glm-diagnostics")} for examples of plotting and
 interpreting randomized quantile residuals; \code{\link[=augment_longer]{augment_longer()}};
-\code{\link[broom:reexports]{broom::augment()}}
+\code{\link[broom:augment]{broom::augment()}}
 }

@@ -20,5 +20,10 @@ Useful links:
 \author{
 \strong{Maintainer}: Alex Reinhart \email{areinhar@stat.cmu.edu} (\href{https://orcid.org/0000-0002-6658-514X}{ORCID})
 
+Authors:
+\itemize{
+  \item Alex Reinhart \email{areinhar@stat.cmu.edu} (\href{https://orcid.org/0000-0002-6658-514X}{ORCID})
+}
+
 }
 \keyword{internal}
