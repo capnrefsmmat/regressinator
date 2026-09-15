@@ -91,7 +91,13 @@ valuable teaching tool when students are learning to interpret regression
 diagnostics and determine how different kinds of misspecification might affect
 model fits.
 
-Check the Get Started guide (`vignette("regressinator")`) for more detail.
+Check the Get Started guide (`vignette("regressinator")`) for more detail, or
+read the paper for more examples:
+
+> Reinhart A (2026). “The regressinator: A simulation tool for teaching
+> regression assumptions and diagnostics in R.” *Journal of Statistics and Data
+> Science Education*, 34(2), 160–172. doi:
+> [10.1080/26939169.2025.2520202](https://doi.org/10.1080/26939169.2025.2520202).
 
 ## Inspirations
 

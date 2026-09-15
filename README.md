@@ -59,7 +59,7 @@ model_lineup(fit) |>
   labs(x = "x", y = "Residual")
 ```
 
-    ## decrypt("o0vr 8ZGZ D3 k5fDGD53 Yh")
+    ## decrypt("vAgi SKMK 7l 5y07M7yl hu")
 
 <img src="man/figures/README-example-regression-lineup-1.png" alt="Lineup of scatterplots of residuals versus X" width="672" />
 
@@ -84,18 +84,18 @@ fit |>
     ## # A tibble: 12 × 6
     ##    term        estimate std.error statistic  p.value .sample
     ##    <chr>          <dbl>     <dbl>     <dbl>    <dbl>   <dbl>
-    ##  1 (Intercept)  15.7        0.991   15.9    4.98e-12       0
-    ##  2 x             0.164      0.330    0.496  6.26e- 1       0
-    ##  3 (Intercept)  16.4        1.01    16.3    3.24e-12       1
-    ##  4 x             0.0746     0.335    0.223  8.26e- 1       1
-    ##  5 (Intercept)  16.7        1.22    13.7    5.71e-11       2
-    ##  6 x             0.0977     0.405    0.241  8.12e- 1       2
-    ##  7 (Intercept)  17.3        1.30    13.3    9.86e-11       3
-    ##  8 x             0.0796     0.433    0.184  8.56e- 1       3
-    ##  9 (Intercept)  15.4        0.956   16.1    3.92e-12       4
-    ## 10 x            -0.0483     0.318   -0.152  8.81e- 1       4
-    ## 11 (Intercept)  15.6        1.18    13.3    9.70e-11       5
-    ## 12 x            -0.0155     0.391   -0.0397 9.69e- 1       5
+    ##  1 (Intercept)   14.9       1.60      9.36  2.46e- 8       0
+    ##  2 x              0.542     0.556     0.976 3.42e- 1       0
+    ##  3 (Intercept)   14.8       1.31     11.3   1.37e- 9       1
+    ##  4 x              0.656     0.457     1.43  1.69e- 1       1
+    ##  5 (Intercept)   15.0       1.47     10.2   6.53e- 9       2
+    ##  6 x              0.216     0.512     0.423 6.77e- 1       2
+    ##  7 (Intercept)   16.3       1.25     13.0   1.45e-10       3
+    ##  8 x              0.390     0.437     0.893 3.83e- 1       3
+    ##  9 (Intercept)   14.9       1.33     11.2   1.60e- 9       4
+    ## 10 x              0.437     0.465     0.940 3.60e- 1       4
+    ## 11 (Intercept)   15.7       1.30     12.0   4.72e-10       5
+    ## 12 x              0.401     0.454     0.883 3.89e- 1       5
 
 Here `sampling_distribution()` defaults to using `broom::tidy()` to
 obtain the coefficients and standard errors for each fit. We could use
@@ -108,7 +108,12 @@ regression diagnostics and determine how different kinds of
 misspecification might affect model fits.
 
 Check the Get Started guide (`vignette("regressinator")`) for more
-detail.
+detail, or read the paper for more examples:
+
+> Reinhart A (2026). “The regressinator: A simulation tool for teaching
+> regression assumptions and diagnostics in R.” *Journal of Statistics
+> and Data Science Education*, 34(2), 160–172. doi:
+> [10.1080/26939169.2025.2520202](https://doi.org/10.1080/26939169.2025.2520202).
 
 ## Inspirations
 

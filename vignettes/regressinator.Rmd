@@ -37,7 +37,13 @@ fit, including visual inference with lineups.
 The regressinator is intended for use in the classroom, as a tool for students
 to learn about regression in lab activities or homework assignments. Its
 flexibility makes it suitable for any regression course where students are
-expected to regularly use R.
+expected to regularly use R. Additional examples for classroom use are available
+in the paper:
+
+> Reinhart A (2026). “The regressinator: A simulation tool for teaching
+> regression assumptions and diagnostics in R.” *Journal of Statistics and Data
+> Science Education*, 34(2), 160–172. doi:
+> [10.1080/26939169.2025.2520202](https://doi.org/10.1080/26939169.2025.2520202).
 
 
 ## Population setup
