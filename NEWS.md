@@ -1,3 +1,8 @@
+# regressinator 0.3.2
+
+- `bin_by_quantile()` and `bin_by_interval()` now give a more helpful error
+  message when an invalid column name is specified.
+
 # regressinator 0.3.1
 
 - `augment_longer()`, `partial_residuals()`, and `binned_residuals()` now

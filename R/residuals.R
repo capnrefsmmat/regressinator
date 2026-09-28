@@ -514,9 +514,13 @@ augment_longer <- function(x, label = NULL, ...) {
 #' @importFrom rlang .data enquo as_name
 bin_by_interval <- function(.data, col, breaks = NULL) {
   col <- enquo(col)
+  col_name <- as_name(col)
+
+  # check if col_name is present in .data
+  vars_pull(names(.data), col_name, error_arg = "col")
 
   if (is.null(breaks)) {
-    n <- sum(!is.na(.data[, as_name(col), drop = TRUE]))
+    n <- sum(!is.na(.data[, col_name, drop = TRUE]))
     breaks <- size_heuristic(n)
   }
 
@@ -527,18 +531,23 @@ bin_by_interval <- function(.data, col, breaks = NULL) {
 
 #' @rdname bin_by_interval
 #' @importFrom ggplot2 cut_number
+#' @importFrom tidyselect vars_pull
 #' @export
 bin_by_quantile <- function(.data, col, breaks = NULL) {
   col <- enquo(col)
+  col_name <- as_name(col)
+
+  # check if col_name is present in .data
+  vars_pull(names(.data), col_name, error_arg = "col")
 
   # drop = TRUE is necessary because in data frames, this indexing produces a
   # vector for which length() is appropriate; but tibble indexing always
   # produces a tibble, where length() is the number of columns, unless we force
   # drop behavior.
-  n_unique <- length(unique(.data[, as_name(col), drop = TRUE]))
+  n_unique <- length(unique(.data[, col_name, drop = TRUE]))
 
   if (is.null(breaks)) {
-    n <- sum(!is.na(.data[, as_name(col), drop = TRUE]))
+    n <- sum(!is.na(.data[, col_name, drop = TRUE]))
     breaks <- size_heuristic(n)
   }
 
